@@ -17,10 +17,10 @@ object TestFreeSQLServer {
         // Connection details
         val urlSB = StringBuilder("jdbc:mysql://")
         urlSB.append("sql11.freesqldatabase.com:3306/")
-        urlSB.append("XXXXXXXXX?") // database name
+        urlSB.append("sql11689575?") // database name
         urlSB.append("useUnicode=true&characterEncoding=utf-8")
-        urlSB.append("&user=XXXXXXXXXX") // your user name
-        urlSB.append("&password=XXXXXXXXX") // generate password
+        urlSB.append("&user=sql11689575") // your user name
+        urlSB.append("&password=dYEnehyuE") // generate password
         urlSB.append("&serverTimezone=CET")
         val connectionUrl = urlSB.toString()
 
