@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Switch
+import android.widget.TextView
 import android.widget.Toast
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -19,7 +20,7 @@ class RegisterActivity : AppCompatActivity() {
 
         val emailInput = findViewById<EditText>(R.id.emailInput)
         val nameInput = findViewById<EditText>(R.id.NameInput)
-        val loginButton = findViewById<Button>(R.id.loginButton)
+        val loginButton = findViewById<TextView>(R.id.loginButton)
         val signUpButton = findViewById<Button>(R.id.SignUpButton)
         val ageSwitch = findViewById<Switch>(R.id.ageSwtich)
 
