@@ -49,7 +49,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
-    implementation ("mysql:mysql-connectorjava:8.0.28")
+    implementation("mysql:mysql-connector-java:8.0.28")
     implementation("androidx.activity:activity:1.8.0")
     implementation("com.google.firebase:firebase-auth:22.3.1")
     implementation("com.google.firebase:firebase-auth-ktx:22.3.1")
