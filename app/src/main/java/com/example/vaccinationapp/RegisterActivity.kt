@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import com.google.firebase.Firebase
@@ -22,20 +21,12 @@ class RegisterActivity : AppCompatActivity() {
         val nameInput = findViewById<EditText>(R.id.NameInput)
         val loginButton = findViewById<TextView>(R.id.loginButton)
         val signUpButton = findViewById<Button>(R.id.SignUpButton)
-        val ageSwitch = findViewById<Switch>(R.id.ageSwtich)
 
         val passwordInput = findViewById<EditText>(R.id.passwordInput)
         val repeatedPasswordInput = findViewById<EditText>(R.id.repeatPasswordInput)
         signUpButton.isEnabled = false
 
         auth = Firebase.auth
-
-        ageSwitch.setOnCheckedChangeListener { _, isChecked ->
-            signUpButton.isEnabled = isChecked
-            ageSwitch.text = "YES"
-            if (!isChecked)
-                ageSwitch.text = "NO"
-        }
 
         loginButton.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
