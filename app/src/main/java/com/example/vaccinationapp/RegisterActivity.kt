@@ -19,6 +19,7 @@ class RegisterActivity : AppCompatActivity() {
 
         val emailInput = findViewById<EditText>(R.id.emailInput)
         val nameInput = findViewById<EditText>(R.id.NameInput)
+        val lastNameInput = findViewById<EditText>(R.id.lastNameInput)
         val loginButton = findViewById<TextView>(R.id.loginButton)
         val signUpButton = findViewById<Button>(R.id.SignUpButton)
 
@@ -36,20 +37,21 @@ class RegisterActivity : AppCompatActivity() {
         signUpButton.setOnClickListener {
             val email = emailInput.text.toString().trim()
             val name = nameInput.text.toString().trim()
+            val lastName = lastNameInput.text.toString().trim()
             val password = passwordInput.text.toString().trim()
             val repeatedPassword = repeatedPasswordInput.text.toString().trim()
 
-            if (verifyData(email, name, password, repeatedPassword)) {
+            if (verifyData(email, name, lastName, password, repeatedPassword)) {
                 createUser(email, password)
             }
         }
     }
 
     private fun verifyData(
-        email: String, name: String, password: String, repeatedPassword: String
+        email: String, name: String,lastName: String, password: String, repeatedPassword: String
     ): Boolean {
         var result = true
-        if (email.isEmpty() || name.isEmpty() || password.isEmpty() || repeatedPassword.isEmpty()) {
+        if (email.isEmpty() || name.isEmpty() || lastName.isEmpty() || password.isEmpty() || repeatedPassword.isEmpty()) {
             Toast.makeText(this, "Please fill in all the fields", Toast.LENGTH_SHORT).show()
             result = false
         }

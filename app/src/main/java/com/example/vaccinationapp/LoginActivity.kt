@@ -19,7 +19,7 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
 
-        val buttonGame = findViewById<Button>(R.id.gameButton)
+        val buttonStart = findViewById<Button>(R.id.startButton)
         val registerButton = findViewById<TextView>(R.id.RegisterButton)
         val inputPassword = findViewById<EditText>(R.id.userPassword)
         val inputMail = findViewById<EditText>(R.id.userEmail)
@@ -31,7 +31,7 @@ class LoginActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        buttonGame.setOnClickListener {
+        buttonStart.setOnClickListener {
             val email = inputMail.text.toString().trim()
             val password = inputPassword.text.toString().trim()
 
@@ -49,6 +49,7 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { signInTask ->
                 if (signInTask.isSuccessful) {
                     val intent = Intent(this, MainActivity::class.java)
+                    Toast.makeText(this, "Logged in successfully", Toast.LENGTH_SHORT).show()
                     startActivity(intent)
                 } else {
                     Toast.makeText(
