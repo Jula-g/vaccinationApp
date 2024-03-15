@@ -24,7 +24,6 @@ class RegisterActivity : AppCompatActivity() {
 
         val passwordInput = findViewById<EditText>(R.id.passwordInput)
         val repeatedPasswordInput = findViewById<EditText>(R.id.repeatPasswordInput)
-        signUpButton.isEnabled = false
 
         auth = Firebase.auth
 
