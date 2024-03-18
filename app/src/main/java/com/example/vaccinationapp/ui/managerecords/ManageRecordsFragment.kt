@@ -4,17 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.widget.Button
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
+import com.example.vaccinationapp.R
 import com.example.vaccinationapp.databinding.FragmentManageRecordsBinding
 
 class ManageRecordsFragment : Fragment() {
 
     private var _binding: FragmentManageRecordsBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -28,10 +28,19 @@ class ManageRecordsFragment : Fragment() {
         _binding = FragmentManageRecordsBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-//        val textView: TextView = binding.textAdd
-//        addViewModel.text.observe(viewLifecycleOwner) {
-//            textView.text = it
-//        }
+        val editRecord: Button = root.findViewById(R.id.editbtn)
+        val addRecord: Button = root.findViewById(R.id.addbtn)
+        val deleteRecord: Button = root.findViewById(R.id.deletebtn)
+
+        addRecord.setOnClickListener {
+            val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
+            val transaction: FragmentTransaction = fragmentManager.beginTransaction()
+            transaction.replace(R.id.recordsContainer, RecordInfoFragment())
+            transaction.addToBackStack(null)
+            transaction.commit()
+        }
+
+
         return root
     }
 
