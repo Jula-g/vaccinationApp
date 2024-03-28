@@ -18,7 +18,7 @@ class UsersQueries(private val connection: Connection) : UsersDAO {
         }
     }
     override fun getAllUsers(): Set<Users>? {
-        val query = "{CALL getUsers()}"
+        val query = "{CALL getAllUsers()}"
         val callableStatement = connection.prepareCall(query)
         val resultSet = callableStatement.executeQuery()
         val users = mutableSetOf<Users?>()
@@ -39,7 +39,7 @@ class UsersQueries(private val connection: Connection) : UsersDAO {
     }
 
     override fun addUser(user: Users): Boolean {
-        val call = "{CALL insertUser(?, ?, ?, ?, ?)}"
+        val call = "{CALL addUser(?, ?, ?, ?, ?)}"
         val statement = connection.prepareCall(call)
         statement.setString(1, user.firstName)
         statement.setString(2, user.lastName)
