@@ -1,5 +1,6 @@
 package com.example.vaccinationapp.ui.managerecords
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import com.example.vaccinationapp.R
 import com.example.vaccinationapp.databinding.FragmentManageRecordsBinding
+import com.example.vaccinationapp.ui.schedule.ScheduleActivity
 
 class ManageRecordsFragment : Fragment() {
 
@@ -32,12 +34,18 @@ class ManageRecordsFragment : Fragment() {
         val addRecord: Button = root.findViewById(R.id.addbtn)
         val deleteRecord: Button = root.findViewById(R.id.deletebtn)
 
+        editRecord.setOnClickListener {
+            val reschedule = Intent(requireContext(), ScheduleActivity::class.java)
+            startActivity(reschedule)
+        }
+
         addRecord.setOnClickListener {
-            val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
-            val transaction: FragmentTransaction = fragmentManager.beginTransaction()
-            transaction.replace(R.id.recordsContainer, RecordInfoFragment())
-            transaction.addToBackStack(null)
-            transaction.commit()
+            val schedule = Intent(requireContext(), ScheduleActivity::class.java)
+            startActivity(schedule)
+        }
+
+        deleteRecord.setOnClickListener {
+            // pop up window with "are you sure" question
         }
 
 
