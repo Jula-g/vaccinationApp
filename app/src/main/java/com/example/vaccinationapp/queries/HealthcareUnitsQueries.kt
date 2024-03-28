@@ -6,7 +6,7 @@ import java.sql.Connection
 
 class HealthcareUnitsQueries(private val connection: Connection) : HealthcareUnitsDAO {
     override fun addHealthcareUnit(healthcareUnit: HealthcareUnits) {
-        val query = "INSERT INTO healthcareUnits (id, name, address, phone) VALUES (?, ?, ?, ?)"
+        val query = "{CALL addHealthcareUnit(?, ?, ?, ?, ?, ?, ?, ?)}"
         val preparedStatement = connection.prepareStatement(query)
         preparedStatement.setInt(1, healthcareUnit.id!!)
         preparedStatement.setString(2, healthcareUnit.name)
@@ -20,7 +20,7 @@ class HealthcareUnitsQueries(private val connection: Connection) : HealthcareUni
     }
 
     override fun getHealthcareUnit(id: Int): HealthcareUnits? {
-        val query = "SELECT * FROM healthcareUnits WHERE id = ?"
+        val query = "{CALL getHealthcareUnit(?)}"
         val preparedStatement = connection.prepareStatement(query)
         preparedStatement.setInt(1, id)
         val resultSet = preparedStatement.executeQuery()
@@ -40,7 +40,7 @@ class HealthcareUnitsQueries(private val connection: Connection) : HealthcareUni
     }
 
     override fun updateHealthcareUnit(healthcareUnit: HealthcareUnits) {
-        val query = "UPDATE healthcareUnits SET name = ?, address = ?, phone = ? WHERE id = ?"
+        val query = "{CALL updateHealthcareUnit(?, ?, ?, ?, ?, ?, ?, ?)}"
         val preparedStatement = connection.prepareStatement(query)
         preparedStatement.setString(1, healthcareUnit.name)
         preparedStatement.setString(2, healthcareUnit.country)
@@ -54,14 +54,14 @@ class HealthcareUnitsQueries(private val connection: Connection) : HealthcareUni
     }
 
     override fun deleteHealthcareUnit(id: Int) {
-        val query = "DELETE FROM healthcareUnits WHERE id = ?"
+        val query = "{CALL deleteHealthcareUnit(?)}"
         val preparedStatement = connection.prepareStatement(query)
         preparedStatement.setInt(1, id)
         preparedStatement.executeUpdate()
     }
 
     override fun getAllHealthcareUnits(): List<HealthcareUnits> {
-        val query = "SELECT * FROM healthcareUnits"
+        val query = "{CALL getAllHealthcareUnits()}"
         val preparedStatement = connection.prepareStatement(query)
         val resultSet = preparedStatement.executeQuery()
         val healthcareUnits = mutableListOf<HealthcareUnits>()

@@ -6,7 +6,7 @@ import java.sql.Connection
 
 class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO {
     override fun addAppointment(appointment: Appointments) {
-        val query = "INSERT INTO appointments (id, userId, healthcareUnitId, vaccinationId, date) VALUES (?, ?, ?, ?, ?)"
+        val query = "{CALL addAppointment(?, ?, ?, ?, ?)}"
         val preparedStatement = connection.prepareStatement(query)
         preparedStatement.setInt(1, appointment.id!!)
         preparedStatement.setInt(2, appointment.userId!!)
@@ -17,7 +17,7 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
     }
 
     override fun getAppointment(id: Int): Appointments? {
-        val query = "SELECT * FROM appointments WHERE id = ?"
+        val query = "{CALL getAppointment(?)}"
         val preparedStatement = connection.prepareStatement(query)
         preparedStatement.setInt(1, id)
         val resultSet = preparedStatement.executeQuery()
@@ -34,7 +34,7 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
     }
 
     override fun updateAppointment(appointment: Appointments) {
-        val query = "UPDATE appointments SET userId = ?, healthcareUnitId = ?, vaccinationId = ?, date = ? WHERE id = ?"
+        val query = "{CALL updateAppointment(?, ?, ?, ?, ?)}"
         val preparedStatement = connection.prepareStatement(query)
         preparedStatement.setInt(1, appointment.userId!!)
         preparedStatement.setInt(2, appointment.vaccinationId!!)
@@ -44,14 +44,14 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
     }
 
     override fun deleteAppointment(id: Int) {
-        val query = "DELETE FROM appointments WHERE id = ?"
+        val query = "{CALL deleteAppointment(?)}"
         val preparedStatement = connection.prepareStatement(query)
         preparedStatement.setInt(1, id)
         preparedStatement.executeUpdate()
     }
 
     override fun getAllAppointments(): List<Appointments> {
-        val query = "SELECT * FROM appointments"
+        val query = "{CALL getAllAppointments()}"
         val preparedStatement = connection.prepareStatement(query)
         val resultSet = preparedStatement.executeQuery()
         val appointments = mutableListOf<Appointments>()
