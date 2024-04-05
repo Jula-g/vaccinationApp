@@ -7,9 +7,9 @@ import java.sql.SQLException
 object DBconnection {
     // Database connection details
     private const val URL =
-        "jdbc:mysql://sql11.freesqldatabase.com:3306/XXXXXXXXXXXX?useUnicode=true&characterEncoding=utf-8&serverTimezone=CET" //XXXXXXXXX - database name
-    private const val USER = "XXXXXXXXXX"
-    private const val PASS = "XXXXXXXXXX"
+        "jdbc:mysql://sql11.freesqldatabase.com:3306/sql11693454?useUnicode=true&characterEncoding=utf-8&serverTimezone=CET" //XXXXXXXXX - database name
+    private const val USER = "sql11693454"
+    private const val PASS = "eYTSr5hPYs"
 
     init {
         Class.forName("com.mysql.cj.jdbc.Driver")

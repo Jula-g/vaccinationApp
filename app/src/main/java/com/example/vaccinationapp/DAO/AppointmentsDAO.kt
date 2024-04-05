@@ -3,9 +3,9 @@ package com.example.vaccinationapp.DAO
 import com.example.vaccinationapp.entities.Appointments
 
 interface AppointmentsDAO {
-    fun addAppointment(appointment: Appointments)
+    fun addAppointment(appointment: Appointments): Boolean
     fun getAppointment(id: Int): Appointments?
-    fun updateAppointment(appointment: Appointments)
-    fun deleteAppointment(id: Int)
-    fun getAllAppointments(): List<Appointments>
+    fun updateAppointment(id: Int, appointment: Appointments): Boolean
+    fun deleteAppointment(id: Int): Boolean
+    fun getAllAppointments(): Set<Appointments>?
 }

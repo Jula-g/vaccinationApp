@@ -3,82 +3,79 @@ package com.example.vaccinationapp.queries
 import com.example.vaccinationapp.DAO.HealthcareUnitsDAO
 import com.example.vaccinationapp.entities.HealthcareUnits
 import java.sql.Connection
+import java.sql.ResultSet
 
 class HealthcareUnitsQueries(private val connection: Connection) : HealthcareUnitsDAO {
-    override fun addHealthcareUnit(healthcareUnit: HealthcareUnits) {
-        val query = "{CALL addHealthcareUnit(?, ?, ?, ?, ?, ?, ?, ?)}"
-        val preparedStatement = connection.prepareStatement(query)
-        preparedStatement.setInt(1, healthcareUnit.id!!)
-        preparedStatement.setString(2, healthcareUnit.name)
-        preparedStatement.setString(3, healthcareUnit.country)
-        preparedStatement.setString(4, healthcareUnit.city)
-        preparedStatement.setString(5, healthcareUnit.street)
-        preparedStatement.setString(6, healthcareUnit.streetNumber)
-        preparedStatement.setString(7, healthcareUnit.phone)
-        preparedStatement.setString(8, healthcareUnit.email)
-        preparedStatement.executeUpdate()
+    override fun addHealthcareUnit(healthcareUnit: HealthcareUnits): Boolean {
+        val query = "{CALL addHealthcareUnit(?, ?, ?, ?, ?, ?, ?)}"
+        val statement = connection.prepareCall(query)
+        statement.setString(1, healthcareUnit.name)
+        statement.setString(2, healthcareUnit.country)
+        statement.setString(3, healthcareUnit.city)
+        statement.setString(4, healthcareUnit.street)
+        statement.setString(5, healthcareUnit.streetNumber)
+        statement.setString(6, healthcareUnit.phone)
+        statement.setString(7, healthcareUnit.email)
+        val result = !statement.execute()
+        statement.close()
+        return result
     }
 
     override fun getHealthcareUnit(id: Int): HealthcareUnits? {
         val query = "{CALL getHealthcareUnit(?)}"
-        val preparedStatement = connection.prepareStatement(query)
-        preparedStatement.setInt(1, id)
-        val resultSet = preparedStatement.executeQuery()
-        if (resultSet.next()) {
-            return HealthcareUnits(
-                resultSet.getInt("id"),
-                resultSet.getString("name"),
-                resultSet.getString("country"),
-                resultSet.getString("city"),
-                resultSet.getString("street"),
-                resultSet.getString("streetNumber"),
-                resultSet.getString("phone"),
-                resultSet.getString("email")
-            )
+        val statement = connection.prepareCall(query)
+        statement.setInt(1, id)
+        val resultSet = statement.executeQuery()
+        return if (resultSet.next()) {
+            mapResultSetToUnit(resultSet)
+        }else{
+            null
         }
-        return null
     }
 
-    override fun updateHealthcareUnit(healthcareUnit: HealthcareUnits) {
+    override fun updateHealthcareUnit(id: Int, healthcareUnit: HealthcareUnits): Boolean {
         val query = "{CALL updateHealthcareUnit(?, ?, ?, ?, ?, ?, ?, ?)}"
-        val preparedStatement = connection.prepareStatement(query)
-        preparedStatement.setString(1, healthcareUnit.name)
-        preparedStatement.setString(2, healthcareUnit.country)
-        preparedStatement.setString(3, healthcareUnit.city)
-        preparedStatement.setString(4, healthcareUnit.street)
-        preparedStatement.setString(5, healthcareUnit.streetNumber)
-        preparedStatement.setString(6, healthcareUnit.phone)
-        preparedStatement.setString(7, healthcareUnit.email)
-        preparedStatement.setInt(8, healthcareUnit.id!!)
-        preparedStatement.executeUpdate()
+        val statement = connection.prepareCall(query)
+        statement.setString(1, healthcareUnit.name)
+        statement.setString(2, healthcareUnit.country)
+        statement.setString(3, healthcareUnit.city)
+        statement.setString(4, healthcareUnit.street)
+        statement.setString(5, healthcareUnit.streetNumber)
+        statement.setString(6, healthcareUnit.phone)
+        statement.setString(7, healthcareUnit.email)
+        statement.setInt(8, id)
+        return statement.executeUpdate() > 0
     }
 
-    override fun deleteHealthcareUnit(id: Int) {
+    override fun deleteHealthcareUnit(id: Int): Boolean {
         val query = "{CALL deleteHealthcareUnit(?)}"
-        val preparedStatement = connection.prepareStatement(query)
-        preparedStatement.setInt(1, id)
-        preparedStatement.executeUpdate()
+        val statement = connection.prepareCall(query)
+        statement.setInt(1, id)
+        return statement.executeUpdate() > 0
     }
 
-    override fun getAllHealthcareUnits(): List<HealthcareUnits> {
+    override fun getAllHealthcareUnits(): Set<HealthcareUnits>? {
         val query = "{CALL getAllHealthcareUnits()}"
-        val preparedStatement = connection.prepareStatement(query)
-        val resultSet = preparedStatement.executeQuery()
-        val healthcareUnits = mutableListOf<HealthcareUnits>()
+        val statement = connection.prepareCall(query)
+        val resultSet = statement.executeQuery()
+        val healthcareUnits = mutableSetOf<HealthcareUnits>()
         while (resultSet.next()) {
-            healthcareUnits.add(
-                HealthcareUnits(
-                    resultSet.getInt("id"),
-                    resultSet.getString("name"),
-                    resultSet.getString("country"),
-                    resultSet.getString("city"),
-                    resultSet.getString("street"),
-                    resultSet.getString("streetNumber"),
-                    resultSet.getString("phone"),
-                    resultSet.getString("email")
-                )
-            )
+            healthcareUnits.add(mapResultSetToUnit(resultSet))
         }
-        return healthcareUnits
+        val unitsFinal = healthcareUnits.filterNotNull().toSet()
+        return if (healthcareUnits.isEmpty()) null else unitsFinal
+    }
+
+    private fun mapResultSetToUnit(resultSet: ResultSet):
+            HealthcareUnits {
+        return HealthcareUnits(
+            name = resultSet.getString("name"),
+            country = resultSet.getString("country"),
+            city = resultSet.getString("city"),
+            street = resultSet.getString("street"),
+            streetNumber = resultSet.getString("street_number"),
+            phone =  resultSet.getString("phone"),
+            email = resultSet.getString("email")
+        )
     }
 }
