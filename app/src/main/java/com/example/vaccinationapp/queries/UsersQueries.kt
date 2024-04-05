@@ -6,11 +6,11 @@ import java.sql.Connection
 import java.sql.ResultSet
 
 class UsersQueries(private val connection: Connection) : UsersDAO {
-    override fun getUser(email: String): Users? {
+    override fun getUser(id: Int): Users? {
         val query = "{CALL getUser(?)}"
-        val callableStatement = connection.prepareCall(query)
-        callableStatement.setString(1, email)
-        val resultSet = callableStatement.executeQuery()
+        val statement = connection.prepareCall(query)
+        statement.setInt(1, id)
+        val resultSet = statement.executeQuery()
         return if (resultSet.next()) {
             mapResultSetToUser(resultSet)
         } else {
@@ -19,8 +19,8 @@ class UsersQueries(private val connection: Connection) : UsersDAO {
     }
     override fun getAllUsers(): Set<Users>? {
         val query = "{CALL getAllUsers()}"
-        val callableStatement = connection.prepareCall(query)
-        val resultSet = callableStatement.executeQuery()
+        val statement = connection.prepareCall(query)
+        val resultSet = statement.executeQuery()
         val users = mutableSetOf<Users?>()
         while (resultSet.next()) {
             users.add(mapResultSetToUser(resultSet))
@@ -29,17 +29,18 @@ class UsersQueries(private val connection: Connection) : UsersDAO {
         return if (users.isEmpty()) null else usersFinal
     }
 
-    override fun updateUser(email: String, user: Users): Boolean {
-        val query = "{CALL updateUser(?, ?, ?, ?, ?)}"
-        val callableStatement = connection.prepareCall(query)
-        callableStatement.setString(1, user.firstName)
-        callableStatement.setString(2, user.lastName)
-        callableStatement.setString(3, user.email)
-        return callableStatement.executeUpdate() > 0
+    override fun updateUser(id: Int, user: Users): Boolean {
+        val query = "{CALL updateUser(?, ?, ?, ?)}"
+        val statement = connection.prepareCall(query)
+        statement.setString(1, user.firstName)
+        statement.setString(2, user.lastName)
+        statement.setString(3, user.email)
+        statement.setInt(4, id)
+        return statement.executeUpdate() > 0
     }
 
     override fun addUser(user: Users): Boolean {
-        val call = "{CALL addUser(?, ?, ?, ?, ?)}"
+        val call = "{CALL addUser(?, ?, ?)}"
         val statement = connection.prepareCall(call)
         statement.setString(1, user.firstName)
         statement.setString(2, user.lastName)
@@ -49,19 +50,19 @@ class UsersQueries(private val connection: Connection) : UsersDAO {
         return result
     }
 
-    override fun deleteUser(email: String): Boolean {
+    override fun deleteUser(id: Int): Boolean {
         val query = "{CALL deleteUser(?)}"
-        val callableStatement = connection.prepareCall(query)
-        callableStatement.setString(1, email)
-        return callableStatement.executeUpdate() > 0
+        val statement = connection.prepareCall(query)
+        statement.setInt(1, id)
+        return statement.executeUpdate() > 0
     }
 
     // Maps a ResultSet row to an Users object
     private fun mapResultSetToUser(resultSet: ResultSet):
             Users {
         return Users(
-            firstName = resultSet.getString("firstName"),
-            lastName = resultSet.getString("lastName"),
+            firstName = resultSet.getString("first_name"),
+            lastName = resultSet.getString("last_name"),
             email = resultSet.getString("email")
         )
     }
