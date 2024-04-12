@@ -38,8 +38,8 @@ fun main() {
         println("Testing getUser():")
         println(userQueries.getUser(2))
 
-        println("Testing deleteUser():")
-        println("Deletion successful:${userQueries.deleteUser(2)}")
+//        println("Testing deleteUser():")
+//        println("Deletion successful:${userQueries.deleteUser(2)}")
 
         println("Testing getAllUsers():")
         println(userQueries.getAllUsers())
@@ -67,8 +67,8 @@ fun main() {
         println("Testing deleteHealthcareUnit():")
         println("Deletion successful:${healthcareUnitsQueries.deleteHealthcareUnit(2)}")
 
-        println("Testing getAllHealthcareUnits():")
-        println(healthcareUnitsQueries.getAllHealthcareUnits())
+//        println("Testing getAllHealthcareUnits():")
+//        println(healthcareUnitsQueries.getAllHealthcareUnits())
 
 
         println("= TESTING VACCINE QUERIES =")
@@ -90,14 +90,14 @@ fun main() {
         println("Testing getAllVaccinations():")
         println(vaccinationsQueries.getAllVaccinations())
 
-        println("Testing deleteVaccination():")
-        println("Deletion successful:${vaccinationsQueries.deleteVaccination(2)}")
+//        println("Testing deleteVaccination():")
+//        println("Deletion successful:${vaccinationsQueries.deleteVaccination(2)}")
 
 
 
         println("= TESTING APPOINTMENTS QUERIES =")   //gotta figure out how to do date and tie :/
         println("Testing addAppointment():")
-        val date = Date.valueOf("2024-03-28")
+        val date = Date.valueOf("2024-05-28")
         val time = Time.valueOf("15:00:00")
         val newAppointment = Appointments(date, time, 1, 1)
         println("Insertion successful:${appointmentQueries.addAppointment(newAppointment)}")
@@ -105,7 +105,7 @@ fun main() {
         println("Testing addAppointment():")
         val date2 = Date.valueOf("2024-05-13")
         val time2 = Time.valueOf("12:30:00")
-        val newAppointment2 = Appointments(date2, time2, 1, 1) //doesn't see date and time
+        val newAppointment2 = Appointments(date, time2, 1, 1) //doesn't see date and time
         println("Insertion successful:${appointmentQueries.addAppointment(newAppointment2)}")
 
         println("Testing getAllAppointments():")
@@ -113,14 +113,18 @@ fun main() {
 
         println("Testing updateAppointment():")
         val time3 = Time.valueOf("09:30:00")
-        val updatedApp = Appointments(date2, time3, 1, 1)
+        val updatedApp = Appointments(date, time3, 1, 1)
         println("Update successful:${appointmentQueries.updateAppointment(2, updatedApp)}")
 
         println("Testing getAppointment():")
         println(appointmentQueries.getAppointment(2))
 
-        println("Testing deleteUser():")
-        println("Deletion successful:${appointmentQueries.deleteAppointment(2)}")
+//        println("Testing deleteUser():")
+//        println("Deletion successful:${appointmentQueries.deleteAppointment(2)}")
+
+        println("Testing getAllAppointmentsForDate():")
+        val dateString = date.toString()
+        println(appointmentQueries.getAllAppointmentsForDate(dateString))
 
                 // Closing connection
                 connection.close() // Closing the database connection

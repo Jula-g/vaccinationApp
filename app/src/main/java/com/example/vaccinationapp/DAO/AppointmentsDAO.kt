@@ -8,4 +8,5 @@ interface AppointmentsDAO {
     fun updateAppointment(id: Int, appointment: Appointments): Boolean
     fun deleteAppointment(id: Int): Boolean
     fun getAllAppointments(): Set<Appointments>?
+    fun getAllAppointmentsForDate(date: String): List<String>?
 }
