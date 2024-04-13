@@ -48,7 +48,8 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener {
         val confirm = findViewById<Button>(R.id.confirmButton)
         val cancel = findViewById<Button>(R.id.cancelButton)
 
-        val offeredHours = offerHours("08:00", "16:00", 30)
+        val offeredHours = offerHours("08:00:00", "16:00:00", 30)
+        Log.d("OFFEREDHOURS", "$offeredHours")
 
         // PICKING THE DATE WILL RESULT IN THE APP SHOWING AVAILABLE HOURS
         date.setOnClickListener {
@@ -104,19 +105,12 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener {
 
     private fun getAvailableHours(selectedDate: String, offeredHours: List<String>): List<String>{
         var takenHours: List<String>? = null
-//        val availableHours = mutableListOf<String>()
-
         try {
-//            val connection = DBconnection.getConnection()
-//            val appointmentQueries = AppointmentsQueries(connection)
-//            takenHours = appointmentQueries.getAllAppointmentsForDate(selectedDate)
-
             runBlocking {
                 launch(Dispatchers.IO) {
                     takenHours = getAllAppointmentsForDate(selectedDate)
                 }
             }
-
             Log.d("TAKENHOURS", "$takenHours")
 
         } catch (e: Exception) {
@@ -126,12 +120,14 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener {
         return if (takenHours == null) {
             offeredHours
         }else{
-
-
             val availableHours = offeredHours.minus(takenHours ?: emptyList())
+            val availableHoursFormatted = availableHours.map { time ->
+                val parts = time.split(":")
+                "${parts[0]}:${parts[1]}"
+            }
 
-            Log.d("AVAILABLEHOURS", "$availableHours")
-            availableHours
+            Log.d("AVAILABLEHOURS", "$availableHoursFormatted")
+            availableHoursFormatted
         }
     }
 
@@ -139,8 +135,8 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener {
     //as well as choosing the time interval between the visits)
     fun offerHours(startTime: String, endTime: String, timeSkip: Int): List<String>{
         val offeredHours = mutableListOf<String>()
-
         var currentTime = startTime
+
         while (currentTime != endTime){
             offeredHours.add(currentTime)
             currentTime = addHalfHour(currentTime, timeSkip)
@@ -154,43 +150,8 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener {
         val totalMinutes = hour * 60 + minute + timeSkip
         val nextHour = totalMinutes/60
         val nextMinute = totalMinutes%60
-        return String.format("%02d:%02d", nextHour, nextMinute)
+        return String.format("%02d:%02d:00", nextHour, nextMinute)
     }
-
-    //code that disables the buttons for hours that are already taken
-    private fun isHourValid(hours: List<String>, takenHours: List<String>){
-
-    }
-
-    fun isValidTime(time: String?): Boolean {
-        // this part checks if time
-        if (time == null) return false
-
-        val timeRegex = Regex("^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$")
-        if (!time.matches(timeRegex)) {
-            println("Invalid time format. Please enter in HH:MM format.")
-            return false
-        }
-
-        val (hour, minutes) = time.split(":").map { it.toInt() }
-        if (hour < 8 || hour > 17 || (hour == 17 && minutes > 0)) {
-            println("Time must be between 8:00 AM and 5:00 PM.")
-            return false
-        }
-
-        if (minutes % 30 != 0) {
-            println("Time must be in half-hour increments.")
-            return false
-        }
-
-        return true
-    }
-
-
-//    fun isTimeValid(selectedHour: Int, selectedMinute: Int): Boolean{
-//        //needs to download scheduled hours from database and check if selected time != taken times
-//    }
-
 
     fun isDateValid(selectedYear: Int, selectedMonth: Int, selectedDay: Int): Boolean {
         // Check if the year, month, and day are within valid ranges
@@ -205,7 +166,6 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener {
             2 -> if (selectedYear % 4 == 0 && (selectedYear % 100 != 0 || selectedYear % 400 == 0)) 29 else 28
             else -> return false
         }
-
         return selectedDay <= daysInMonth
     }
 
@@ -213,7 +173,6 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener {
         val finalDate = "$selectedDateFormatted $item"
         date.text = finalDate
     }
-
 
     //QUERIES
     private suspend fun getAllAppointmentsForDate(date:String): List<String>?{
