@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.DatePicker
 import android.widget.SearchView
@@ -21,6 +22,7 @@ import com.example.vaccinationapp.queries.AppointmentsQueries
 import com.example.vaccinationapp.ui.managerecords.ManageRecordsFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.text.DateFormatSymbols
 import java.util.Calendar
@@ -70,7 +72,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener {
         val datePickerDialog = DatePickerDialog(
             this,
             { _: DatePicker?, selectedYear: Int, selectedMonth: Int, selectedDay: Int ->
-                selectedDate = "$selectedYear:$selectedMonth:$selectedDay"
+                selectedDate = "$selectedYear-${selectedMonth+1}-$selectedDay"
                 val monthName = DateFormatSymbols().months[selectedMonth]
                 selectedDateFormatted = "$selectedDay $monthName $selectedYear"
 
@@ -102,32 +104,35 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener {
 
     private fun getAvailableHours(selectedDate: String, offeredHours: List<String>): List<String>{
         var takenHours: List<String>? = null
-        val availableHours = mutableListOf<String>()
+//        val availableHours = mutableListOf<String>()
 
         try {
 //            val connection = DBconnection.getConnection()
 //            val appointmentQueries = AppointmentsQueries(connection)
 //            takenHours = appointmentQueries.getAllAppointmentsForDate(selectedDate)
 
-            lifecycleScope.launch {
-                takenHours = getAllAppointmentsForDate(selectedDate)
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    takenHours = getAllAppointmentsForDate(selectedDate)
+                }
             }
+
+            Log.d("TAKENHOURS", "$takenHours")
 
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
-        for (hour in offeredHours){
-            if (takenHours != null) {
-                for(h in takenHours!!) {
-                    if (hour == h){
-                        break
-                    }
-                }
-            }
-            availableHours.add(hour)
+        return if (takenHours == null) {
+            offeredHours
+        }else{
+
+
+            val availableHours = offeredHours.minus(takenHours ?: emptyList())
+
+            Log.d("AVAILABLEHOURS", "$availableHours")
+            availableHours
         }
-        return availableHours
     }
 
     //code that generates offered hours (admin can choose the working hours they offer to patients
@@ -205,7 +210,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener {
     }
 
     override fun onItemClick(item: String, date: Button) {
-        val finalDate = "$selectedDate $item"
+        val finalDate = "$selectedDateFormatted $item"
         date.text = finalDate
     }
 
@@ -214,8 +219,10 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener {
     private suspend fun getAllAppointmentsForDate(date:String): List<String>?{
         return withContext(Dispatchers.IO){
             val connection = DBconnection.getConnection()
+            Log.d("DATABASE", "connected with date: $date")
             val appointmentQueries = AppointmentsQueries(connection)
             val result = appointmentQueries.getAllAppointmentsForDate(date)
+            Log.d("DATABASE", "result: $result")
             connection.close()
             result
         }

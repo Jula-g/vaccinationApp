@@ -124,6 +124,7 @@ fun main() {
 
         println("Testing getAllAppointmentsForDate():")
         val dateString = date.toString()
+        println("date: $dateString")
         println(appointmentQueries.getAllAppointmentsForDate(dateString))
 
                 // Closing connection

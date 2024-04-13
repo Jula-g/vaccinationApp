@@ -65,7 +65,7 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
 
     @SuppressLint("SimpleDateFormat")
     override fun getAllAppointmentsForDate(date: String): List<String>? {
-        val sqlDateFormat = SimpleDateFormat("yyyy:MM:dd")
+        val sqlDateFormat = SimpleDateFormat("yyyy-MM-dd")
         val javaSqlDate = Date(sqlDateFormat.parse(date)!!.time)    //possible null exception
 
         val query = "{CALL getAllAppointmentsForDate(?)}"
