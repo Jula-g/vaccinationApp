@@ -1,9 +1,12 @@
 package com.example.vaccinationapp.queries
 
+import android.annotation.SuppressLint
 import com.example.vaccinationapp.DAO.AppointmentsDAO
 import com.example.vaccinationapp.entities.Appointments
 import java.sql.Connection
+import java.sql.Date
 import java.sql.ResultSet
+import java.text.SimpleDateFormat
 
 class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO {
     override fun addAppointment(appointment: Appointments): Boolean {
@@ -60,8 +63,24 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
         return if (appointments.isEmpty()) null else appointmentsFinal
     }
 
-    private fun mapResultSetToAppointment(resultSet: ResultSet):
-            Appointments {
+    @SuppressLint("SimpleDateFormat")
+    override fun getAllAppointmentsForDate(date: String): List<String>? {
+        val sqlDateFormat = SimpleDateFormat("yyyy-MM-dd")
+        val javaSqlDate = Date(sqlDateFormat.parse(date)!!.time)    //possible null exception
+
+        val query = "{CALL getAllAppointmentsForDate(?)}"
+        val statement = connection.prepareCall(query)
+        statement.setDate(1,javaSqlDate)
+        val resultSet = statement.executeQuery()
+        val hours = mutableListOf<String>()
+        while (resultSet.next()) {
+            hours.add(resultSet.getString("time"))
+        }
+        val hoursFinal = hours.toList()
+        return if (hours.isEmpty()) null else hoursFinal
+    }
+
+    private fun mapResultSetToAppointment(resultSet: ResultSet): Appointments {
         return Appointments(
             date = resultSet.getDate("date"),
             time = resultSet.getTime("time"),
