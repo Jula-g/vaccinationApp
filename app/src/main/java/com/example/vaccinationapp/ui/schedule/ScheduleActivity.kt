@@ -18,7 +18,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.vaccinationapp.DBconnection
 import com.example.vaccinationapp.R
 import com.example.vaccinationapp.adapters.HoursAdapter
+import com.example.vaccinationapp.entities.Appointments
+import com.example.vaccinationapp.entities.Vaccinations
 import com.example.vaccinationapp.queries.AppointmentsQueries
+import com.example.vaccinationapp.queries.VaccinationsQueries
 import com.example.vaccinationapp.ui.managerecords.ManageRecordsFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,6 +29,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.text.DateFormatSymbols
 import java.util.Calendar
+import java.util.Date
 
 class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener {
 
@@ -48,12 +52,32 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener {
         val confirm = findViewById<Button>(R.id.confirmButton)
         val cancel = findViewById<Button>(R.id.cancelButton)
 
+        var offeredVaccines: Set<Vaccinations>?
+
+        runBlocking {
+            launch(Dispatchers.IO){
+             offeredVaccines = getAllVaccines()
+            }
+        }
+
         val offeredHours = offerHours("08:00:00", "16:00:00", 30)
         Log.d("OFFEREDHOURS", "$offeredHours")
+
+//        val dateP = Date
 
         // PICKING THE DATE WILL RESULT IN THE APP SHOWING AVAILABLE HOURS
         date.setOnClickListener {
             showDatePickerDialog(date, offeredHours)
+        }
+
+        confirm.setOnClickListener {
+            //create appointment object
+            val appointment = Appointments()
+
+            //add appoitment to the DB
+
+            val intent = Intent(this, ManageRecordsFragment::class.java)
+            startActivity(intent)
         }
 
         cancel.setOnClickListener {
@@ -186,4 +210,30 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener {
             result
         }
     }
+
+    private suspend fun addAppointment(appointment: Appointments):Boolean{
+        return withContext(Dispatchers.IO){
+            val conn = DBconnection.getConnection()
+            Log.d("DATABASE", "appointment connected")
+            val appQueries = AppointmentsQueries(conn)
+            val result = appQueries.addAppointment(appointment)
+            Log.d("DATABASE", "appointment added: $result")
+            conn.close()
+            result
+        }
+    }
+
+    private suspend fun getAllVaccines(): Set<Vaccinations>?{
+        return withContext(Dispatchers.IO){
+            val connection = DBconnection.getConnection()
+            Log.d("DATABASE", "vaccines connected")
+            val vaccineQueries = VaccinationsQueries(connection)
+            val result = vaccineQueries.getAllVaccinations()
+            Log.d("DATABASE", "vaccines: $result")
+            connection.close()
+            result
+        }
+    }
+
+
 }
