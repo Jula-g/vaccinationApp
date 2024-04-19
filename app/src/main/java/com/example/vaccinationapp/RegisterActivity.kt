@@ -7,19 +7,29 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import com.example.vaccinationapp.entities.Users
+import com.example.vaccinationapp.queries.UsersQueries
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
+    private lateinit var emailInput: EditText
+    private lateinit var nameInput: EditText
+    private lateinit var lastNameInput: EditText
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
-        val emailInput = findViewById<EditText>(R.id.emailInput)
-        val nameInput = findViewById<EditText>(R.id.NameInput)
-        val lastNameInput = findViewById<EditText>(R.id.lastNameInput)
+        emailInput = findViewById<EditText>(R.id.emailInput)
+        nameInput = findViewById<EditText>(R.id.NameInput)
+        lastNameInput = findViewById<EditText>(R.id.lastNameInput)
         val loginButton = findViewById<TextView>(R.id.loginButton)
         val signUpButton = findViewById<Button>(R.id.SignUpButton)
 
@@ -47,7 +57,7 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun verifyData(
-        email: String, name: String,lastName: String, password: String, repeatedPassword: String
+        email: String, name: String, lastName: String, password: String, repeatedPassword: String
     ): Boolean {
         var result = true
         if (email.isEmpty() || name.isEmpty() || lastName.isEmpty() || password.isEmpty() || repeatedPassword.isEmpty()) {
@@ -101,6 +111,12 @@ class RegisterActivity : AppCompatActivity() {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
+                    runBlocking {
+                        launch(Dispatchers.IO) {
+                            addUserToDatabase()
+                        }
+                    }
+
                     Toast.makeText(this, "User created", Toast.LENGTH_SHORT).show()
                     val intent = Intent(this, LoginActivity::class.java)
                     startActivity(intent)
@@ -109,5 +125,18 @@ class RegisterActivity : AppCompatActivity() {
                         .show()
                 }
             }
+    }
+
+    private suspend fun addUserToDatabase() {
+        return withContext(Dispatchers.IO) {
+            val connection = DBconnection.getConnection()
+            val user = Users(
+                nameInput.text.toString(),
+                lastNameInput.text.toString(),
+                emailInput.text.toString()
+            )
+            val userQueries = UsersQueries(connection)
+            userQueries.addUser(user)
+        }
     }
 }
