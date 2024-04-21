@@ -18,25 +18,41 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.vaccinationapp.DBconnection
 import com.example.vaccinationapp.R
 import com.example.vaccinationapp.adapters.HoursAdapter
+import com.example.vaccinationapp.adapters.VaccinesAdapter
 import com.example.vaccinationapp.entities.Appointments
+import com.example.vaccinationapp.entities.HealthcareUnits
+import com.example.vaccinationapp.entities.Users
 import com.example.vaccinationapp.entities.Vaccinations
 import com.example.vaccinationapp.queries.AppointmentsQueries
+import com.example.vaccinationapp.queries.HealthcareUnitsQueries
+import com.example.vaccinationapp.queries.UsersQueries
 import com.example.vaccinationapp.queries.VaccinationsQueries
 import com.example.vaccinationapp.ui.managerecords.ManageRecordsFragment
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import java.sql.RowId
+import java.sql.Time
 import java.text.DateFormatSymbols
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 
-class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener {
+class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
+    VaccinesAdapter.OnItemClickListener {
 
     private var selectedDateFormatted = ""
     private var selectedDate = ""
+    //FINAL VALUES
+    private var Fdate: java.sql.Date? = null
+    private var Ftime: java.sql.Time? = null
+    private var FuserID: Int = 0
+    private var FvaccineID: Int = 0
 
-    @SuppressLint("MissingInflatedId")
+
+    @SuppressLint("MissingInflatedId", "SimpleDateFormat", "WeekBasedYear")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -52,13 +68,30 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener {
         val confirm = findViewById<Button>(R.id.confirmButton)
         val cancel = findViewById<Button>(R.id.cancelButton)
 
-        var offeredVaccines: Set<Vaccinations>?
+        val email = FirebaseAuth.getInstance().currentUser!!.email
+        runBlocking { launch(Dispatchers.IO) {
+            FuserID = getUserId(email!!)
+        } }
 
+        var offeredVaccines: Set<Vaccinations>? = setOf(Vaccinations())
         runBlocking {
             launch(Dispatchers.IO){
-             offeredVaccines = getAllVaccines()
+                offeredVaccines = getAllVaccines()
             }
         }
+
+        val vaccines = offeredVaccines?.let { offerVaccines(it) }
+
+        val vaccinesRecycler = findViewById<RecyclerView>(R.id.vaccinesRecycler)
+        vaccinesRecycler.layoutManager = LinearLayoutManager(this)
+
+        if(!vaccines.isNullOrEmpty()) {
+            val adapterVaccine = VaccinesAdapter(vaccines, date)
+            vaccinesRecycler.adapter = adapterVaccine
+
+            adapterVaccine.setOnItemClickListener(this)
+        }
+
 
         val offeredHours = offerHours("08:00:00", "16:00:00", 30)
         Log.d("OFFEREDHOURS", "$offeredHours")
@@ -71,10 +104,23 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener {
         }
 
         confirm.setOnClickListener {
+            val dateTime = date.text
+            val splitDateTime = dateTime.split(" ")
+            val dateString = splitDateTime[0]
+            val time = splitDateTime[1]
+            val dateFormat = SimpleDateFormat("YYYY-MM-DD")
+            val timeFormat = SimpleDateFormat("HH:mm")
+            Fdate = dateFormat.parse(dateString) as java.sql.Date?
+            Ftime = timeFormat.parse(time) as java.sql.Time?
+
             //create appointment object
-            val appointment = Appointments()
+            val appointment = Appointments(Fdate, Ftime, FuserID, FvaccineID)
 
             //add appoitment to the DB
+            runBlocking { launch(Dispatchers.IO) {
+                val result = addAppointment(appointment)
+                Log.d("DATABASE", "Add appointment successful: $result")
+            } }
 
             val intent = Intent(this, ManageRecordsFragment::class.java)
             startActivity(intent)
@@ -85,6 +131,31 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener {
             startActivity(intent)
         }
 
+    }
+
+    private fun offerVaccines(offeredVaccines:Set<Vaccinations>): List<String>{
+        val vaccines = mutableListOf<String>()
+        val result = mutableListOf<String>()
+        var healthcareUnit: HealthcareUnits? = HealthcareUnits()
+
+        if (offeredVaccines.isNotEmpty()){
+            for (vaccine in offeredVaccines){
+                // make a list of vaccine names
+                vaccines.add(vaccine.vaccineName.toString())
+                val id = vaccine.healthcareUnitId
+                runBlocking { launch(Dispatchers.IO){
+                    healthcareUnit = id?.let { getHealthcareUnit(it) }
+                } }
+                val unitName = healthcareUnit?.name
+                val city = healthcareUnit?.city
+                val street = healthcareUnit?.street
+                val nr = healthcareUnit?.streetNumber
+                val address = "$unitName $city $street $nr"
+                val nameAddress = "$vaccine;$address;$id"
+                result.add(nameAddress)
+            }
+        }
+        return result
     }
 
 
@@ -193,9 +264,15 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener {
         return selectedDay <= daysInMonth
     }
 
-    override fun onItemClick(item: String, date: Button) {
+    override fun onHourClick(item: String, date: Button) {
         val finalDate = "$selectedDateFormatted $item"
         date.text = finalDate
+    }
+
+    override suspend fun onVaccineClick(vaccineName: String, healthcareUnitId: Int){
+//        runBlocking { launch(Dispatchers.IO) {
+            FvaccineID = getVaccinationId(vaccineName, healthcareUnitId)
+//        } }
     }
 
     //QUERIES
@@ -235,5 +312,46 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener {
         }
     }
 
+    private suspend fun getHealthcareUnit(id: Int): HealthcareUnits?{
+        return withContext(Dispatchers.IO){
+            val conn = DBconnection.getConnection()
+            val HUqueries = HealthcareUnitsQueries(conn)
+            val result = HUqueries.getHealthcareUnit(id)
+            Log.d("DATABASE", "healthcare units: $result")
+            conn.close()
+            result
+        }
+    }
+
+    private suspend fun getUserId(email: String): Int {
+        return withContext(Dispatchers.IO){
+            val conn = DBconnection.getConnection()
+            val userQueries = UsersQueries(conn)
+            val result = userQueries.getUserId(email)
+            Log.d("DATABASE", "user ID: $result")
+            conn.close()
+            result
+        }
+    }
+
+    private suspend fun getVaccinationId(name:String, healthcareUnitId: Int): Int{
+        return withContext(Dispatchers.IO){
+            val conn = DBconnection.getConnection()
+            val vaccQueries = VaccinationsQueries(conn)
+            val result = vaccQueries.getVaccinationId(name, healthcareUnitId)
+            conn.close()
+            result
+        }
+    }
+
+    private suspend fun getHealthcareUnitId(name: String){
+        return withContext(Dispatchers.IO){
+            val conn = DBconnection.getConnection()
+            val unitQueries = HealthcareUnitsQueries(conn)
+            val result = unitQueries.getHalthcareUnitId(name)
+            conn.close()
+            result
+        }
+    }
 
 }

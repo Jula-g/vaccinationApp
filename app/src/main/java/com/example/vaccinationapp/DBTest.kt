@@ -73,8 +73,10 @@ fun main() {
 
         println("= TESTING VACCINE QUERIES =")
         println("Testing addVaccination():")
-        val newVaccine = Vaccinations("tetanus shot", 2, 1)
+        val newVaccine = Vaccinations("tetanus", 2, 1)
         println("Insertion successful:${vaccinationsQueries.addVaccination(newVaccine)}")
+        val newVaccine3 = Vaccinations("tetanus", 2, 4)
+        println("Insertion successful:${vaccinationsQueries.addVaccination(newVaccine3)}")
 
         println("Testing addVaccination():")
         val newVaccine2 = Vaccinations("covid-19 vaccine", 3, 1)
@@ -83,9 +85,9 @@ fun main() {
         println("Testing getVaccination():")
         println(vaccinationsQueries.getVaccination(2))
 
-        println("Testing updateVaccination():")
-        val updatedVaccine = Vaccinations("tetanus", 1, 1)
-        println("Update successful:${vaccinationsQueries.updateVaccination(2, updatedVaccine)}")
+//        println("Testing updateVaccination():")
+//        val updatedVaccine = Vaccinations("tetanus", 1, 1)
+//        println("Update successful:${vaccinationsQueries.updateVaccination(2, updatedVaccine)}")
 
         println("Testing getAllVaccinations():")
         println(vaccinationsQueries.getAllVaccinations())

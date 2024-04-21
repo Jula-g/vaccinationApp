@@ -124,7 +124,7 @@
         app:layout_constraintTop_toBottomOf="@+id/repeatPasswordInput" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/emailView"
         android:layout_width="266dp"
         android:layout_height="42dp"
         android:layout_marginTop="40dp"

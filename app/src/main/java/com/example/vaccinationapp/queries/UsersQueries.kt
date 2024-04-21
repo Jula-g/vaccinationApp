@@ -17,6 +17,27 @@ class UsersQueries(private val connection: Connection) : UsersDAO {
             null
         }
     }
+
+    override fun getUserByEmail(email: String): Users?{
+        val query = "{CALL getUserByEmail(?)}"
+        val statement = connection.prepareCall((query))
+        statement.setString(1, email)
+        val resultSet = statement.executeQuery()
+        return if(resultSet.next()){
+            mapResultSetToUser(resultSet)
+        }else{
+            null
+        }
+    }
+
+    override fun getUserId(email: String): Int {
+        val query = "{CALL getUserByEmail(?)}"
+        val statement = connection.prepareCall((query))
+        statement.setString(1, email)
+        val resultSet = statement.executeQuery()
+        return resultSet.getInt("id")
+    }
+
     override fun getAllUsers(): Set<Users>? {
         val query = "{CALL getAllUsers()}"
         val statement = connection.prepareCall(query)
