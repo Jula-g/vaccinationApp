@@ -19,6 +19,7 @@ import com.example.vaccinationapp.DBconnection
 import com.example.vaccinationapp.R
 import com.example.vaccinationapp.adapters.HoursAdapter
 import com.example.vaccinationapp.adapters.VaccinesAdapter
+//import com.example.vaccinationapp.adapters.VaccinesAdapter
 import com.example.vaccinationapp.entities.Appointments
 import com.example.vaccinationapp.entities.HealthcareUnits
 import com.example.vaccinationapp.entities.Users
@@ -37,18 +38,20 @@ import java.sql.RowId
 import java.sql.Time
 import java.text.DateFormatSymbols
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.Calendar
 import java.util.Date
+import java.util.TimeZone
 
 class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
     VaccinesAdapter.OnItemClickListener {
 
     private var selectedDateFormatted = ""
     private var selectedDate = ""
+    private var dateTime = ""
     //FINAL VALUES
-    private var Fdate: java.sql.Date? = null
-    private var Ftime: java.sql.Time? = null
-    private var FuserID: Int = 0
     private var FvaccineID: Int = 0
 
 
@@ -68,11 +71,8 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         val confirm = findViewById<Button>(R.id.confirmButton)
         val cancel = findViewById<Button>(R.id.cancelButton)
 
-        val email = FirebaseAuth.getInstance().currentUser!!.email
-        runBlocking { launch(Dispatchers.IO) {
-            FuserID = getUserId(email!!)
-        } }
 
+        //retrieves all vaccines from the database
         var offeredVaccines: Set<Vaccinations>? = setOf(Vaccinations())
         runBlocking {
             launch(Dispatchers.IO){
@@ -86,17 +86,35 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         vaccinesRecycler.layoutManager = LinearLayoutManager(this)
 
         if(!vaccines.isNullOrEmpty()) {
-            val adapterVaccine = VaccinesAdapter(vaccines, date)
+            val adapterVaccine = VaccinesAdapter(vaccines)
             vaccinesRecycler.adapter = adapterVaccine
 
             adapterVaccine.setOnItemClickListener(this)
+
+            search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    return false
+                }
+
+                @SuppressLint("NotifyDataSetChanged")
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    // Filter the list of vaccines based on the search query
+                    val filteredList = vaccines.filter {
+                        it.contains(newText ?: "", ignoreCase = true)
+                    }
+                    // Update the adapter with the filtered list
+                    adapterVaccine.updateData(filteredList)
+                    adapterVaccine.notifyDataSetChanged()
+
+                    // Return false to indicate that the event has been handled
+                    return false
+                }
+            })
         }
 
 
         val offeredHours = offerHours("08:00:00", "16:00:00", 30)
         Log.d("OFFEREDHOURS", "$offeredHours")
-
-//        val dateP = Date
 
         // PICKING THE DATE WILL RESULT IN THE APP SHOWING AVAILABLE HOURS
         date.setOnClickListener {
@@ -104,17 +122,24 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         }
 
         confirm.setOnClickListener {
-            val dateTime = date.text
-            val splitDateTime = dateTime.split(" ")
+            val splitDateTime = dateTime.split(";")
             val dateString = splitDateTime[0]
             val time = splitDateTime[1]
-            val dateFormat = SimpleDateFormat("YYYY-MM-DD")
+            val dateFormat = SimpleDateFormat("yyyy-M-dd")
             val timeFormat = SimpleDateFormat("HH:mm")
-            Fdate = dateFormat.parse(dateString) as java.sql.Date?
-            Ftime = timeFormat.parse(time) as java.sql.Time?
+            val Fdate = java.sql.Date(dateFormat.parse(dateString)!!.time)  // PROBLEM with date, it returns a different one for some reason
+            val Ftime = java.sql.Time(timeFormat.parse(time)!!.time)
+
+            var FuserID: Int = 0
+            val email = FirebaseAuth.getInstance().currentUser!!.email
+            runBlocking { launch(Dispatchers.IO) {
+                //if user has an account and is logged in, it must be in the database so userID will never be null
+                FuserID = getUserId(email!!)!!.toInt()
+            } }
 
             //create appointment object
             val appointment = Appointments(Fdate, Ftime, FuserID, FvaccineID)
+            Log.d("DATABASE ", "appointment: $appointment")
 
             //add appoitment to the DB
             runBlocking { launch(Dispatchers.IO) {
@@ -134,14 +159,12 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
     }
 
     private fun offerVaccines(offeredVaccines:Set<Vaccinations>): List<String>{
-        val vaccines = mutableListOf<String>()
         val result = mutableListOf<String>()
         var healthcareUnit: HealthcareUnits? = HealthcareUnits()
 
         if (offeredVaccines.isNotEmpty()){
             for (vaccine in offeredVaccines){
-                // make a list of vaccine names
-                vaccines.add(vaccine.vaccineName.toString())
+                val name = vaccine.vaccineName.toString()
                 val id = vaccine.healthcareUnitId
                 runBlocking { launch(Dispatchers.IO){
                     healthcareUnit = id?.let { getHealthcareUnit(it) }
@@ -151,13 +174,12 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
                 val street = healthcareUnit?.street
                 val nr = healthcareUnit?.streetNumber
                 val address = "$unitName $city $street $nr"
-                val nameAddress = "$vaccine;$address;$id"
+                val nameAddress = "$name;$address;$id"
                 result.add(nameAddress)
             }
         }
         return result
     }
-
 
     private fun showDatePickerDialog(date: Button, offeredHours: List<String>): String {
         val calendar = Calendar.getInstance()
@@ -198,8 +220,10 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         return selectedDate
     }
 
+    @SuppressLint("SimpleDateFormat")
     private fun getAvailableHours(selectedDate: String, offeredHours: List<String>): List<String>{
         var takenHours: List<String>? = null
+        var offeredHoursFormatted: List<String>? = null
         try {
             runBlocking {
                 launch(Dispatchers.IO) {
@@ -212,18 +236,61 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
             e.printStackTrace()
         }
 
-        return if (takenHours == null) {
-            offeredHours
-        }else{
-            val availableHours = offeredHours.minus(takenHours ?: emptyList())
-            val availableHoursFormatted = availableHours.map { time ->
-                val parts = time.split(":")
-                "${parts[0]}:${parts[1]}"
-            }
+        takenHours = formatHours(takenHours)
+        offeredHoursFormatted = formatHours(offeredHours)
 
-            Log.d("AVAILABLEHOURS", "$availableHoursFormatted")
-            availableHoursFormatted
+//        // get current date and time
+        val calendar = Calendar.getInstance()
+        calendar.timeZone = TimeZone.getTimeZone("CET")
+        val currentDate = "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH)+1}-${calendar.get(Calendar.DAY_OF_MONTH)}"
+        val currentTime= "${calendar.get(Calendar.HOUR_OF_DAY)}:${calendar.get((Calendar.MINUTE))}"
+        val sdf = SimpleDateFormat("H:mm")
+
+        if(selectedDate == currentDate) {
+            offeredHoursFormatted = filterHours(offeredHoursFormatted, currentTime)
         }
+
+        return if (takenHours == null) {
+            offeredHoursFormatted
+        }else{
+            val availableHours = offeredHoursFormatted.minus(takenHours ?: emptyList())
+            availableHours
+        }
+    }
+
+    fun filterHours(offeredHours: List<String>, currentTime: String): List<String> {
+        // Parse the current time
+        val currentTimeSplit = currentTime.split(":")
+        val currentHour = currentTimeSplit[0].toInt()
+        val currentMinute = currentTimeSplit[1].toInt()
+
+        // Function to parse a time string and return the hour and minute as a pair
+        fun parseTime(time: String): Pair<Int, Int> {
+            val parts = time.split(":")
+            val hour = parts[0].toInt()
+            val minute = parts[1].toInt()
+            return Pair(hour, minute)
+        }
+
+        // Filter the times based on the comparison with the current time
+        return offeredHours.filter { time ->
+            val (hour, minute) = parseTime(time)
+            if (hour < currentHour) {
+                false
+            } else if (hour == currentHour) {
+                minute >= currentMinute
+            } else {
+                true
+            }
+        }
+    }
+
+    fun formatHours(hours: List<String>?): List<String> {
+        return hours?.map { time ->
+            val parts = time.split(":")
+            val formattedHour = parts[0].trimStart('0')
+            "$formattedHour:${parts[1]}"
+        } ?: emptyList()
     }
 
     //code that generates offered hours (admin can choose the working hours they offer to patients
@@ -245,7 +312,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         val totalMinutes = hour * 60 + minute + timeSkip
         val nextHour = totalMinutes/60
         val nextMinute = totalMinutes%60
-        return String.format("%02d:%02d:00", nextHour, nextMinute)
+        return String.format("%02d:%02d:00", nextHour, nextMinute) // :00 !!!!!!!!!!!!!!!!!!!!!!!!
     }
 
     fun isDateValid(selectedYear: Int, selectedMonth: Int, selectedDay: Int): Boolean {
@@ -266,13 +333,12 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
 
     override fun onHourClick(item: String, date: Button) {
         val finalDate = "$selectedDateFormatted $item"
+        dateTime = "$selectedDate;$item"
         date.text = finalDate
     }
 
     override suspend fun onVaccineClick(vaccineName: String, healthcareUnitId: Int){
-//        runBlocking { launch(Dispatchers.IO) {
-            FvaccineID = getVaccinationId(vaccineName, healthcareUnitId)
-//        } }
+        FvaccineID = getVaccinationId(vaccineName, healthcareUnitId)!!
     }
 
     //QUERIES
@@ -323,7 +389,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         }
     }
 
-    private suspend fun getUserId(email: String): Int {
+    private suspend fun getUserId(email: String): Int? {
         return withContext(Dispatchers.IO){
             val conn = DBconnection.getConnection()
             val userQueries = UsersQueries(conn)
@@ -334,7 +400,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         }
     }
 
-    private suspend fun getVaccinationId(name:String, healthcareUnitId: Int): Int{
+    private suspend fun getVaccinationId(name:String, healthcareUnitId: Int): Int?{
         return withContext(Dispatchers.IO){
             val conn = DBconnection.getConnection()
             val vaccQueries = VaccinationsQueries(conn)
@@ -343,15 +409,15 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
             result
         }
     }
-
-    private suspend fun getHealthcareUnitId(name: String){
-        return withContext(Dispatchers.IO){
-            val conn = DBconnection.getConnection()
-            val unitQueries = HealthcareUnitsQueries(conn)
-            val result = unitQueries.getHalthcareUnitId(name)
-            conn.close()
-            result
-        }
-    }
+//
+//    private suspend fun getHealthcareUnitId(name: String): Int?{
+//        return withContext(Dispatchers.IO){
+//            val conn = DBconnection.getConnection()
+//            val unitQueries = HealthcareUnitsQueries(conn)
+//            val result = unitQueries.getHalthcareUnitId(name)
+//            conn.close()
+//            result
+//        }
+//    }
 
 }

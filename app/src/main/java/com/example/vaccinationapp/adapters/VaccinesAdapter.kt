@@ -1,5 +1,6 @@
 package com.example.vaccinationapp.adapters
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-class VaccinesAdapter(private val dataSet: List<String>, private val date: Button):
+class VaccinesAdapter(private var dataSet: List<String>):
     RecyclerView.Adapter<VaccinesAdapter.ViewHolder>() {
 
     interface OnItemClickListener {
@@ -40,6 +41,9 @@ class VaccinesAdapter(private val dataSet: List<String>, private val date: Butto
         return dataSet.size
     }
 
+    private var selected: Int? = null
+
+    @SuppressLint("NotifyDataSetChanged")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = dataSet[position]
         val itemSplit = item.split(";")
@@ -51,12 +55,26 @@ class VaccinesAdapter(private val dataSet: List<String>, private val date: Butto
         holder.buttonVaccine.text = name
         holder.buttonAddress.text = address
 
-        holder.itemView.setBackgroundColor(Color.parseColor("#53B658"))
+        if (position == selected) {
+            holder.itemView.setBackgroundColor(Color.parseColor("#53B658"))
+        } else {
+            holder.itemView.setBackgroundColor(Color.TRANSPARENT)
+        }
 
         holder.itemView.setOnClickListener {
             runBlocking { launch(Dispatchers.IO) {
             listener?.onVaccineClick(name, unitId)
             } }
+
+            selected = if (selected == position) null else position
+            notifyDataSetChanged()
         }
     }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateData(newData: List<String>) {
+        dataSet = newData
+        notifyDataSetChanged()
+    }
+
 }

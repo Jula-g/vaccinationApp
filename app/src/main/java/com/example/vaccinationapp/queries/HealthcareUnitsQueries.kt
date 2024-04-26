@@ -33,12 +33,16 @@ class HealthcareUnitsQueries(private val connection: Connection) : HealthcareUni
         }
     }
 
-    override fun getHalthcareUnitId(name: String): Int {
+    override fun getHalthcareUnitId(name: String): Int? {
         val query = "{CALL getHealthcareUnitId(?)}"
         val statement = connection.prepareCall(query)
         statement.setString(1, name)
         val result = statement.executeQuery()
-        return result.getInt("id")
+        return if(result.next()){
+            result.getInt("id")
+        }else{
+            null
+        }
     }
 
     override fun updateHealthcareUnit(id: Int, healthcareUnit: HealthcareUnits): Boolean {

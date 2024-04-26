@@ -37,14 +37,22 @@ class HoursAdapter(private val dataSet: List<String>, private val date: Button):
         return dataSet.size
     }
 
+    private var selected: Int? = null
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = dataSet[position]
         holder.buttonHour.text = item
 
-        holder.itemView.setBackgroundColor(Color.parseColor("#53B658"))
+        if (position == selected) {
+            holder.itemView.setBackgroundColor(Color.parseColor("#53B658"))
+        } else {
+            holder.itemView.setBackgroundColor(Color.TRANSPARENT)
+        }
 
         holder.itemView.setOnClickListener {
             listener?.onHourClick(item, date)
+            selected = if (selected == position) null else position
+            notifyDataSetChanged()
         }
     }
 }

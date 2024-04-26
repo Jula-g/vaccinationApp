@@ -29,13 +29,17 @@ class VaccinationsQueries(private val connection: Connection) : VaccinationsDAO 
         }
     }
 
-    override fun getVaccinationId(name: String, healthcareUnitId: Int): Int {
+    override fun getVaccinationId(name: String, healthcareUnitId: Int): Int? {
         val query = "{CALL getVaccinationId(?, ?)}"
         val statement = connection.prepareCall(query)
         statement.setString(1, name)
         statement.setInt(2, healthcareUnitId)
         val result = statement.executeQuery()
-        return result.getInt("id")
+        return if (result.next()) {
+            result.getInt("id")
+        }else{
+            null
+        }
     }
 
     override fun updateVaccination(id: Int, vaccination: Vaccinations): Boolean {

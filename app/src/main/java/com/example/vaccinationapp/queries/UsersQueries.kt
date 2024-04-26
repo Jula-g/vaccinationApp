@@ -30,12 +30,16 @@ class UsersQueries(private val connection: Connection) : UsersDAO {
         }
     }
 
-    override fun getUserId(email: String): Int {
+    override fun getUserId(email: String): Int? {
         val query = "{CALL getUserByEmail(?)}"
         val statement = connection.prepareCall((query))
         statement.setString(1, email)
         val resultSet = statement.executeQuery()
-        return resultSet.getInt("id")
+        return if (resultSet.next()) {
+            resultSet.getInt("id")
+        } else {
+            null
+        }
     }
 
     override fun getAllUsers(): Set<Users>? {

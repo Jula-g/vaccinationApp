@@ -21,7 +21,7 @@ fun main() {
 
         println("= TESTING USER QUERIES =")
         println("Testing addUser():")
-        val newUser = Users("Jan", "Kowalski", "jan.kowal@wp.pl")
+        val newUser = Users("Jan", "Kowalski", "test@wp.pl")
         println("Insertion successful:${userQueries.addUser(newUser)}")
 
         println("Testing addUser():")
