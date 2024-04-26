@@ -63,6 +63,18 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
         return if (appointments.isEmpty()) null else appointmentsFinal
     }
 
+    override fun getAllAppointmentsForUserId(id: Int): Set<Appointments>?{
+        val query = "{CALL getAllAppointmentsForUserId(?)}"
+        val statement = connection.prepareCall(query)
+        val resultSet = statement.executeQuery()
+        val appointments = mutableSetOf<Appointments>()
+        while (resultSet.next()){
+            appointments.add(mapResultSetToAppointment(resultSet))
+        }
+        val appointmentsFinal = appointments.toSet()
+        return if (appointments.isEmpty()) null else appointmentsFinal
+    }
+
     @SuppressLint("SimpleDateFormat")
     override fun getAllAppointmentsForDate(date: String): List<String>? {
         val sqlDateFormat = SimpleDateFormat("yyyy-MM-dd")

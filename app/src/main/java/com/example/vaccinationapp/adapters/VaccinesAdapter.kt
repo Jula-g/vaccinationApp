@@ -1,5 +1,6 @@
 package com.example.vaccinationapp.adapters
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -8,13 +9,17 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.vaccinationapp.R
+import com.example.vaccinationapp.entities.Vaccinations
 import com.example.vaccinationapp.ui.schedule.ScheduleActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
-class HoursAdapter(private val dataSet: List<String>, private val date: Button):
-    RecyclerView.Adapter<HoursAdapter.ViewHolder>(){
+class VaccinesAdapter(private var dataSet: List<String>):
+    RecyclerView.Adapter<VaccinesAdapter.ViewHolder>() {
 
     interface OnItemClickListener {
-        fun onHourClick(item: String, date: Button)
+        suspend fun onVaccineClick(vaccineName: String, healthcareUnitId: Int)
     }
 
     private var listener: OnItemClickListener? = null
@@ -23,25 +28,32 @@ class HoursAdapter(private val dataSet: List<String>, private val date: Button):
         this.listener = listener
     }
 
-    class ViewHolder(view: View):  RecyclerView.ViewHolder(view) {
-        val buttonHour : TextView = view.findViewById(R.id.vaccineButton)
+    class ViewHolder(view: View): RecyclerView.ViewHolder(view) {
+        val buttonVaccine : TextView = view.findViewById(R.id.vaccineButton)
+        val buttonAddress : TextView = view.findViewById(R.id.addressText)
     }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).
-        inflate(R.layout.hour_item, parent, false)
+        inflate(R.layout.vaccine_item, parent, false)
         return ViewHolder(view)
     }
-
     override fun getItemCount(): Int {
         return dataSet.size
     }
 
     private var selected: Int? = null
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = dataSet[position]
-        holder.buttonHour.text = item
+        val itemSplit = item.split(";")
+
+        val name = itemSplit[0]
+        val address = itemSplit[1]
+        val unitId = itemSplit[2].toInt()
+
+        holder.buttonVaccine.text = name
+        holder.buttonAddress.text = address
 
         if (position == selected) {
             holder.itemView.setBackgroundColor(Color.parseColor("#53B658"))
@@ -50,9 +62,19 @@ class HoursAdapter(private val dataSet: List<String>, private val date: Button):
         }
 
         holder.itemView.setOnClickListener {
-            listener?.onHourClick(item, date)
+            runBlocking { launch(Dispatchers.IO) {
+            listener?.onVaccineClick(name, unitId)
+            } }
+
             selected = if (selected == position) null else position
             notifyDataSetChanged()
         }
     }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateData(newData: List<String>) {
+        dataSet = newData
+        notifyDataSetChanged()
+    }
+
 }
