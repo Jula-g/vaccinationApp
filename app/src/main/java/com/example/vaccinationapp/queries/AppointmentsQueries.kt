@@ -6,6 +6,7 @@ import com.example.vaccinationapp.entities.Appointments
 import java.sql.Connection
 import java.sql.Date
 import java.sql.ResultSet
+import java.sql.Time
 import java.text.SimpleDateFormat
 
 class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO {
@@ -32,6 +33,8 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
             null
         }
     }
+
+
 
     override fun updateAppointment(id: Int, appointment: Appointments): Boolean {
         val query = "{CALL updateAppointment(?, ?, ?, ?, ?)}"
@@ -66,6 +69,7 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
     override fun getAllAppointmentsForUserId(id: Int): Set<Appointments>?{
         val query = "{CALL getAllAppointmentsForUserId(?)}"
         val statement = connection.prepareCall(query)
+        statement.setInt(1, id)
         val resultSet = statement.executeQuery()
         val appointments = mutableSetOf<Appointments>()
         while (resultSet.next()){
@@ -90,6 +94,27 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
         }
         val hoursFinal = hours.toList()
         return if (hours.isEmpty()) null else hoursFinal
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    override fun getAppointmentId(date: String, time: String): Int? {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd")
+        val timeFormat = SimpleDateFormat("HH:mm")
+
+        val fdate = Date(dateFormat.parse(date)!!.time)
+        val ftime = Time(timeFormat.parse(time)!!.time)
+
+        val query = "{CALL getAppointmentId(?, ?)}"
+        val statement = connection.prepareCall(query)
+        statement.setString(1, date)
+        statement.setString(2, time)
+        val resultSet = statement.executeQuery()
+        return if (resultSet.next()) {
+            resultSet.getInt("id")
+        } else {
+            null
+        }
+
     }
 
     private fun mapResultSetToAppointment(resultSet: ResultSet): Appointments {
