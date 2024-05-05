@@ -129,6 +129,9 @@ fun main() {
         println("date: $dateString")
         println(appointmentQueries.getAllAppointmentsForDate(dateString))
 
+        println("get all app for user id")
+        println(appointmentQueries.getAllAppointmentsForUserId(60))
+
                 // Closing connection
                 connection.close() // Closing the database connection
     } catch (e: Exception) {
