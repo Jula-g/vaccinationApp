@@ -1,11 +1,12 @@
-package com.example.vaccinationapp.queries
+package com.example.vaccinationapp.DB.queries
 
 import android.annotation.SuppressLint
-import com.example.vaccinationapp.DAO.AppointmentsDAO
-import com.example.vaccinationapp.entities.Appointments
+import com.example.vaccinationapp.DB.DAO.AppointmentsDAO
+import com.example.vaccinationapp.DB.entities.Appointments
 import java.sql.Connection
 import java.sql.Date
 import java.sql.ResultSet
+import java.sql.Time
 import java.text.SimpleDateFormat
 
 class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO {
@@ -59,7 +60,7 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
         while (resultSet.next()) {
             appointments.add(mapResultSetToAppointment(resultSet))
         }
-        val appointmentsFinal = appointments.filterNotNull().toSet()
+        val appointmentsFinal = appointments.toSet()
         return if (appointments.isEmpty()) null else appointmentsFinal
     }
 
@@ -78,7 +79,7 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
     @SuppressLint("SimpleDateFormat")
     override fun getAllAppointmentsForDate(date: String): List<String>? {
         val sqlDateFormat = SimpleDateFormat("yyyy-MM-dd")
-        val javaSqlDate = Date(sqlDateFormat.parse(date)!!.time)    //possible null exception
+        val javaSqlDate = Date(sqlDateFormat.parse(date)!!.time)
 
         val query = "{CALL getAllAppointmentsForDate(?)}"
         val statement = connection.prepareCall(query)
@@ -99,5 +100,24 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
             userId = resultSet.getInt("user_id"),
             vaccinationId = resultSet.getInt("vaccine_id")
         )
+    }
+    @SuppressLint("SimpleDateFormat")
+    override fun getAppointmentId(date: String, time: String): Int? {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd")
+        val timeFormat = SimpleDateFormat("HH:mm")
+
+        val fdate = Date(dateFormat.parse(date)!!.time)
+        val ftime = Time(timeFormat.parse(time)!!.time)
+
+        val query = "{CALL getAppointmentId(?, ?)}"
+        val statement = connection.prepareCall(query)
+        statement.setDate(1, fdate)
+        statement.setTime(2, ftime)
+        val resultSet = statement.executeQuery()
+        return if (resultSet.next()) {
+            resultSet.getInt("id")
+        } else {
+            null
+        }
     }
 }

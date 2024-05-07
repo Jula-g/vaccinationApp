@@ -1,4 +1,4 @@
-package com.example.vaccinationapp.ui.reschedule
+package com.example.vaccinationapp.ui.managerecords.reschedule
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge

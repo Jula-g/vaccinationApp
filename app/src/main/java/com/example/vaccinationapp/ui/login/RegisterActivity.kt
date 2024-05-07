@@ -1,4 +1,4 @@
-package com.example.vaccinationapp
+package com.example.vaccinationapp.ui.login
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -7,8 +7,11 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import com.example.vaccinationapp.entities.Users
-import com.example.vaccinationapp.queries.UsersQueries
+import com.example.vaccinationapp.DB.DBconnection
+import com.example.vaccinationapp.DB.entities.Users
+import com.example.vaccinationapp.DB.queries.UsersQueries
+import com.example.vaccinationapp.R
+import com.example.vaccinationapp.ui.MainActivity
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -119,7 +122,9 @@ class RegisterActivity : AppCompatActivity() {
 
                     Toast.makeText(this, "User created", Toast.LENGTH_SHORT).show()
                     val intent = Intent(this, LoginActivity::class.java)
+                    intent.putExtra("email", email)
                     startActivity(intent)
+                    this.finish()
                 } else {
                     Toast.makeText(this, "User with this email already exists.", Toast.LENGTH_SHORT)
                         .show()

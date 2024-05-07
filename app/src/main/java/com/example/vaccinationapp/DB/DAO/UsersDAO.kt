@@ -1,6 +1,6 @@
-package com.example.vaccinationapp.DAO
+package com.example.vaccinationapp.DB.DAO
 
-import com.example.vaccinationapp.entities.Users
+import com.example.vaccinationapp.DB.entities.Users
 
 interface UsersDAO {
     fun addUser(user: Users) : Boolean
@@ -9,5 +9,6 @@ interface UsersDAO {
     fun getUserId(email: String): Int?
     fun updateUser(id: Int, user: Users): Boolean
     fun deleteUser(id: Int) : Boolean
+    fun deleteUserByEmail(email: String) : Boolean
     fun getAllUsers(): Set<Users>?
 }

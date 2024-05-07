@@ -1,4 +1,4 @@
-package com.example.vaccinationapp.entities
+package com.example.vaccinationapp.DB.entities
 
 data class HealthcareUnits(
     val name : String? = null,
