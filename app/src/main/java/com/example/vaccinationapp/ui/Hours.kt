@@ -2,17 +2,15 @@ package com.example.vaccinationapp.ui
 
 import android.annotation.SuppressLint
 import android.util.Log
-import com.example.vaccinationapp.DBconnection
-import com.example.vaccinationapp.queries.AppointmentsQueries
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.TimeZone
 
 class Hours {
+    private val queries = Queries()
     @SuppressLint("SimpleDateFormat")
     fun getAvailableHours(selectedDate: String, offeredHours: List<String>): List<String>{
         var takenHours: List<String>? = null
@@ -20,7 +18,7 @@ class Hours {
         try {
             runBlocking {
                 launch(Dispatchers.IO) {
-                    takenHours = getAllAppointmentsForDate(selectedDate)
+                    takenHours = queries.getAllAppointmentsForDate(selectedDate)
                 }
             }
             Log.d("TAKENHOURS", "$takenHours")
@@ -106,19 +104,7 @@ class Hours {
         val totalMinutes = hour * 60 + minute + timeSkip
         val nextHour = totalMinutes/60
         val nextMinute = totalMinutes%60
-        return String.format("%02d:%02d:00", nextHour, nextMinute) // :00 !!!!!!!!!!!!!!!!!!!!!!!!
-    }
-
-    private suspend fun getAllAppointmentsForDate(date:String): List<String>?{
-        return withContext(Dispatchers.IO){
-            val connection = DBconnection.getConnection()
-            Log.d("DATABASE", "connected with date: $date")
-            val appointmentQueries = AppointmentsQueries(connection)
-            val result = appointmentQueries.getAllAppointmentsForDate(date)
-            Log.d("DATABASE", "result: $result")
-            connection.close()
-            result
-        }
+        return String.format("%02d:%02d:00", nextHour, nextMinute)
     }
 
 }

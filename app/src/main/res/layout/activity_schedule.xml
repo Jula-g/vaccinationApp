@@ -11,7 +11,7 @@
     <Button
         android:id="@+id/dateButton"
         android:layout_width="350dp"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="30dp"
@@ -47,42 +47,45 @@
         android:background="#8ED5D2"
         app:layout_constraintBottom_toTopOf="@+id/dateButton"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.523"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/searchVaccine" />
 
     <Button
         android:id="@+id/confirmButton"
         android:layout_width="146dp"
-        android:layout_height="49dp"
-        android:layout_marginBottom="25dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="5dp"
         android:backgroundTint="#5FBEBB"
         android:fontFamily="@font/neuropol_x_rg"
         android:text="confirm"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.811"
+        app:layout_constraintHorizontal_bias="0.83"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/hoursRecycler" />
+        app:layout_constraintTop_toBottomOf="@+id/hoursRecycler"
+        app:layout_constraintVertical_bias="0.512" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/hoursRecycler"
         android:layout_width="350dp"
         android:layout_height="208dp"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="30dp"
         android:background="#8DD4D1"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dateButton" />
 
     <Button
         android:id="@+id/cancelButton"
         android:layout_width="130dp"
-        android:layout_height="47dp"
+        android:layout_height="50dp"
         android:layout_marginStart="90dp"
+        android:layout_marginTop="5dp"
         android:layout_marginEnd="26dp"
-        android:layout_marginBottom="25dp"
         android:backgroundTint="#5FBEBB"
         android:fontFamily="@font/neuropol_x_rg"
         android:text="cancel"
@@ -91,6 +94,6 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/hoursRecycler"
-        app:layout_constraintVertical_bias="0.475" />
+        app:layout_constraintVertical_bias="0.527" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,12 +1,19 @@
 package com.example.vaccinationapp.ui.managerecords
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.PopupWindow
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,6 +25,8 @@ import com.example.vaccinationapp.databinding.FragmentManageRecordsBinding
 import com.example.vaccinationapp.DB.entities.Appointments
 import com.example.vaccinationapp.DB.queries.AppointmentsQueries
 import com.example.vaccinationapp.DB.queries.UsersQueries
+import com.example.vaccinationapp.ui.Queries
+import com.example.vaccinationapp.ui.managerecords.reschedule.RescheduleActivity
 import com.example.vaccinationapp.ui.managerecords.schedule.ScheduleActivity
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +39,7 @@ import java.util.Locale
 import java.util.TimeZone
 
 class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
+    private val queries = Queries()
     private lateinit var recordsRecycler: RecyclerView
     private lateinit var adapter: RecordsAdapter
     private var _binding: FragmentManageRecordsBinding? = null
@@ -57,8 +67,8 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
 
         runBlocking { launch(Dispatchers.IO) {
             //if user has an account and is logged in, it must be in the database so userID will never be null
-            userId = getUserId(email!!)!!.toInt()
-            appointments = getAllAppointmentsForUserId(userId)?.toList()
+            userId = queries.getUserId(email!!)!!.toInt()
+            appointments = queries.getAllAppointmentsForUserId(userId)?.toList()
         } }
 
         val upcomingAppointments = selectUpcoming(appointments)
@@ -89,10 +99,6 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
         val calendar = Calendar.getInstance()
         calendar.timeZone = TimeZone.getTimeZone("CET")
         val currentDate = calendar.time
-//        val currentDate = "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH)+1}-${calendar.get(
-//            Calendar.DAY_OF_MONTH)}"
-//        val currentTime= "${calendar.get(Calendar.HOUR_OF_DAY)}:${calendar.get((Calendar.MINUTE))}"
-
         val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
         dateTimeFormat.timeZone = TimeZone.getTimeZone("CET")
 
@@ -109,27 +115,6 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
         return upcomingAppointments.toList()
     }
 
-    private suspend fun getAllAppointmentsForUserId(id: Int): Set<Appointments>? {
-        return withContext(Dispatchers.IO) {
-            val conn = DBconnection.getConnection()
-            val appQueries = AppointmentsQueries(conn)
-            val result = appQueries.getAllAppointmentsForUserId(id)
-            conn.close()
-            result
-        }
-    }
-
-    private suspend fun getUserId(email: String): Int? {
-        return withContext(Dispatchers.IO){
-            val conn = DBconnection.getConnection()
-            val userQueries = UsersQueries(conn)
-            val result = userQueries.getUserId(email)
-            Log.d("DATABASE", "user ID: $result")
-            conn.close()
-            result
-        }
-    }
-
 
 
     override fun onDestroyView() {
@@ -137,6 +122,7 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
         _binding = null
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onRecordClick(id: Int?, update: Button, cancel: Button) {
 
         update.setOnClickListener {
@@ -147,6 +133,21 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
 
         cancel.setOnClickListener {
             // pop up window with "are you sure" question
+            val builder = AlertDialog.Builder(requireContext())
+            builder.setMessage("Are you sure you want to cancel the appointment?")
+                .setPositiveButton("Yes") { dialog, _ ->
+                    runBlocking { launch(Dispatchers.IO) {
+                        id?.let { it1 -> queries.deleteAppointment(it1) }
+                    } }
+                    adapter.notifyDataSetChanged()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("No") { dialog, _ ->
+                    dialog.dismiss()
+                }
+
+            val alert = builder.create()
+            alert.show()
         }
 
     }
