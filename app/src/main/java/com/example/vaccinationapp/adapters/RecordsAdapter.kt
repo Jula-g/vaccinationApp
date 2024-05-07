@@ -51,7 +51,7 @@ class RecordsAdapter (private val dataSet: List<Appointments>, private val updat
     }
 
     private var selected: Int? = null
-    @SuppressLint("NotifyDataSetChanged")
+    @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
     override fun onBindViewHolder(holder: RecordsAdapter.ViewHolder, position: Int) {
         val item = dataSet[position]
 
@@ -62,6 +62,8 @@ class RecordsAdapter (private val dataSet: List<Appointments>, private val updat
 
         holder.buttonDate.text = date
         holder.buttonTime.text = time
+        holder.buttonName.text = "Loading..."
+        holder.buttonAddress.text = "Loading..."
 
         var vaccine: Vaccinations? = null
         var unit: HealthcareUnits? = null
@@ -70,22 +72,18 @@ class RecordsAdapter (private val dataSet: List<Appointments>, private val updat
             val unitId = vaccine?.healthcareUnitId
             unit = unitId?.let { getHealthcareUnit(it) }
         }}
-            holder.buttonName.text = vaccine?.vaccineName
 
-            val city = unit?.city
-            val street = unit?.street
-            val nr = unit?.streetNumber
+        holder.buttonName.text = vaccine?.vaccineName
 
-            val address = "$city $street $nr"
+        val address = "${unit?.city} ${unit?.street} ${unit?.streetNumber}"
 
-            holder.buttonAddress.text = address
+        holder.buttonAddress.text = address
 
         if (position == selected) {
             holder.itemView.setBackgroundColor(Color.parseColor("#53B658"))
         } else {
             holder.itemView.setBackgroundColor(Color.TRANSPARENT)
         }
-
 
         holder.itemView.setOnClickListener{
             var appointmentId: Int? = null

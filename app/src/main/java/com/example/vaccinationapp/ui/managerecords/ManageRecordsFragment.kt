@@ -18,6 +18,7 @@ import com.example.vaccinationapp.databinding.FragmentManageRecordsBinding
 import com.example.vaccinationapp.entities.Appointments
 import com.example.vaccinationapp.queries.AppointmentsQueries
 import com.example.vaccinationapp.queries.UsersQueries
+import com.example.vaccinationapp.ui.reschedule.RescheduleActivity
 import com.example.vaccinationapp.ui.schedule.ScheduleActivity
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
@@ -138,11 +139,9 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
     }
 
     override fun onRecordClick(id: Int?, update: Button, cancel: Button) {
-        //get chosen appointment id
-
 
         update.setOnClickListener {
-            val reschedule = Intent(requireContext(), ScheduleActivity::class.java)
+            val reschedule = Intent(requireContext(), RescheduleActivity::class.java)
             reschedule.putExtra("appointmentId", id)
             startActivity(reschedule)
         }
