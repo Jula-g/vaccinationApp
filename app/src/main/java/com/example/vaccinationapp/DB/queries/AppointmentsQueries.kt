@@ -1,8 +1,8 @@
-package com.example.vaccinationapp.queries
+package com.example.vaccinationapp.DB.queries
 
 import android.annotation.SuppressLint
-import com.example.vaccinationapp.DAO.AppointmentsDAO
-import com.example.vaccinationapp.entities.Appointments
+import com.example.vaccinationapp.DB.DAO.AppointmentsDAO
+import com.example.vaccinationapp.DB.entities.Appointments
 import java.sql.Connection
 import java.sql.Date
 import java.sql.ResultSet

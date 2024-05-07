@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.SearchView
-import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -14,13 +13,13 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.vaccinationapp.DBconnection
+import com.example.vaccinationapp.DB.DBconnection
 import com.example.vaccinationapp.R
 import com.example.vaccinationapp.adapters.HoursAdapter
 import com.example.vaccinationapp.adapters.VaccinesAdapter
-import com.example.vaccinationapp.entities.Appointments
-import com.example.vaccinationapp.entities.Vaccinations
-import com.example.vaccinationapp.queries.AppointmentsQueries
+import com.example.vaccinationapp.DB.entities.Appointments
+import com.example.vaccinationapp.DB.entities.Vaccinations
+import com.example.vaccinationapp.DB.queries.AppointmentsQueries
 import com.example.vaccinationapp.ui.Dates
 import com.example.vaccinationapp.ui.Hours
 import com.example.vaccinationapp.ui.Queries
@@ -31,7 +30,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import org.w3c.dom.Text
 import java.text.SimpleDateFormat
 
 class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,

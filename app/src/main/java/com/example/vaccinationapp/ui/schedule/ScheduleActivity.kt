@@ -1,12 +1,10 @@
 package com.example.vaccinationapp.ui.schedule
 
 import android.annotation.SuppressLint
-import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
-import android.widget.DatePicker
 import android.widget.SearchView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -15,19 +13,12 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.vaccinationapp.DBconnection
 import com.example.vaccinationapp.R
 import com.example.vaccinationapp.adapters.HoursAdapter
 import com.example.vaccinationapp.adapters.VaccinesAdapter
 //import com.example.vaccinationapp.adapters.VaccinesAdapter
-import com.example.vaccinationapp.entities.Appointments
-import com.example.vaccinationapp.entities.HealthcareUnits
-import com.example.vaccinationapp.entities.Users
-import com.example.vaccinationapp.entities.Vaccinations
-import com.example.vaccinationapp.queries.AppointmentsQueries
-import com.example.vaccinationapp.queries.HealthcareUnitsQueries
-import com.example.vaccinationapp.queries.UsersQueries
-import com.example.vaccinationapp.queries.VaccinationsQueries
+import com.example.vaccinationapp.DB.entities.Appointments
+import com.example.vaccinationapp.DB.entities.Vaccinations
 import com.example.vaccinationapp.ui.Dates
 import com.example.vaccinationapp.ui.Hours
 import com.example.vaccinationapp.ui.Queries
@@ -37,17 +28,7 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import java.sql.RowId
-import java.sql.Time
-import java.text.DateFormatSymbols
 import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.util.Calendar
-import java.util.Date
-import java.util.TimeZone
 
 class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
     VaccinesAdapter.OnItemClickListener {

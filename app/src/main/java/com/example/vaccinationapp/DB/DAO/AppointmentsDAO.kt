@@ -1,6 +1,6 @@
-package com.example.vaccinationapp.DAO
+package com.example.vaccinationapp.DB.DAO
 
-import com.example.vaccinationapp.entities.Appointments
+import com.example.vaccinationapp.DB.entities.Appointments
 
 interface AppointmentsDAO {
     fun addAppointment(appointment: Appointments): Boolean

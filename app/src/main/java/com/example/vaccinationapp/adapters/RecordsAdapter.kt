@@ -8,20 +8,15 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.vaccinationapp.DBconnection
 import com.example.vaccinationapp.R
-import com.example.vaccinationapp.entities.Appointments
-import com.example.vaccinationapp.entities.HealthcareUnits
-import com.example.vaccinationapp.entities.Vaccinations
-import com.example.vaccinationapp.queries.AppointmentsQueries
-import com.example.vaccinationapp.queries.HealthcareUnitsQueries
-import com.example.vaccinationapp.queries.VaccinationsQueries
+import com.example.vaccinationapp.DB.entities.Appointments
+import com.example.vaccinationapp.DB.entities.HealthcareUnits
+import com.example.vaccinationapp.DB.entities.Vaccinations
 import com.example.vaccinationapp.ui.Queries
 import com.example.vaccinationapp.ui.managerecords.ManageRecordsFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Locale
 

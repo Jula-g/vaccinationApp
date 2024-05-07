@@ -1,12 +1,13 @@
-package com.example.vaccinationapp
-import com.example.vaccinationapp.entities.Appointments
-import com.example.vaccinationapp.entities.HealthcareUnits
-import com.example.vaccinationapp.entities.Users
-import com.example.vaccinationapp.entities.Vaccinations
-import com.example.vaccinationapp.queries.AppointmentsQueries
-import com.example.vaccinationapp.queries.HealthcareUnitsQueries
-import com.example.vaccinationapp.queries.UsersQueries
-import com.example.vaccinationapp.queries.VaccinationsQueries
+package com.example.vaccinationapp.DB
+import com.example.vaccinationapp.DB.DBconnection
+import com.example.vaccinationapp.DB.entities.Appointments
+import com.example.vaccinationapp.DB.entities.HealthcareUnits
+import com.example.vaccinationapp.DB.entities.Users
+import com.example.vaccinationapp.DB.entities.Vaccinations
+import com.example.vaccinationapp.DB.queries.AppointmentsQueries
+import com.example.vaccinationapp.DB.queries.HealthcareUnitsQueries
+import com.example.vaccinationapp.DB.queries.UsersQueries
+import com.example.vaccinationapp.DB.queries.VaccinationsQueries
 import java.sql.Date
 import java.sql.Time
 

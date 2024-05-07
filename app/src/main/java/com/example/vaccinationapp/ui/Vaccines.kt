@@ -1,7 +1,7 @@
 package com.example.vaccinationapp.ui
 
-import com.example.vaccinationapp.entities.HealthcareUnits
-import com.example.vaccinationapp.entities.Vaccinations
+import com.example.vaccinationapp.DB.entities.HealthcareUnits
+import com.example.vaccinationapp.DB.entities.Vaccinations
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
