@@ -34,6 +34,8 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
         }
     }
 
+
+
     override fun updateAppointment(id: Int, appointment: Appointments): Boolean {
         val query = "{CALL updateAppointment(?, ?, ?, ?, ?)}"
         val statement = connection.prepareCall(query)
@@ -67,6 +69,7 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
     override fun getAllAppointmentsForUserId(id: Int): Set<Appointments>?{
         val query = "{CALL getAllAppointmentsForUserId(?)}"
         val statement = connection.prepareCall(query)
+        statement.setInt(1, id)
         val resultSet = statement.executeQuery()
         val appointments = mutableSetOf<Appointments>()
         while (resultSet.next()){
@@ -93,14 +96,6 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
         return if (hours.isEmpty()) null else hoursFinal
     }
 
-    private fun mapResultSetToAppointment(resultSet: ResultSet): Appointments {
-        return Appointments(
-            date = resultSet.getDate("date"),
-            time = resultSet.getTime("time"),
-            userId = resultSet.getInt("user_id"),
-            vaccinationId = resultSet.getInt("vaccine_id")
-        )
-    }
     @SuppressLint("SimpleDateFormat")
     override fun getAppointmentId(date: String, time: String): Int? {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd")
@@ -119,5 +114,15 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
         } else {
             null
         }
+
+    }
+
+    private fun mapResultSetToAppointment(resultSet: ResultSet): Appointments {
+        return Appointments(
+            date = resultSet.getDate("date"),
+            time = resultSet.getTime("time"),
+            userId = resultSet.getInt("user_id"),
+            vaccinationId = resultSet.getInt("vaccine_id")
+        )
     }
 }

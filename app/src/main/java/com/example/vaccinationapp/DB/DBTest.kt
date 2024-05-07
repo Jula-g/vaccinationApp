@@ -1,4 +1,5 @@
 package com.example.vaccinationapp.DB
+import com.example.vaccinationapp.DB.DBconnection
 import com.example.vaccinationapp.DB.entities.Appointments
 import com.example.vaccinationapp.DB.entities.HealthcareUnits
 import com.example.vaccinationapp.DB.entities.Users
@@ -128,6 +129,12 @@ fun main() {
         val dateString = date.toString()
         println("date: $dateString")
         println(appointmentQueries.getAllAppointmentsForDate(dateString))
+
+        println("get all app for user id")
+        println(appointmentQueries.getAllAppointmentsForUserId(60))
+
+        print("get app id")
+        println(appointmentQueries.getAppointmentId("2024-04-26", "15:30"))
 
                 // Closing connection
                 connection.close() // Closing the database connection
