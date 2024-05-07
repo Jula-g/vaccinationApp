@@ -19,7 +19,7 @@ class HoursAdapter(private val dataSet: List<String>, private val date: Button):
 
     private var listener: OnItemClickListener? = null
 
-    fun setOnItemClickListener(listener: ScheduleActivity) {
+    fun setOnItemClickListener(listener: OnItemClickListener) {
         this.listener = listener
     }
 

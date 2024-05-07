@@ -132,6 +132,9 @@ fun main() {
         println("get all app for user id")
         println(appointmentQueries.getAllAppointmentsForUserId(60))
 
+        print("get app id")
+        println(appointmentQueries.getAppointmentId("2024-04-26", "15:30"))
+
                 // Closing connection
                 connection.close() // Closing the database connection
     } catch (e: Exception) {

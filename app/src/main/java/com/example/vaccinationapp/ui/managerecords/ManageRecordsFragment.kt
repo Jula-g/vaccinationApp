@@ -138,11 +138,9 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
     }
 
     override fun onRecordClick(id: Int?, update: Button, cancel: Button) {
-        //get chosen appointment id
-
 
         update.setOnClickListener {
-            val reschedule = Intent(requireContext(), ScheduleActivity::class.java)
+            val reschedule = Intent(requireContext(), RescheduleActivity::class.java)
             reschedule.putExtra("appointmentId", id)
             startActivity(reschedule)
         }

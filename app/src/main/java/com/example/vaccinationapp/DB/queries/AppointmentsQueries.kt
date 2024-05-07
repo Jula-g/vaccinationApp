@@ -106,8 +106,8 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
 
         val query = "{CALL getAppointmentId(?, ?)}"
         val statement = connection.prepareCall(query)
-        statement.setString(1, date)
-        statement.setString(2, time)
+        statement.setDate(1, fdate)
+        statement.setTime(2, ftime)
         val resultSet = statement.executeQuery()
         return if (resultSet.next()) {
             resultSet.getInt("id")
