@@ -1,7 +1,7 @@
-package com.example.vaccinationapp.queries
+package com.example.vaccinationapp.DB.queries
 
-import com.example.vaccinationapp.DAO.UsersDAO
-import com.example.vaccinationapp.entities.Users
+import com.example.vaccinationapp.DB.DAO.UsersDAO
+import com.example.vaccinationapp.DB.entities.Users
 import java.sql.Connection
 import java.sql.ResultSet
 
@@ -18,14 +18,14 @@ class UsersQueries(private val connection: Connection) : UsersDAO {
         }
     }
 
-    override fun getUserByEmail(email: String): Users?{
+    override fun getUserByEmail(email: String): Users? {
         val query = "{CALL getUserByEmail(?)}"
-        val statement = connection.prepareCall((query))
+        val statement = connection.prepareCall(query)
         statement.setString(1, email)
         val resultSet = statement.executeQuery()
-        return if(resultSet.next()){
+        return if (resultSet.next()) {
             mapResultSetToUser(resultSet)
-        }else{
+        } else {
             null
         }
     }
@@ -79,6 +79,13 @@ class UsersQueries(private val connection: Connection) : UsersDAO {
         val query = "{CALL deleteUser(?)}"
         val statement = connection.prepareCall(query)
         statement.setInt(1, id)
+        return statement.executeUpdate() > 0
+    }
+
+    override fun deleteUserByEmail(email: String): Boolean {
+        val query = "{CALL deleteUserByEmail(?)}"
+        val statement = connection.prepareCall(query)
+        statement.setString(1, email)
         return statement.executeUpdate() > 0
     }
 

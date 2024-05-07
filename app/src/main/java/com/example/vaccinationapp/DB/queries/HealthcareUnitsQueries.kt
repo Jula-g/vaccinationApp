@@ -1,7 +1,7 @@
-package com.example.vaccinationapp.queries
+package com.example.vaccinationapp.DB.queries
 
-import com.example.vaccinationapp.DAO.HealthcareUnitsDAO
-import com.example.vaccinationapp.entities.HealthcareUnits
+import com.example.vaccinationapp.DB.DAO.HealthcareUnitsDAO
+import com.example.vaccinationapp.DB.entities.HealthcareUnits
 import java.sql.Connection
 import java.sql.ResultSet
 

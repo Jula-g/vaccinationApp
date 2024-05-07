@@ -1,4 +1,4 @@
-package com.example.vaccinationapp
+package com.example.vaccinationapp.ui.login
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -7,6 +7,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import com.example.vaccinationapp.R
+import com.example.vaccinationapp.ui.MainActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -50,7 +52,9 @@ class LoginActivity : AppCompatActivity() {
                 if (signInTask.isSuccessful) {
                     val intent = Intent(this, MainActivity::class.java)
                     Toast.makeText(this, "Logged in successfully", Toast.LENGTH_SHORT).show()
+                    intent.putExtra("email", email)
                     startActivity(intent)
+                    this.finish()
                 } else {
                     Toast.makeText(
                         this,

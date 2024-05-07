@@ -9,8 +9,8 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.vaccinationapp.R
-import com.example.vaccinationapp.entities.Vaccinations
-import com.example.vaccinationapp.ui.schedule.ScheduleActivity
+import com.example.vaccinationapp.DB.entities.Vaccinations
+import com.example.vaccinationapp.ui.managerecords.schedule.ScheduleActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking

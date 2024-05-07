@@ -1,4 +1,4 @@
-package com.example.vaccinationapp
+package com.example.vaccinationapp.DB
 
 import java.sql.Connection
 import java.sql.DriverManager

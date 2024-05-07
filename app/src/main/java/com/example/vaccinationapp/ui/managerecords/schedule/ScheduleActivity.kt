@@ -1,4 +1,4 @@
-package com.example.vaccinationapp.ui.schedule
+package com.example.vaccinationapp.ui.managerecords.schedule
 
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
@@ -15,19 +15,19 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.vaccinationapp.DBconnection
+import com.example.vaccinationapp.DB.DBconnection
 import com.example.vaccinationapp.R
 import com.example.vaccinationapp.adapters.HoursAdapter
 import com.example.vaccinationapp.adapters.VaccinesAdapter
 //import com.example.vaccinationapp.adapters.VaccinesAdapter
-import com.example.vaccinationapp.entities.Appointments
-import com.example.vaccinationapp.entities.HealthcareUnits
-import com.example.vaccinationapp.entities.Users
-import com.example.vaccinationapp.entities.Vaccinations
-import com.example.vaccinationapp.queries.AppointmentsQueries
-import com.example.vaccinationapp.queries.HealthcareUnitsQueries
-import com.example.vaccinationapp.queries.UsersQueries
-import com.example.vaccinationapp.queries.VaccinationsQueries
+import com.example.vaccinationapp.DB.entities.Appointments
+import com.example.vaccinationapp.DB.entities.HealthcareUnits
+import com.example.vaccinationapp.DB.entities.Users
+import com.example.vaccinationapp.DB.entities.Vaccinations
+import com.example.vaccinationapp.DB.queries.AppointmentsQueries
+import com.example.vaccinationapp.DB.queries.HealthcareUnitsQueries
+import com.example.vaccinationapp.DB.queries.UsersQueries
+import com.example.vaccinationapp.DB.queries.VaccinationsQueries
 import com.example.vaccinationapp.ui.managerecords.ManageRecordsFragment
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient"
-    tools:context=".LoginActivity">
+    tools:context=".ui.login.LoginActivity">
 
     <ImageView
         android:id="@+id/imageView"
@@ -20,8 +20,8 @@
 
     <TextView
         android:id="@+id/loginView"
-        android:layout_width="294dp"
-        android:layout_height="54dp"
+        android:layout_width="301dp"
+        android:layout_height="56dp"
         android:layout_marginTop="28dp"
         android:fontFamily="@font/neuropol_x_rg"
         android:text="Please enter your login information"

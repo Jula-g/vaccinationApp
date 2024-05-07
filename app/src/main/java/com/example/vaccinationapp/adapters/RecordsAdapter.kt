@@ -7,7 +7,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.vaccinationapp.R
-import com.example.vaccinationapp.entities.Appointments
+import com.example.vaccinationapp.DB.entities.Appointments
 import com.example.vaccinationapp.ui.managerecords.ManageRecordsFragment
 
 class RecordsAdapter (private val dataSet: List<Appointments>):

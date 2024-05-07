@@ -22,4 +22,10 @@
         android:name="com.example.vaccinationapp.ui.managerecords.ManageRecordsFragment"
         android:label="@string/menu_manage_records"
         tools:layout="@layout/fragment_manage_records" />
+
+    <fragment
+        android:id="@+id/nav_reminders"
+        android:name="com.example.vaccinationapp.ui.reminder.ReminderFragment"
+        android:label="@string/set_reminder"
+        tools:layout="@layout/fragment_reminder" />
 </navigation>
