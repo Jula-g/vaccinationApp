@@ -1,14 +1,14 @@
 package com.example.vaccinationapp.ui
 
 import android.util.Log
-import com.example.vaccinationapp.DBconnection
-import com.example.vaccinationapp.entities.Appointments
-import com.example.vaccinationapp.entities.HealthcareUnits
-import com.example.vaccinationapp.entities.Vaccinations
-import com.example.vaccinationapp.queries.AppointmentsQueries
-import com.example.vaccinationapp.queries.HealthcareUnitsQueries
-import com.example.vaccinationapp.queries.UsersQueries
-import com.example.vaccinationapp.queries.VaccinationsQueries
+import com.example.vaccinationapp.DB.DBconnection
+import com.example.vaccinationapp.DB.entities.Appointments
+import com.example.vaccinationapp.DB.entities.HealthcareUnits
+import com.example.vaccinationapp.DB.entities.Vaccinations
+import com.example.vaccinationapp.DB.queries.AppointmentsQueries
+import com.example.vaccinationapp.DB.queries.HealthcareUnitsQueries
+import com.example.vaccinationapp.DB.queries.UsersQueries
+import com.example.vaccinationapp.DB.queries.VaccinationsQueries
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

@@ -1,4 +1,5 @@
 package com.example.vaccinationapp.DB
+import com.example.vaccinationapp.DB.DBconnection
 import com.example.vaccinationapp.DB.entities.Appointments
 import com.example.vaccinationapp.DB.entities.HealthcareUnits
 import com.example.vaccinationapp.DB.entities.Users
