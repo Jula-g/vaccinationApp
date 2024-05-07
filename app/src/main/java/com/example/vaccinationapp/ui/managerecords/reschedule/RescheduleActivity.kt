@@ -65,7 +65,7 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         val appId = intent.getIntExtra("appointmentId", -1)
 
         runBlocking { launch(Dispatchers.IO){
-            appointment = getAppointment(appId)
+            appointment = queries.getAppointment(appId)
         } }
 
         val vaccineId = appointment?.vaccinationId
@@ -164,16 +164,6 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         cancel.setOnClickListener {
             val intent = Intent(this, ManageRecordsFragment::class.java)
             startActivity(intent)
-        }
-    }
-
-    private suspend fun getAppointment(id:Int): Appointments?{
-        return withContext(Dispatchers.IO) {
-            val conn = DBconnection.getConnection()
-            val query = AppointmentsQueries(conn)
-            val result = query.getAppointment(id)
-            conn.close()
-            result
         }
     }
 

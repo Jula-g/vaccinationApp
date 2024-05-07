@@ -125,23 +125,4 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
             vaccinationId = resultSet.getInt("vaccine_id")
         )
     }
-    @SuppressLint("SimpleDateFormat")
-    override fun getAppointmentId(date: String, time: String): Int? {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd")
-        val timeFormat = SimpleDateFormat("HH:mm")
-
-        val fdate = Date(dateFormat.parse(date)!!.time)
-        val ftime = Time(timeFormat.parse(time)!!.time)
-
-        val query = "{CALL getAppointmentId(?, ?)}"
-        val statement = connection.prepareCall(query)
-        statement.setDate(1, fdate)
-        statement.setTime(2, ftime)
-        val resultSet = statement.executeQuery()
-        return if (resultSet.next()) {
-            resultSet.getInt("id")
-        } else {
-            null
-        }
-    }
 }

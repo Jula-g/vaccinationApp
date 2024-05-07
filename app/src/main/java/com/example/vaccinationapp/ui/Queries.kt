@@ -111,6 +111,16 @@ class Queries {
         }
     }
 
+    suspend fun getAppointment(id:Int): Appointments?{
+        return withContext(Dispatchers.IO) {
+            val conn = DBconnection.getConnection()
+            val query = AppointmentsQueries(conn)
+            val result = query.getAppointment(id)
+            conn.close()
+            result
+        }
+    }
+
     suspend fun deleteAppointment(id: Int): Boolean {
         return withContext(Dispatchers.IO){
             val conn = DBconnection.getConnection()

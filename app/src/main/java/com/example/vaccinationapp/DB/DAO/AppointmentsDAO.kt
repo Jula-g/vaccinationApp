@@ -12,7 +12,5 @@ interface AppointmentsDAO {
     fun updateAppointment(id: Int, appointment: Appointments): Boolean
     fun deleteAppointment(id: Int): Boolean
     fun getAllAppointments(): Set<Appointments>?
-
-    fun getAppointmentId(date: String, time: String): Int?
     fun getAllAppointmentsForDate(date: String): List<String>?
 }
