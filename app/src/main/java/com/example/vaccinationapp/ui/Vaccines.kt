@@ -1,16 +1,14 @@
 package com.example.vaccinationapp.ui
 
-import android.util.Log
-import com.example.vaccinationapp.DBconnection
 import com.example.vaccinationapp.entities.HealthcareUnits
 import com.example.vaccinationapp.entities.Vaccinations
-import com.example.vaccinationapp.queries.HealthcareUnitsQueries
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+
 
 class Vaccines {
+    private val queries = Queries()
     fun offerVaccines(offeredVaccines:Set<Vaccinations>): List<String>{
         val result = mutableListOf<String>()
         var healthcareUnit: HealthcareUnits? = HealthcareUnits()
@@ -20,28 +18,19 @@ class Vaccines {
                 val name = vaccine.vaccineName.toString()
                 val id = vaccine.healthcareUnitId
                 runBlocking { launch(Dispatchers.IO){
-                    healthcareUnit = id?.let { getHealthcareUnit(it) }
+                    healthcareUnit = id?.let { queries.getHealthcareUnit(it) }
                 } }
                 val unitName = healthcareUnit?.name
-                val city = healthcareUnit?.city
-                val street = healthcareUnit?.street
-                val nr = healthcareUnit?.streetNumber
-                val address = "$unitName $city $street $nr"
-                val nameAddress = "$name;$address;$id"
+                val address = "${healthcareUnit?.city} ${healthcareUnit?.street} ${healthcareUnit?.streetNumber}"
+                val nameAddress = "$name;$unitName;$address;$id"
                 result.add(nameAddress)
             }
         }
         return result
     }
 
-    private suspend fun getHealthcareUnit(id: Int): HealthcareUnits?{
-        return withContext(Dispatchers.IO){
-            val conn = DBconnection.getConnection()
-            val HUqueries = HealthcareUnitsQueries(conn)
-            val result = HUqueries.getHealthcareUnit(id)
-            Log.d("DATABASE", "healthcare units: $result")
-            conn.close()
-            result
-        }
+    fun filterVaccinesByHealthcareUnit(vaccines: Set<Vaccinations>, unitId: Int): Set<Vaccinations> {
+        return vaccines.filter { it.healthcareUnitId == unitId }.toSet()
     }
+
 }

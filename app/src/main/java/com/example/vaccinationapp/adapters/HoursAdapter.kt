@@ -1,5 +1,6 @@
 package com.example.vaccinationapp.adapters
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -39,6 +40,7 @@ class HoursAdapter(private val dataSet: List<String>, private val date: Button):
 
     private var selected: Int? = null
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = dataSet[position]
         holder.buttonHour.text = item

@@ -16,14 +16,19 @@ import com.example.vaccinationapp.entities.Vaccinations
 import com.example.vaccinationapp.queries.AppointmentsQueries
 import com.example.vaccinationapp.queries.HealthcareUnitsQueries
 import com.example.vaccinationapp.queries.VaccinationsQueries
+import com.example.vaccinationapp.ui.Queries
 import com.example.vaccinationapp.ui.managerecords.ManageRecordsFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class RecordsAdapter (private val dataSet: List<Appointments>, private val update: Button, private val  cancel: Button):
     RecyclerView.Adapter<RecordsAdapter.ViewHolder>() {
+
+        private val queries = Queries()
 
     interface OnItemClickListener {
         fun onRecordClick(id: Int?, update: Button, cancel: Button)
@@ -58,19 +63,22 @@ class RecordsAdapter (private val dataSet: List<Appointments>, private val updat
         val vaccId = item.vaccinationId!!.toInt()
         val userId = item.userId!!.toInt()
         val date = item.date.toString()
-        val time = item.time.toString()
+        val time = item.time
+
+        val outputTimeFormat = SimpleDateFormat("H:mm", Locale.getDefault())
+        val timeF = time?.let { outputTimeFormat.format(it) }
 
         holder.buttonDate.text = date
-        holder.buttonTime.text = time
+        holder.buttonTime.text = timeF
         holder.buttonName.text = "Loading..."
         holder.buttonAddress.text = "Loading..."
 
         var vaccine: Vaccinations? = null
         var unit: HealthcareUnits? = null
         runBlocking { launch(Dispatchers.IO) {
-            vaccine = getVaccination(vaccId)
+            vaccine = queries.getVaccination(vaccId)
             val unitId = vaccine?.healthcareUnitId
-            unit = unitId?.let { getHealthcareUnit(it) }
+            unit = unitId?.let { queries.getHealthcareUnit(it) }
         }}
 
         holder.buttonName.text = vaccine?.vaccineName
@@ -88,7 +96,7 @@ class RecordsAdapter (private val dataSet: List<Appointments>, private val updat
         holder.itemView.setOnClickListener{
             var appointmentId: Int? = null
             runBlocking { launch(Dispatchers.IO) {
-                 appointmentId = getAppointmentId(date, time)
+                 appointmentId = queries.getAppointmentId(date, time.toString())
             } }
 
             listener?.onRecordClick(appointmentId, update, cancel)
@@ -97,34 +105,4 @@ class RecordsAdapter (private val dataSet: List<Appointments>, private val updat
             notifyDataSetChanged()
         }
     }
-
-    private suspend fun getVaccination(id: Int): Vaccinations?{
-        return withContext(Dispatchers.IO){
-            val conn = DBconnection.getConnection()
-            val vaccQueries = VaccinationsQueries(conn)
-            val result = vaccQueries.getVaccination(id)
-            conn.close()
-            result
-        }
-    }
-
-    private suspend fun getHealthcareUnit(id: Int): HealthcareUnits?{
-        return withContext(Dispatchers.IO){
-            val conn = DBconnection.getConnection()
-            val unitQueries = HealthcareUnitsQueries(conn)
-            val result = unitQueries.getHealthcareUnit(id)
-            conn.close()
-            result
-        }
-    }
-    private suspend fun getAppointmentId(date: String, time: String): Int?{
-        return withContext(Dispatchers.IO){
-            val conn = DBconnection.getConnection()
-            val queries = AppointmentsQueries(conn)
-            val result = queries.getAppointmentId(date, time)
-            conn.close()
-            result
-        }
-    }
-
 }

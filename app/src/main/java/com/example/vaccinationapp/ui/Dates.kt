@@ -9,18 +9,20 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.vaccinationapp.R
 import com.example.vaccinationapp.adapters.HoursAdapter
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
 import java.text.DateFormatSymbols
 import java.util.Calendar
 
 class Dates {
-    private var selectedDateFormatted = ""
-    private var selectedDate = ""
     fun showDatePickerDialog(
         activity: Activity,
         dateButton: Button,
         offeredHours: List<String>,
         hoursManager: Hours)
-    : String {
+    : Deferred<Pair<String, String>> {
+        val deferredResult = CompletableDeferred<Pair<String, String>>()
+
         val calendar = Calendar.getInstance()
         val currentYear = calendar.get(Calendar.YEAR)
         val currentMonth = calendar.get(Calendar.MONTH)
@@ -29,12 +31,13 @@ class Dates {
         val datePickerDialog = DatePickerDialog(
             activity,
             { _: DatePicker?, selectedYear: Int, selectedMonth: Int, selectedDay: Int ->
-                selectedDate = "$selectedYear-${selectedMonth+1}-$selectedDay"
+                val selectedDate = "$selectedYear-${selectedMonth+1}-$selectedDay"
                 val monthName = DateFormatSymbols().months[selectedMonth]
-                selectedDateFormatted = "$selectedDay $monthName $selectedYear"
+                val selectedDateFormatted = "$selectedDay $monthName $selectedYear"
 
                 if (isDateValid(selectedYear, selectedMonth, selectedDay)) {
                     dateButton.text = selectedDateFormatted
+//                    Log.d("SELECTED", "selected1: $selectedDate, formatted1: $selectedDateFormatted")
 
                     //check available hours for picked date
                     val availableHours = hoursManager.getAvailableHours(selectedDate, offeredHours)
@@ -48,6 +51,8 @@ class Dates {
                     if (activity is HoursAdapter.OnItemClickListener) {
                         adapterTime.setOnItemClickListener(activity)
                     }
+
+                    deferredResult.complete(Pair(selectedDate, selectedDateFormatted))
                 }
             },
             currentYear,
@@ -58,7 +63,7 @@ class Dates {
         datePickerDialog.datePicker.minDate = System.currentTimeMillis()
         datePickerDialog.show()
 
-        return "$selectedDate;$selectedDateFormatted"
+        return deferredResult
     }
 
     fun isDateValid(selectedYear: Int, selectedMonth: Int, selectedDay: Int): Boolean {

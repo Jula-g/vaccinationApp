@@ -9,59 +9,67 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="140dp"
-        android:background="#FFD1E9E2">
+        android:layout_height="140dp">
 
         <TextView
             android:id="@+id/vaccineName"
-            android:layout_width="370dp"
-            android:layout_height="28dp"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="80dp"
+            android:fontFamily="@font/neuropol_x_rg"
             android:gravity="center_vertical"
             android:text="NAME"
+            android:textColor="#1A4153"
             android:textSize="22sp"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/dateView"
-            android:layout_width="180dp"
+            android:layout_width="0dp"
             android:layout_height="28dp"
             android:layout_marginStart="20dp"
-            android:layout_marginBottom="40dp"
+            android:layout_marginBottom="50dp"
+            android:fontFamily="@font/neuropol_x_rg"
             android:gravity="center_vertical"
             android:text="DATE"
+            android:textColor="#2B5365"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/vaccineName" />
+            app:layout_constraintTop_toBottomOf="@+id/vaccineName"
+            app:layout_constraintVertical_bias="0.789" />
 
         <TextView
             android:id="@+id/timeView"
-            android:layout_width="180dp"
+            android:layout_width="130dp"
             android:layout_height="28dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginBottom="40dp"
+            android:layout_marginBottom="50dp"
+            android:fontFamily="@font/neuropol_x_rg"
             android:gravity="center_vertical"
             android:text="TIME"
+            android:textColor="#2B5365"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/vaccineName" />
+            app:layout_constraintTop_toBottomOf="@+id/vaccineName"
+            app:layout_constraintVertical_bias="1.0" />
 
         <TextView
             android:id="@+id/addressView"
-            android:layout_width="370dp"
+            android:layout_width="wrap_content"
             android:layout_height="28dp"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="60dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="15dp"
+            android:fontFamily="@font/neuropol_x_rg"
             android:text="address"
+            android:textColor="#2B5365"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/vaccineName" />
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

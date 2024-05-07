@@ -30,6 +30,7 @@ import com.example.vaccinationapp.queries.UsersQueries
 import com.example.vaccinationapp.queries.VaccinationsQueries
 import com.example.vaccinationapp.ui.Dates
 import com.example.vaccinationapp.ui.Hours
+import com.example.vaccinationapp.ui.Queries
 import com.example.vaccinationapp.ui.Vaccines
 import com.example.vaccinationapp.ui.managerecords.ManageRecordsFragment
 import com.google.firebase.auth.FirebaseAuth
@@ -59,6 +60,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
     private val hoursManager = Hours()
     private val vaccinesManager = Vaccines()
     private val datesManager = Dates()
+    private val queries = Queries()
 
 
     @SuppressLint("MissingInflatedId", "SimpleDateFormat", "WeekBasedYear")
@@ -82,7 +84,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         var offeredVaccines: Set<Vaccinations>? = setOf(Vaccinations())
         runBlocking {
             launch(Dispatchers.IO){
-                offeredVaccines = getAllVaccines()
+                offeredVaccines = queries.getAllVaccines()
             }
         }
 
@@ -124,11 +126,15 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
 
         // PICKING THE DATE WILL RESULT IN THE APP SHOWING AVAILABLE HOURS
         date.setOnClickListener {
-            val string = datesManager.showDatePickerDialog(this, date, offeredHours, hoursManager)
-            val stringSplit = string.split(";")
-            selectedDate = stringSplit[0]
-            selectedDateFormatted = stringSplit[1]
-            Log.d("DATES", "selected: $selectedDate, formatted: $selectedDateFormatted")
+            lifecycleScope.launch {
+                val result =
+                    datesManager.showDatePickerDialog(this@ScheduleActivity, date, offeredHours, hoursManager)
+
+                val (sDate, sDateFormatted) = result.await()
+                selectedDate = sDate
+                selectedDateFormatted = sDateFormatted
+                Log.d("DATES", "selectedFinito: $selectedDate, formatted: $selectedDateFormatted")
+            }
         }
 
 
@@ -145,7 +151,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
             val email = FirebaseAuth.getInstance().currentUser!!.email
             runBlocking { launch(Dispatchers.IO) {
                 //if user has an account and is logged in, it must be in the database so userID will never be null
-                FuserID = getUserId(email!!)!!.toInt()
+                FuserID = queries.getUserId(email!!)!!.toInt()
             } }
 
             //create appointment object
@@ -154,7 +160,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
 
             //add appoitment to the DB
             runBlocking { launch(Dispatchers.IO) {
-                val result = addAppointment(appointment)
+                val result = queries.addAppointment(appointment)
                 Log.d("DATABASE", "Add appointment successful: $result")
             } }
 
@@ -349,86 +355,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
     }
 
     override suspend fun onVaccineClick(vaccineName: String, healthcareUnitId: Int){
-        FvaccineID = getVaccinationId(vaccineName, healthcareUnitId)!!
+        FvaccineID = queries.getVaccinationId(vaccineName, healthcareUnitId)!!
     }
-
-    //QUERIES
-//    private suspend fun getAllAppointmentsForDate(date:String): List<String>?{
-//        return withContext(Dispatchers.IO){
-//            val connection = DBconnection.getConnection()
-//            Log.d("DATABASE", "connected with date: $date")
-//            val appointmentQueries = AppointmentsQueries(connection)
-//            val result = appointmentQueries.getAllAppointmentsForDate(date)
-//            Log.d("DATABASE", "result: $result")
-//            connection.close()
-//            result
-//        }
-//    }
-
-    private suspend fun addAppointment(appointment: Appointments):Boolean{
-        return withContext(Dispatchers.IO){
-            val conn = DBconnection.getConnection()
-            Log.d("DATABASE", "appointment connected")
-            val appQueries = AppointmentsQueries(conn)
-            val result = appQueries.addAppointment(appointment)
-            Log.d("DATABASE", "appointment added: $result")
-            conn.close()
-            result
-        }
-    }
-
-    private suspend fun getAllVaccines(): Set<Vaccinations>?{
-        return withContext(Dispatchers.IO){
-            val connection = DBconnection.getConnection()
-            Log.d("DATABASE", "vaccines connected")
-            val vaccineQueries = VaccinationsQueries(connection)
-            val result = vaccineQueries.getAllVaccinations()
-            Log.d("DATABASE", "vaccines: $result")
-            connection.close()
-            result
-        }
-    }
-
-//    private suspend fun getHealthcareUnit(id: Int): HealthcareUnits?{
-//        return withContext(Dispatchers.IO){
-//            val conn = DBconnection.getConnection()
-//            val HUqueries = HealthcareUnitsQueries(conn)
-//            val result = HUqueries.getHealthcareUnit(id)
-//            Log.d("DATABASE", "healthcare units: $result")
-//            conn.close()
-//            result
-//        }
-//    }
-
-    private suspend fun getUserId(email: String): Int? {
-        return withContext(Dispatchers.IO){
-            val conn = DBconnection.getConnection()
-            val userQueries = UsersQueries(conn)
-            val result = userQueries.getUserId(email)
-            Log.d("DATABASE", "user ID: $result")
-            conn.close()
-            result
-        }
-    }
-
-    private suspend fun getVaccinationId(name:String, healthcareUnitId: Int): Int?{
-        return withContext(Dispatchers.IO){
-            val conn = DBconnection.getConnection()
-            val vaccQueries = VaccinationsQueries(conn)
-            val result = vaccQueries.getVaccinationId(name, healthcareUnitId)
-            conn.close()
-            result
-        }
-    }
-//
-//    private suspend fun getHealthcareUnitId(name: String): Int?{
-//        return withContext(Dispatchers.IO){
-//            val conn = DBconnection.getConnection()
-//            val unitQueries = HealthcareUnitsQueries(conn)
-//            val result = unitQueries.getHalthcareUnitId(name)
-//            conn.close()
-//            result
-//        }
-//    }
 
 }
