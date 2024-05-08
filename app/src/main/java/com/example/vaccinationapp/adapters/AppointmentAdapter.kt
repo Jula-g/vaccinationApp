@@ -11,9 +11,7 @@ import com.example.vaccinationapp.DB.entities.Appointments
 import com.example.vaccinationapp.DB.entities.Vaccinations
 import com.example.vaccinationapp.DB.queries.VaccinationsQueries
 import com.example.vaccinationapp.R
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.Locale

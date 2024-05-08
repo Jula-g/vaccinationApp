@@ -30,9 +30,9 @@ class RegisterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
-        emailInput = findViewById<EditText>(R.id.emailInput)
-        nameInput = findViewById<EditText>(R.id.NameInput)
-        lastNameInput = findViewById<EditText>(R.id.lastNameInput)
+        emailInput = findViewById(R.id.emailInput)
+        nameInput = findViewById(R.id.NameInput)
+        lastNameInput = findViewById(R.id.lastNameInput)
         val loginButton = findViewById<TextView>(R.id.loginButton)
         val signUpButton = findViewById<Button>(R.id.SignUpButton)
 

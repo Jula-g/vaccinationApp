@@ -14,7 +14,7 @@ class Hours {
     @SuppressLint("SimpleDateFormat")
     fun getAvailableHours(selectedDate: String, offeredHours: List<String>): List<String>{
         var takenHours: List<String>? = null
-        var offeredHoursFormatted: List<String>? = null
+        var offeredHoursFormatted: List<String>?
         try {
             runBlocking {
                 launch(Dispatchers.IO) {
@@ -30,7 +30,6 @@ class Hours {
         takenHours = formatHours(takenHours)
         offeredHoursFormatted = formatHours(offeredHours)
 
-//        // get current date and time
         val calendar = Calendar.getInstance()
         calendar.timeZone = TimeZone.getTimeZone("CET")
         val currentDate = "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH)+1}-${calendar.get(
@@ -51,12 +50,10 @@ class Hours {
     }
 
     fun filterHours(offeredHours: List<String>, currentTime: String): List<String> {
-        // Parse the current time
         val currentTimeSplit = currentTime.split(":")
         val currentHour = currentTimeSplit[0].toInt()
         val currentMinute = currentTimeSplit[1].toInt()
 
-        // Function to parse a time string and return the hour and minute as a pair
         fun parseTime(time: String): Pair<Int, Int> {
             val parts = time.split(":")
             val hour = parts[0].toInt()
@@ -64,7 +61,6 @@ class Hours {
             return Pair(hour, minute)
         }
 
-        // Filter the times based on the comparison with the current time
         return offeredHours.filter { time ->
             val (hour, minute) = parseTime(time)
             if (hour < currentHour) {

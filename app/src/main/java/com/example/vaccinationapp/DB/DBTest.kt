@@ -39,9 +39,6 @@ fun main() {
         println("Testing getUser():")
         println(userQueries.getUser(2))
 
-//        println("Testing deleteUser():")
-//        println("Deletion successful:${userQueries.deleteUser(2)}")
-
         println("Testing getAllUsers():")
         println(userQueries.getAllUsers())
 
@@ -68,10 +65,6 @@ fun main() {
         println("Testing deleteHealthcareUnit():")
         println("Deletion successful:${healthcareUnitsQueries.deleteHealthcareUnit(2)}")
 
-//        println("Testing getAllHealthcareUnits():")
-//        println(healthcareUnitsQueries.getAllHealthcareUnits())
-
-
         println("= TESTING VACCINE QUERIES =")
         println("Testing addVaccination():")
         val newVaccine = Vaccinations("tetanus", 2, 1)
@@ -86,17 +79,8 @@ fun main() {
         println("Testing getVaccination():")
         println(vaccinationsQueries.getVaccination(2))
 
-//        println("Testing updateVaccination():")
-//        val updatedVaccine = Vaccinations("tetanus", 1, 1)
-//        println("Update successful:${vaccinationsQueries.updateVaccination(2, updatedVaccine)}")
-
         println("Testing getAllVaccinations():")
         println(vaccinationsQueries.getAllVaccinations())
-
-//        println("Testing deleteVaccination():")
-//        println("Deletion successful:${vaccinationsQueries.deleteVaccination(2)}")
-
-
 
         println("= TESTING APPOINTMENTS QUERIES =")   //gotta figure out how to do date and tie :/
         println("Testing addAppointment():")
@@ -122,9 +106,6 @@ fun main() {
         println("Testing getAppointment():")
         println(appointmentQueries.getAppointment(2))
 
-//        println("Testing deleteUser():")
-//        println("Deletion successful:${appointmentQueries.deleteAppointment(2)}")
-
         println("Testing getAllAppointmentsForDate():")
         val dateString = date.toString()
         println("date: $dateString")
@@ -135,10 +116,8 @@ fun main() {
 
         print("get app id")
         println(appointmentQueries.getAppointmentId("2024-04-26", "15:30"))
-
-                // Closing connection
-                connection.close() // Closing the database connection
+                connection.close()
     } catch (e: Exception) {
-        e.printStackTrace() // Printing error information in case an exception occurs
+        e.printStackTrace()
     }
 }

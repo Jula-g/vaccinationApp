@@ -62,7 +62,7 @@ class Queries {
         return withContext(Dispatchers.IO){
             val conn = DBconnection.getConnection()
             val unitQueries = HealthcareUnitsQueries(conn)
-            val result = unitQueries.getHalthcareUnitId(name)
+            val result = unitQueries.getHealthcareUnitId(name)
             conn.close()
             result
         }

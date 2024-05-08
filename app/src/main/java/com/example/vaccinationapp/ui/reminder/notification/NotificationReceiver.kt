@@ -1,5 +1,6 @@
 package com.example.vaccinationapp.ui.reminder.notification
 
+import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -9,6 +10,7 @@ import com.example.vaccinationapp.R
 
 
 class NotificationReceiver : BroadcastReceiver() {
+    @SuppressLint("UnsafeProtectedBroadcastReceiver")
     override fun onReceive(context: Context, intent: Intent) {
         val appointmentDate = intent.getStringExtra("appointment_date")
         val appointmentTime = intent.getStringExtra("appointment_time")

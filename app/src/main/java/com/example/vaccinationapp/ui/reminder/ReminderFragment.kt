@@ -23,8 +23,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
 
 class ReminderFragment : Fragment() {
 
@@ -42,7 +45,7 @@ class ReminderFragment : Fragment() {
         val recyclerView: RecyclerView = root.findViewById(R.id.recycleAppointment)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        loadAppointment(recyclerView) { appointment ->
+        loadUpcomingAppointments(recyclerView) { appointment ->
             showDateTimePickerDialog(appointment)
         }
 
@@ -54,7 +57,7 @@ class ReminderFragment : Fragment() {
         _binding = null
     }
 
-    private fun loadAppointment(recyclerView: RecyclerView, onItemClick: (Appointments) -> Unit) {
+    private fun loadUpcomingAppointments(recyclerView: RecyclerView, onItemClick: (Appointments) -> Unit) {
         val scope = CoroutineScope(Dispatchers.IO)
 
         scope.launch {
@@ -62,13 +65,36 @@ class ReminderFragment : Fragment() {
             val ap = AppointmentsQueries(connection)
             val appointmentsList = ap.getAllAppointments()?.toList() ?: emptyList()
 
+            val upcomingAppointments = filterUpcomingAppointments(appointmentsList)
+
             withContext(Dispatchers.Main) {
-                val adapter = AppointmentAdapter(appointmentsList, onItemClick)
+                val adapter = AppointmentAdapter(upcomingAppointments, onItemClick)
                 recyclerView.adapter = adapter
                 connection.close()
             }
         }
     }
+
+    private fun filterUpcomingAppointments(appointments: List<Appointments>): List<Appointments> {
+        val upcomingAppointments = mutableListOf<Appointments>()
+
+        val calendar = Calendar.getInstance()
+        calendar.timeZone = TimeZone.getTimeZone("CET")
+        val currentDate = calendar.time
+        val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+        dateTimeFormat.timeZone = TimeZone.getTimeZone("CET")
+
+        for (appointment in appointments) {
+            val appointmentDateTimeString = "${appointment.date} ${appointment.time}"
+            val appointmentDateTime = dateTimeFormat.parse(appointmentDateTimeString)
+
+            if (appointmentDateTime!!.after(currentDate)) {
+                upcomingAppointments.add(appointment)
+            }
+        }
+        return upcomingAppointments
+    }
+
 
     private fun showDateTimePickerDialog(appointment: Appointments) {
         val dialogView =
@@ -154,37 +180,4 @@ class ReminderFragment : Fragment() {
 
         alertDialog.show()
     }
-
-//    @SuppressLint("ScheduleExactAlarm", "BatteryLife")
-//    private fun setReminder(context: Context, dateTimeMillis: Long, appointment: Appointments) {
-//        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-//
-//        val intent = Intent(context, AlarmReceiver::class.java).apply {
-//            putExtra("appointment_date", appointment.date)
-//            putExtra("appointment_time", appointment.time)
-//        }
-//
-//        val requestCode =
-//            appointment.hashCode()
-//
-//        val pendingIntent = PendingIntent.getBroadcast(
-//            context,
-//            requestCode,
-//            intent,
-//            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-//        )
-//
-//        if (ActivityCompat.checkSelfPermission(
-//                context,
-//                android.Manifest.permission.SCHEDULE_EXACT_ALARM
-//            ) != PackageManager.PERMISSION_GRANTED
-//        ) {
-//            ActivityCompat.requestPermissions(
-//                requireActivity(),
-//                arrayOf(android.Manifest.permission.SCHEDULE_EXACT_ALARM),
-//                requestCode
-//            )
-//            return
-//        }
-//    }
 }

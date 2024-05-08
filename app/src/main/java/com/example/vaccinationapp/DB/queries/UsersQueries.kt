@@ -89,7 +89,6 @@ class UsersQueries(private val connection: Connection) : UsersDAO {
         return statement.executeUpdate() > 0
     }
 
-    // Maps a ResultSet row to an Users object
     private fun mapResultSetToUser(resultSet: ResultSet):
             Users {
         return Users(

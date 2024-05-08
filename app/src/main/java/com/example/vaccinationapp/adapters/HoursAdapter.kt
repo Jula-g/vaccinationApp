@@ -9,7 +9,6 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.vaccinationapp.R
-import com.example.vaccinationapp.ui.managerecords.schedule.ScheduleActivity
 
 class HoursAdapter(private val dataSet: List<String>, private val date: Button):
     RecyclerView.Adapter<HoursAdapter.ViewHolder>(){

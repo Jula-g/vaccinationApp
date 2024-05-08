@@ -28,12 +28,11 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
         statement.setInt(1, id)
         val resultSet = statement.executeQuery()
         return if (resultSet.next()) {
-           mapResultSetToAppointment(resultSet)
-        }else {
+            mapResultSetToAppointment(resultSet)
+        } else {
             null
         }
     }
-
 
 
     override fun updateAppointment(id: Int, appointment: Appointments): Boolean {
@@ -66,13 +65,13 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
         return if (appointments.isEmpty()) null else appointmentsFinal
     }
 
-    override fun getAllAppointmentsForUserId(id: Int): Set<Appointments>?{
+    override fun getAllAppointmentsForUserId(id: Int): Set<Appointments>? {
         val query = "{CALL getAllAppointmentsForUserId(?)}"
         val statement = connection.prepareCall(query)
         statement.setInt(1, id)
         val resultSet = statement.executeQuery()
         val appointments = mutableSetOf<Appointments>()
-        while (resultSet.next()){
+        while (resultSet.next()) {
             appointments.add(mapResultSetToAppointment(resultSet))
         }
         val appointmentsFinal = appointments.toSet()
@@ -86,7 +85,7 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
 
         val query = "{CALL getAllAppointmentsForDate(?)}"
         val statement = connection.prepareCall(query)
-        statement.setDate(1,javaSqlDate)
+        statement.setDate(1, javaSqlDate)
         val resultSet = statement.executeQuery()
         val hours = mutableListOf<String>()
         while (resultSet.next()) {
