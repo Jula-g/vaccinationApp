@@ -25,6 +25,8 @@ import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AlertDialog
 import com.example.vaccinationapp.ui.login.LoginActivity
+import com.example.vaccinationapp.ui.reminder.notification.NotificationHelper
+import com.example.vaccinationapp.ui.reminder.notification.NotificationSetter
 
 
 class MainActivity : AppCompatActivity() {
@@ -35,6 +37,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        NotificationHelper(applicationContext).createNotificationChannel()
+        val notificationSetter = NotificationSetter(applicationContext)
+        notificationSetter.setNotifications()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)

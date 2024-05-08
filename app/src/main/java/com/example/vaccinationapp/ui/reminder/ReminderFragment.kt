@@ -1,19 +1,13 @@
 package com.example.vaccinationapp.ui.reminder
 
-import android.annotation.SuppressLint
-import android.app.AlarmManager
 import android.app.AlertDialog
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.DatePicker
 import android.widget.NumberPicker
-import androidx.core.app.ActivityCompat
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,19 +17,19 @@ import com.example.vaccinationapp.DB.queries.AppointmentsQueries
 import com.example.vaccinationapp.R
 import com.example.vaccinationapp.adapters.AppointmentAdapter
 import com.example.vaccinationapp.databinding.FragmentReminderBinding
+import com.example.vaccinationapp.ui.reminder.alarm.Alarm
+import com.example.vaccinationapp.ui.reminder.alarm.AndroidAlarmScheduler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
 import java.util.Calendar
 
 class ReminderFragment : Fragment() {
 
     private var _binding: FragmentReminderBinding? = null
     private val binding get() = _binding!!
-
-    private var requestCode = 123
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -146,9 +140,12 @@ class ReminderFragment : Fragment() {
                     selectedMinute
                 )
 
-                setReminder(requireContext(), selectedDateTime.timeInMillis, appointment)
+                val alarmScheduler = AndroidAlarmScheduler(requireContext())
+                val alarm = Alarm(LocalDateTime.of(selectedYear, selectedMonth + 1, selectedDay, selectedHour, selectedMinute), appointment.date.toString())
+                alarmScheduler.schedule(alarm)
 
                 dialog.dismiss()
+                Toast.makeText(requireContext(), "Reminder set", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("Cancel") { dialog, _ ->
                 dialog.dismiss()
@@ -158,44 +155,36 @@ class ReminderFragment : Fragment() {
         alertDialog.show()
     }
 
-
-    @SuppressLint("ScheduleExactAlarm")
-    private fun setReminder(context: Context, dateTimeMillis: Long, appointment: Appointments) {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-        val intent = Intent(context, ReminderBroadcastReceiver::class.java).apply {
-            putExtra("dateTimeMillis", dateTimeMillis)
-            putExtra("appointment_date", appointment.date)
-            putExtra("appointment_time", appointment.time)
-        }
-
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                android.Manifest.permission.SCHEDULE_EXACT_ALARM
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(android.Manifest.permission.SCHEDULE_EXACT_ALARM),
-                requestCode
-            )
-        } else {
-            val pendingIntent = PendingIntent.getBroadcast(
-                context,
-                requestCode,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            val calendar = Calendar.getInstance().apply {
-                timeInMillis = dateTimeMillis
-            }
-
-            alarmManager.setExact(
-                AlarmManager.RTC_WAKEUP,
-                calendar.timeInMillis,
-                pendingIntent
-            )
-        }
-    }
+//    @SuppressLint("ScheduleExactAlarm", "BatteryLife")
+//    private fun setReminder(context: Context, dateTimeMillis: Long, appointment: Appointments) {
+//        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+//
+//        val intent = Intent(context, AlarmReceiver::class.java).apply {
+//            putExtra("appointment_date", appointment.date)
+//            putExtra("appointment_time", appointment.time)
+//        }
+//
+//        val requestCode =
+//            appointment.hashCode()
+//
+//        val pendingIntent = PendingIntent.getBroadcast(
+//            context,
+//            requestCode,
+//            intent,
+//            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+//        )
+//
+//        if (ActivityCompat.checkSelfPermission(
+//                context,
+//                android.Manifest.permission.SCHEDULE_EXACT_ALARM
+//            ) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            ActivityCompat.requestPermissions(
+//                requireActivity(),
+//                arrayOf(android.Manifest.permission.SCHEDULE_EXACT_ALARM),
+//                requestCode
+//            )
+//            return
+//        }
+//    }
 }
