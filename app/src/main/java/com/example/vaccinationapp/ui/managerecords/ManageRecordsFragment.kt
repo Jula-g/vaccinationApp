@@ -9,16 +9,12 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.vaccinationapp.DB.DBconnection
 import com.example.vaccinationapp.R
 import com.example.vaccinationapp.adapters.RecordsAdapter
 import com.example.vaccinationapp.databinding.FragmentManageRecordsBinding
 import com.example.vaccinationapp.DB.entities.Appointments
-import com.example.vaccinationapp.DB.queries.AppointmentsQueries
-import com.example.vaccinationapp.DB.queries.UsersQueries
 import com.example.vaccinationapp.ui.Queries
 import com.example.vaccinationapp.ui.managerecords.reschedule.RescheduleActivity
 import com.example.vaccinationapp.ui.managerecords.schedule.ScheduleActivity
@@ -45,8 +41,6 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val addViewModel =
-            ViewModelProvider(this).get(ManageRecordsViewModel::class.java)
 
         _binding = FragmentManageRecordsBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -54,20 +48,19 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
         val editRecord: Button = root.findViewById(R.id.editbtn)
         val addRecord: Button = root.findViewById(R.id.addbtn)
         val deleteRecord: Button = root.findViewById(R.id.deletebtn)
-
-
         val email = FirebaseAuth.getInstance().currentUser!!.email
 
-        runBlocking { launch(Dispatchers.IO) {
-            //if user has an account and is logged in, it must be in the database so userID will never be null
-            userId = queries.getUserId(email!!)!!.toInt()
-            appointments = queries.getAllAppointmentsForUserId(userId)?.toList()
-        } }
+        runBlocking {
+            launch(Dispatchers.IO) {
+                //if user has an account and is logged in, it must be in the database so userID will never be null
+                userId = queries.getUserId(email!!)!!.toInt()
+                appointments = queries.getAllAppointmentsForUserId(userId)?.toList()
+            }
+        }
 
         val upcomingAppointments = selectUpcoming(appointments)
 
-        //select only upcoming
-
+        //select only upcoming assignments
         recordsRecycler = root.findViewById<RecyclerView>(R.id.recordsRecyclerView)
         recordsRecycler.layoutManager = LinearLayoutManager(context)
 
@@ -85,7 +78,6 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
         return root
     }
 
-    //select only upcoming appointments
     private fun selectUpcoming(appointments: List<Appointments>?): List<Appointments> {
         val upcomingAppointments = mutableSetOf<Appointments>()
 
@@ -109,7 +101,6 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
     }
 
 
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -129,9 +120,11 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
             val builder = AlertDialog.Builder(requireContext())
             builder.setMessage("Are you sure you want to cancel the appointment?")
                 .setPositiveButton("Yes") { dialog, _ ->
-                    runBlocking { launch(Dispatchers.IO) {
-                        id?.let { it1 -> queries.deleteAppointment(it1) }
-                    } }
+                    runBlocking {
+                        launch(Dispatchers.IO) {
+                            id?.let { it1 -> queries.deleteAppointment(it1) }
+                        }
+                    }
                     adapter.notifyDataSetChanged()
                     dialog.dismiss()
                 }

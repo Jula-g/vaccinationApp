@@ -28,19 +28,19 @@ class HealthcareUnitsQueries(private val connection: Connection) : HealthcareUni
         val resultSet = statement.executeQuery()
         return if (resultSet.next()) {
             mapResultSetToUnit(resultSet)
-        }else{
+        } else {
             null
         }
     }
 
-    override fun getHalthcareUnitId(name: String): Int? {
+    override fun getHealthcareUnitId(name: String): Int? {
         val query = "{CALL getHealthcareUnitId(?)}"
         val statement = connection.prepareCall(query)
         statement.setString(1, name)
         val result = statement.executeQuery()
-        return if(result.next()){
+        return if (result.next()) {
             result.getInt("id")
-        }else{
+        } else {
             null
         }
     }
@@ -86,7 +86,7 @@ class HealthcareUnitsQueries(private val connection: Connection) : HealthcareUni
             city = resultSet.getString("city"),
             street = resultSet.getString("street"),
             streetNumber = resultSet.getString("street_number"),
-            phone =  resultSet.getString("phone"),
+            phone = resultSet.getString("phone"),
             email = resultSet.getString("email")
         )
     }

@@ -13,13 +13,11 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.vaccinationapp.DB.DBconnection
 import com.example.vaccinationapp.R
 import com.example.vaccinationapp.adapters.HoursAdapter
 import com.example.vaccinationapp.adapters.VaccinesAdapter
 import com.example.vaccinationapp.DB.entities.Appointments
 import com.example.vaccinationapp.DB.entities.Vaccinations
-import com.example.vaccinationapp.DB.queries.AppointmentsQueries
 import com.example.vaccinationapp.ui.Dates
 import com.example.vaccinationapp.ui.Hours
 import com.example.vaccinationapp.ui.Queries
@@ -29,16 +27,16 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 
 class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
-    VaccinesAdapter.OnItemClickListener{
+    VaccinesAdapter.OnItemClickListener {
 
     private var appointment: Appointments? = null
     private var selectedDateFormatted = ""
     private var selectedDate = ""
     private var dateTime = ""
+
     //FINAL VALUES
     private var FvaccineID: Int = 0
     private val hoursManager = Hours()
@@ -64,16 +62,18 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
 
         val appId = intent.getIntExtra("appointmentId", -1)
 
-        runBlocking { launch(Dispatchers.IO){
-            appointment = queries.getAppointment(appId)
-        } }
+        runBlocking {
+            launch(Dispatchers.IO) {
+                appointment = queries.getAppointment(appId)
+            }
+        }
 
         val vaccineId = appointment?.vaccinationId
 
         var allVaccines: Set<Vaccinations>? = setOf(Vaccinations())
         var vaccine: Vaccinations? = null
         runBlocking {
-            launch(Dispatchers.IO){
+            launch(Dispatchers.IO) {
                 allVaccines = queries.getAllVaccines()
                 vaccine = vaccineId?.let { queries.getVaccination(it) }
             }
@@ -88,7 +88,7 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         val vaccinesRecycler = findViewById<RecyclerView>(R.id.vaccinesRecycler)
         vaccinesRecycler.layoutManager = LinearLayoutManager(this)
 
-        if(!vaccines.isNullOrEmpty()) {
+        if (!vaccines.isNullOrEmpty()) {
             val adapterVaccine = VaccinesAdapter(vaccines)
             vaccinesRecycler.adapter = adapterVaccine
 
@@ -122,7 +122,12 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         date.setOnClickListener {
             lifecycleScope.launch {
                 val result =
-                    datesManager.showDatePickerDialog(this@RescheduleActivity, date, offeredHours, hoursManager)
+                    datesManager.showDatePickerDialog(
+                        this@RescheduleActivity,
+                        date,
+                        offeredHours,
+                        hoursManager
+                    )
 
                 val (sDate, sDateFormatted) = result.await()
                 selectedDate = sDate
@@ -137,25 +142,29 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
             val time = splitDateTime[1]
             val dateFormat = SimpleDateFormat("yyyy-M-dd")
             val timeFormat = SimpleDateFormat("HH:mm")
-            val Fdate = java.sql.Date(dateFormat.parse(dateString)!!.time)  // PROBLEM with date, it returns a different one for some reason
+            val Fdate =
+                java.sql.Date(dateFormat.parse(dateString)!!.time)  // PROBLEM with date, it returns a different one for some reason
             val Ftime = java.sql.Time(timeFormat.parse(time)!!.time)
 
             var FuserID: Int = 0
             val email = FirebaseAuth.getInstance().currentUser!!.email
-            runBlocking { launch(Dispatchers.IO) {
-                //if user has an account and is logged in, it must be in the database so userID will never be null
-                FuserID = queries.getUserId(email!!)!!.toInt()
-            } }
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    //if user has an account and is logged in, it must be in the database so userID will never be null
+                    FuserID = queries.getUserId(email!!)!!.toInt()
+                }
+            }
 
-            //create appointment object
             val appointment = Appointments(Fdate, Ftime, FuserID, FvaccineID)
             Log.d("DATABASE", "appointment: $appointment")
 
-            //add appoitment to the DB
-            runBlocking { launch(Dispatchers.IO) {
-                val result = queries.updateAppointment(appId, appointment)
-                Log.d("DATABASE", "Update appointment successful: $result")
-            } }
+            //add appointment to the DB
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    val result = queries.updateAppointment(appId, appointment)
+                    Log.d("DATABASE", "Update appointment successful: $result")
+                }
+            }
 
             val intent = Intent(this, ManageRecordsFragment::class.java)
             startActivity(intent)
@@ -173,7 +182,7 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         date.text = finalDate
     }
 
-    override suspend fun onVaccineClick(vaccineName: String, healthcareUnitId: Int){
+    override suspend fun onVaccineClick(vaccineName: String, healthcareUnitId: Int) {
         FvaccineID = queries.getVaccinationId(vaccineName, healthcareUnitId)!!
     }
 

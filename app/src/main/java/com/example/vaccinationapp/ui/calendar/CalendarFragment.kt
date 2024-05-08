@@ -13,8 +13,6 @@ class CalendarFragment : Fragment() {
 
     private var _binding: FragmentCalendarBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -22,8 +20,6 @@ class CalendarFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val calendarViewModel =
-            ViewModelProvider(this).get(CalendarViewModel::class.java)
 
         _binding = FragmentCalendarBinding.inflate(inflater, container, false)
         val root: View = binding.root

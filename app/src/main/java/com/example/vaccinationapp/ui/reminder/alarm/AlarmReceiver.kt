@@ -14,14 +14,16 @@ class AlarmReceiver : BroadcastReceiver() {
         val appointmentDate = intent.getStringExtra("appointment_date")
         val appointmentTime = intent.getStringExtra("appointment_time")
 
-        val reminderMessage = "Appointment Reminder: Date - $appointmentDate, Time - $appointmentTime"
+        val reminderMessage =
+            "Appointment Reminder: Date - $appointmentDate, Time - $appointmentTime"
 
         showNotification(context, reminderMessage)
         playAlarm(context)
     }
 
     private fun showNotification(context: Context, message: String) {
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         val smallIcon = R.drawable.syringe_logo_with_name
         val notification = NotificationCompat.Builder(context, "channel_id")
@@ -35,7 +37,6 @@ class AlarmReceiver : BroadcastReceiver() {
 
         notificationManager.notify(0, notification)
     }
-
 
     private fun playAlarm(context: Context) {
         val alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
