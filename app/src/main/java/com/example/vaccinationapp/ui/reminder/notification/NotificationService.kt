@@ -8,8 +8,14 @@ import android.content.Intent
 import android.os.IBinder
 import com.example.vaccinationapp.R
 
+/**
+ * NotificationService class is a Service class that creates a notification channel
+ */
 class NotificationService : Service() {
 
+    /**
+     * onCreate method is called when the service is created
+     */
     override fun onCreate() {
         super.onCreate()
 
@@ -25,6 +31,11 @@ class NotificationService : Service() {
         notificationManager.createNotificationChannel(notificationChannel)
     }
 
+    /**
+     * onBind method is called when the service is bound
+     * @param intent The intent that was used to bind the service
+     * @return null
+     */
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }

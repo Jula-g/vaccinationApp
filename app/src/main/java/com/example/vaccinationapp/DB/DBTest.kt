@@ -1,5 +1,4 @@
 package com.example.vaccinationapp.DB
-import com.example.vaccinationapp.DB.DBconnection
 import com.example.vaccinationapp.DB.entities.Appointments
 import com.example.vaccinationapp.DB.entities.HealthcareUnits
 import com.example.vaccinationapp.DB.entities.Users
@@ -11,6 +10,10 @@ import com.example.vaccinationapp.DB.queries.VaccinationsQueries
 import java.sql.Date
 import java.sql.Time
 
+/**
+ * Main function for testing the database queries.
+ * This function tests the queries for the Users, HealthcareUnits, Vaccinations, and Appointments tables.
+ */
 fun main() {
     try {
         val connection = DBconnection.getConnection()

@@ -29,11 +29,22 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
 
+/**
+ * ReminderFragment class is a Fragment class that displays the upcoming appointments and enables
+ * the user to set reminders for the chosen appointments.
+ */
 class ReminderFragment : Fragment() {
 
     private var _binding: FragmentReminderBinding? = null
     private val binding get() = _binding!!
 
+    /**
+     * onCreateView method is called to create and return the view hierarchy associated with the fragment
+     * @param inflater The LayoutInflater object that can be used to inflate any views in the fragment
+     * @param container The parent view that the fragment's UI should be attached to
+     * @param savedInstanceState The previously saved state of the fragment
+     * @return The root view of the fragment
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -52,12 +63,23 @@ class ReminderFragment : Fragment() {
         return root
     }
 
+    /**
+     * onDestroyView method is called when the view is about to be destroyed
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
-    private fun loadUpcomingAppointments(recyclerView: RecyclerView, onItemClick: (Appointments) -> Unit) {
+    /**
+     * loadUpcomingAppointments method is used to load the upcoming appointments from the database
+     * @param recyclerView The RecyclerView in which the appointments are displayed
+     * @param onItemClick The lambda function that is called when an appointment is clicked
+     */
+    private fun loadUpcomingAppointments(
+        recyclerView: RecyclerView,
+        onItemClick: (Appointments) -> Unit
+    ) {
         val scope = CoroutineScope(Dispatchers.IO)
 
         scope.launch {
@@ -75,6 +97,11 @@ class ReminderFragment : Fragment() {
         }
     }
 
+    /**
+     * filterUpcomingAppointments method is used to filter the upcoming appointments from the list of appointments
+     * @param appointments The list of appointments
+     * @return The list of upcoming appointments
+     */
     private fun filterUpcomingAppointments(appointments: List<Appointments>): List<Appointments> {
         val upcomingAppointments = mutableListOf<Appointments>()
 
@@ -96,6 +123,10 @@ class ReminderFragment : Fragment() {
     }
 
 
+    /**
+     * showDateTimePickerDialog method is used to show the date and time picker dialog to the user
+     * @param appointment The appointment for which the reminder is to be set
+     */
     private fun showDateTimePickerDialog(appointment: Appointments) {
         val dialogView =
             LayoutInflater.from(requireContext()).inflate(R.layout.dialog_time_picker, null)
@@ -126,7 +157,7 @@ class ReminderFragment : Fragment() {
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
             calendar.get(Calendar.DAY_OF_MONTH)
-        ) { view, year, monthOfYear, dayOfMonth ->
+        ) { _, year, monthOfYear, dayOfMonth ->
             val isAppointmentDate =
                 year == appointmentYear && monthOfYear == appointmentMonth && dayOfMonth == appointmentDay
 
@@ -167,7 +198,15 @@ class ReminderFragment : Fragment() {
                 )
 
                 val alarmScheduler = AndroidAlarmScheduler(requireContext())
-                val alarm = Alarm(LocalDateTime.of(selectedYear, selectedMonth + 1, selectedDay, selectedHour, selectedMinute), appointment.date.toString())
+                val alarm = Alarm(
+                    LocalDateTime.of(
+                        selectedYear,
+                        selectedMonth + 1,
+                        selectedDay,
+                        selectedHour,
+                        selectedMinute
+                    ), appointment.date.toString()
+                )
                 alarmScheduler.schedule(alarm)
 
                 dialog.dismiss()

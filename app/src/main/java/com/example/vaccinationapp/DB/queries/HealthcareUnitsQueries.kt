@@ -5,7 +5,17 @@ import com.example.vaccinationapp.DB.entities.HealthcareUnits
 import java.sql.Connection
 import java.sql.ResultSet
 
+/**
+ * Class that contains the queries for the HealthcareUnits table in the database.
+ * @property connection The connection to the database.
+ */
 class HealthcareUnitsQueries(private val connection: Connection) : HealthcareUnitsDAO {
+
+    /**
+     * Adds a healthcare unit to the database.
+     * @param healthcareUnit The healthcare unit to be added.
+     * @return True if the healthcare unit was added successfully, false otherwise.
+     */
     override fun addHealthcareUnit(healthcareUnit: HealthcareUnits): Boolean {
         val query = "{CALL addHealthcareUnit(?, ?, ?, ?, ?, ?, ?)}"
         val statement = connection.prepareCall(query)
@@ -21,6 +31,11 @@ class HealthcareUnitsQueries(private val connection: Connection) : HealthcareUni
         return result
     }
 
+    /**
+     * Gets a healthcare unit from the database.
+     * @param id The id of the healthcare unit to be retrieved.
+     * @return The healthcare unit if it exists, null otherwise.
+     */
     override fun getHealthcareUnit(id: Int): HealthcareUnits? {
         val query = "{CALL getHealthcareUnit(?)}"
         val statement = connection.prepareCall(query)
@@ -33,6 +48,11 @@ class HealthcareUnitsQueries(private val connection: Connection) : HealthcareUni
         }
     }
 
+    /**
+     * Gets a healthcare unit from the database.
+     * @param name The name of the healthcare unit to be retrieved.
+     * @return The healthcare unit if it exists, null otherwise.
+     */
     override fun getHealthcareUnitId(name: String): Int? {
         val query = "{CALL getHealthcareUnitId(?)}"
         val statement = connection.prepareCall(query)
@@ -45,6 +65,12 @@ class HealthcareUnitsQueries(private val connection: Connection) : HealthcareUni
         }
     }
 
+    /**
+     * Updates a healthcare unit in the database.
+     * @param id The id of the healthcare unit to be updated.
+     * @param healthcareUnit The new healthcare unit.
+     * @return True if the healthcare unit was updated successfully, false otherwise.
+     */
     override fun updateHealthcareUnit(id: Int, healthcareUnit: HealthcareUnits): Boolean {
         val query = "{CALL updateHealthcareUnit(?, ?, ?, ?, ?, ?, ?, ?)}"
         val statement = connection.prepareCall(query)
@@ -59,6 +85,11 @@ class HealthcareUnitsQueries(private val connection: Connection) : HealthcareUni
         return statement.executeUpdate() > 0
     }
 
+    /**
+     * Deletes a healthcare unit from the database.
+     * @param id The id of the healthcare unit to be deleted.
+     * @return True if the healthcare unit was deleted successfully, false otherwise.
+     */
     override fun deleteHealthcareUnit(id: Int): Boolean {
         val query = "{CALL deleteHealthcareUnit(?)}"
         val statement = connection.prepareCall(query)
@@ -66,6 +97,10 @@ class HealthcareUnitsQueries(private val connection: Connection) : HealthcareUni
         return statement.executeUpdate() > 0
     }
 
+    /**
+     * Gets all healthcare units from the database.
+     * @return A set with all the healthcare units if they exist, null otherwise.
+     */
     override fun getAllHealthcareUnits(): Set<HealthcareUnits>? {
         val query = "{CALL getAllHealthcareUnits()}"
         val statement = connection.prepareCall(query)
@@ -78,6 +113,11 @@ class HealthcareUnitsQueries(private val connection: Connection) : HealthcareUni
         return if (healthcareUnits.isEmpty()) null else unitsFinal
     }
 
+    /**
+     * Maps a ResultSet to a HealthcareUnits object.
+     * @param resultSet The ResultSet to be mapped.
+     * @return The HealthcareUnits object.
+     */
     private fun mapResultSetToUnit(resultSet: ResultSet):
             HealthcareUnits {
         return HealthcareUnits(

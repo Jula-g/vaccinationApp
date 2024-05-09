@@ -9,7 +9,17 @@ import java.sql.ResultSet
 import java.sql.Time
 import java.text.SimpleDateFormat
 
+/**
+ * Class that contains the queries for the Appointments table in the database.
+ * @property connection The connection to the database.
+ */
 class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO {
+
+    /**
+     * Adds an appointment to the database.
+     * @param appointment The appointment to be added.
+     * @return True if the appointment was added successfully, false otherwise.
+     */
     override fun addAppointment(appointment: Appointments): Boolean {
         val query = "{CALL addAppointment(?, ?, ?, ?)}"
         val statement = connection.prepareCall(query)
@@ -22,6 +32,11 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
         return result
     }
 
+    /**
+     * Gets an appointment from the database.
+     * @param id The id of the appointment to be retrieved.
+     * @return The appointment if it exists, null otherwise.
+     */
     override fun getAppointment(id: Int): Appointments? {
         val query = "{CALL getAppointment(?)}"
         val statement = connection.prepareCall(query)
@@ -34,7 +49,12 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
         }
     }
 
-
+    /**
+     * Updates an appointment in the database.
+     * @param id The id of the appointment to be updated.
+     * @param appointment The new appointment.
+     * @return True if the appointment was updated successfully, false otherwise.
+     */
     override fun updateAppointment(id: Int, appointment: Appointments): Boolean {
         val query = "{CALL updateAppointment(?, ?, ?, ?, ?)}"
         val statement = connection.prepareCall(query)
@@ -46,6 +66,11 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
         return statement.executeUpdate() > 0
     }
 
+    /**
+     * Deletes an appointment from the database.
+     * @param id The id of the appointment to be deleted.
+     * @return True if the appointment was deleted successfully, false otherwise.
+     */
     override fun deleteAppointment(id: Int): Boolean {
         val query = "{CALL deleteAppointment(?)}"
         val statement = connection.prepareCall(query)
@@ -53,6 +78,10 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
         return statement.executeUpdate() > 0
     }
 
+    /**
+     * Gets all appointments from the database.
+     * @return A set of appointments if there are any, null otherwise.
+     */
     override fun getAllAppointments(): Set<Appointments>? {
         val query = "{CALL getAllAppointments()}"
         val statement = connection.prepareCall(query)
@@ -65,6 +94,11 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
         return if (appointments.isEmpty()) null else appointmentsFinal
     }
 
+    /**
+     * Gets all appointments for a specific user from the database.
+     * @param id The id of the user.
+     * @return A set of appointments if there are any, null otherwise.
+     */
     override fun getAllAppointmentsForUserId(id: Int): Set<Appointments>? {
         val query = "{CALL getAllAppointmentsForUserId(?)}"
         val statement = connection.prepareCall(query)
@@ -78,6 +112,11 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
         return if (appointments.isEmpty()) null else appointmentsFinal
     }
 
+    /**
+     * Gets all appointments for a specific date from the database.
+     * @param date The date of the appointments.
+     * @return A list of appointments if there are any, null otherwise.
+     */
     @SuppressLint("SimpleDateFormat")
     override fun getAllAppointmentsForDate(date: String): List<String>? {
         val sqlDateFormat = SimpleDateFormat("yyyy-MM-dd")
@@ -95,6 +134,12 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
         return if (hours.isEmpty()) null else hoursFinal
     }
 
+    /**
+     * Gets the id of an appointment from the database.
+     * @param date The date of the appointment.
+     * @param time The time of the appointment.
+     * @return The id of the appointment if it exists, null otherwise.
+     */
     @SuppressLint("SimpleDateFormat")
     override fun getAppointmentId(date: String, time: String): Int? {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd")
@@ -113,9 +158,13 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
         } else {
             null
         }
-
     }
 
+    /**
+     * Maps a ResultSet to an Appointments object.
+     * @param resultSet The ResultSet to be mapped.
+     * @return The Appointments object.
+     */
     private fun mapResultSetToAppointment(resultSet: ResultSet): Appointments {
         return Appointments(
             date = resultSet.getDate("date"),

@@ -12,10 +12,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/**
+ * NotificationSetter class is a class that sets notifications for the appointments
+ * @param context The context in which the notifications are set
+ */
 class NotificationSetter(private val context: Context) {
 
     private val notificationHelper = NotificationHelper(context)
 
+    /**
+     * setNotifications method is used to set notifications for the appointments
+     */
     fun setNotifications() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -32,6 +39,10 @@ class NotificationSetter(private val context: Context) {
         }
     }
 
+    /**
+     * scheduleNotification method is used to schedule a notification for the appointment
+     * @param appointment The appointment for which the notification is to be scheduled
+     */
     private fun scheduleNotification(appointment: Appointments) {
         val triggerTime = calculateTriggerTime(appointment)
 
@@ -55,6 +66,11 @@ class NotificationSetter(private val context: Context) {
         )
     }
 
+    /**
+     * calculateTriggerTime method is used to calculate the time at which the notification should be triggered
+     * @param appointment The appointment for which the trigger time is to be calculated
+     * @return The time at which the notification should be triggered
+     */
     private fun calculateTriggerTime(appointment: Appointments): Long {
         val appointmentTime = appointment.time.toString()
         val appointmentHour = appointmentTime.split(":")[0].toInt()
@@ -69,6 +85,10 @@ class NotificationSetter(private val context: Context) {
         return System.currentTimeMillis() + triggerHourMillis + triggerMinuteMillis
     }
 
+    /**
+     * getAllAppointments method is used to get all the appointments from the database
+     * @return The set of appointments
+     */
     private suspend fun getAllAppointments(): Set<Appointments>? {
         return withContext(Dispatchers.IO) {
             val connection = DBconnection.getConnection()

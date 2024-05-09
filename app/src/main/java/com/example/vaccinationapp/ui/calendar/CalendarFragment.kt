@@ -4,17 +4,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.example.vaccinationapp.databinding.FragmentCalendarBinding
 
+/**
+ * Fragment for the calendar screen.
+ */
 class CalendarFragment : Fragment() {
 
     private var _binding: FragmentCalendarBinding? = null
-
     private val binding get() = _binding!!
 
+    /**
+     * Creates the view for the calendar screen.
+     * @param inflater The layout inflater.
+     * @param container The view group container.
+     * @param savedInstanceState The saved instance state.
+     * @return The view for the calendar screen.
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -27,10 +34,11 @@ class CalendarFragment : Fragment() {
         return root
     }
 
+    /**
+     * Destroys the view for the calendar screen.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
-
-
 }

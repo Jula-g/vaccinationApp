@@ -11,7 +11,6 @@ import com.example.vaccinationapp.DB.DBconnection
 import com.example.vaccinationapp.DB.entities.Users
 import com.example.vaccinationapp.DB.queries.UsersQueries
 import com.example.vaccinationapp.R
-import com.example.vaccinationapp.ui.MainActivity
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -20,12 +19,19 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
+/**
+ * Activity for the register screen.
+ */
 class RegisterActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var emailInput: EditText
     private lateinit var nameInput: EditText
     private lateinit var lastNameInput: EditText
 
+    /**
+     * Creates the view for the register screen.
+     * @param savedInstanceState The saved instance state.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
@@ -41,11 +47,13 @@ class RegisterActivity : AppCompatActivity() {
 
         auth = Firebase.auth
 
+        // Login button clicked action
         loginButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
+            val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
         }
 
+        // Sign up button clicked action
         signUpButton.setOnClickListener {
             val email = emailInput.text.toString().trim()
             val name = nameInput.text.toString().trim()
@@ -59,6 +67,15 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Verifies the data entered by the user.
+     * @param email The user's email.
+     * @param name The user's name.
+     * @param lastName The user's last name.
+     * @param password The user's password.
+     * @param repeatedPassword The user's repeated password.
+     * @return True if the data is correct, false otherwise.
+     */
     private fun verifyData(
         email: String, name: String, lastName: String, password: String, repeatedPassword: String
     ): Boolean {
@@ -110,6 +127,11 @@ class RegisterActivity : AppCompatActivity() {
         return result
     }
 
+    /**
+     * Creates a user with the given email and password.
+     * @param email The user's email.
+     * @param password The user's password.
+     */
     private fun createUser(email: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
@@ -132,6 +154,9 @@ class RegisterActivity : AppCompatActivity() {
             }
     }
 
+    /**
+     * Adds the user to the database.
+     */
     private suspend fun addUserToDatabase() {
         return withContext(Dispatchers.IO) {
             val connection = DBconnection.getConnection()

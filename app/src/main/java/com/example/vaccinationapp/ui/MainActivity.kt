@@ -27,13 +27,19 @@ import com.example.vaccinationapp.ui.login.LoginActivity
 import com.example.vaccinationapp.ui.reminder.notification.NotificationHelper
 import com.example.vaccinationapp.ui.reminder.notification.NotificationSetter
 
-
+/**
+ * MainActivity class is the main activity of the application that displays the main menu and the user's information.
+ */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private lateinit var email: String
 
+    /**
+     * onCreate method is called when the activity is starting.
+     * @param savedInstanceState The Bundle that contains the data that was most recently supplied in onSaveInstanceState(Bundle)
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         NotificationHelper(applicationContext).createNotificationChannel()
@@ -58,16 +64,28 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
     }
 
+    /**
+     * onCreateOptionsMenu method is called to create the options menu.
+     * @param menu The options menu in which you place your items
+     * @return true if the menu is displayed, false otherwise
+     */
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
         return true
     }
 
+    /**
+     * onSupportNavigateUp method is called when the user presses the Up button in the action bar.
+     * @return true if Up navigation completed successfully and this Activity was finished, false otherwise
+     */
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
+    /**
+     * setHeader method is called to set the header of the navigation view.
+     */
     private fun setHeader() {
         email = intent.getStringExtra("email").toString()
         val navView: NavigationView = binding.navView
@@ -79,6 +97,10 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    /**
+     * getUserNameAndSurname method is called to get the user's name and surname.
+     * @return The user's name and surname
+     */
     private suspend fun getUserNameAndSurname(): CharSequence {
         email = intent.getStringExtra("email").toString()
         return withContext(Dispatchers.IO) {
@@ -90,6 +112,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * onOptionsItemSelected method is called when an item in the options menu is selected.
+     * @param menuItem The selected item
+     * @return true if the item was successfully handled, false otherwise
+     */
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
             R.id.delete_account -> {
@@ -117,7 +144,9 @@ class MainActivity : AppCompatActivity() {
                     .setCancelable(false)
                     .show()
                 true
-            } R.id.log_out -> {
+            }
+
+            R.id.log_out -> {
 
                 val builder = AlertDialog.Builder(this)
                 builder.setTitle("Confirmation")
@@ -133,6 +162,7 @@ class MainActivity : AppCompatActivity() {
                     .show()
                 true
             }
+
             else -> super.onOptionsItemSelected(menuItem)
         }
     }
