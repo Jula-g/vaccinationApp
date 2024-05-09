@@ -13,7 +13,19 @@ import kotlinx.coroutines.Deferred
 import java.text.DateFormatSymbols
 import java.util.Calendar
 
+/**
+ * Dates class is a utility class that provides methods to show a date picker dialog and check if a date is valid.
+ */
 class Dates {
+
+    /**
+     * showDatePickerDialog method is called to show a date picker dialog and return the selected date.
+     * @param activity The activity that calls the method
+     * @param dateButton The button that displays the selected date
+     * @param offeredHours The list of offered hours
+     * @param hoursManager The Hours object that manages the available hours
+     * @return A Deferred object that contains the selected date and the formatted date
+     */
     fun showDatePickerDialog(
         activity: Activity,
         dateButton: Button,
@@ -64,6 +76,13 @@ class Dates {
         return deferredResult
     }
 
+    /**
+     * isDateValid method is called to check if the selected date is valid.
+     * @param selectedYear The selected year
+     * @param selectedMonth The selected month
+     * @param selectedDay The selected day
+     * @return A Boolean value that indicates if the selected date is valid
+     */
     fun isDateValid(selectedYear: Int, selectedMonth: Int, selectedDay: Int): Boolean {
         if (selectedYear < 0 || selectedMonth < 1 || selectedMonth > 12 || selectedDay < 1) {
             return false

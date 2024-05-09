@@ -6,9 +6,18 @@ import android.content.Context
 import android.content.Intent
 import java.time.ZoneId
 
+/**
+ * Android implementation of the alarm scheduler.
+ * @property context The context.
+ */
 class AndroidAlarmScheduler(private val context: Context) : AlarmScheduler {
 
     private val alarmManager = context.getSystemService(AlarmManager::class.java)
+
+    /**
+     * Schedules an alarm.
+     * @param alarm The alarm to be scheduled.
+     */
     override fun schedule(alarm: Alarm) {
         val intent = Intent(context, AlarmReceiver::class.java)
         alarmManager.setExactAndAllowWhileIdle(
@@ -23,6 +32,10 @@ class AndroidAlarmScheduler(private val context: Context) : AlarmScheduler {
         )
     }
 
+    /**
+     * Cancels an alarm.
+     * @param alarm The alarm to be cancelled.
+     */
     override fun cancel(alarm: Alarm) {
         alarmManager.cancel(
             PendingIntent.getBroadcast(

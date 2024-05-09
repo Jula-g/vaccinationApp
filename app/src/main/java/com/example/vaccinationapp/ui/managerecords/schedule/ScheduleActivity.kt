@@ -13,18 +13,11 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.vaccinationapp.DB.DBconnection
+import com.example.vaccinationapp.DB.entities.Appointments
+import com.example.vaccinationapp.DB.entities.Vaccinations
 import com.example.vaccinationapp.R
 import com.example.vaccinationapp.adapters.HoursAdapter
 import com.example.vaccinationapp.adapters.VaccinesAdapter
-import com.example.vaccinationapp.DB.entities.Appointments
-import com.example.vaccinationapp.DB.entities.HealthcareUnits
-import com.example.vaccinationapp.DB.entities.Users
-import com.example.vaccinationapp.DB.entities.Vaccinations
-import com.example.vaccinationapp.DB.queries.AppointmentsQueries
-import com.example.vaccinationapp.DB.queries.HealthcareUnitsQueries
-import com.example.vaccinationapp.DB.queries.UsersQueries
-import com.example.vaccinationapp.DB.queries.VaccinationsQueries
 import com.example.vaccinationapp.ui.Dates
 import com.example.vaccinationapp.ui.Hours
 import com.example.vaccinationapp.ui.Queries
@@ -36,12 +29,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 
+/**
+ * Activity for scheduling an appointment.
+ */
 class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
     VaccinesAdapter.OnItemClickListener {
 
     private var selectedDateFormatted = ""
     private var selectedDate = ""
     private var dateTime = ""
+
     //FINAL VALUES
     private var FvaccineID: Int = 0
     private val hoursManager = Hours()
@@ -50,6 +47,10 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
     private val queries = Queries()
 
 
+    /**
+     * Creates the view for the schedule screen.
+     * @param savedInstanceState The saved instance state.
+     */
     @SuppressLint("MissingInflatedId", "SimpleDateFormat", "WeekBasedYear")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,7 +71,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         //retrieves all vaccines from the database
         var offeredVaccines: Set<Vaccinations>? = setOf(Vaccinations())
         runBlocking {
-            launch(Dispatchers.IO){
+            launch(Dispatchers.IO) {
                 offeredVaccines = queries.getAllVaccines()
             }
         }
@@ -80,7 +81,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         val vaccinesRecycler = findViewById<RecyclerView>(R.id.vaccinesRecycler)
         vaccinesRecycler.layoutManager = LinearLayoutManager(this)
 
-        if(!vaccines.isNullOrEmpty()) {
+        if (!vaccines.isNullOrEmpty()) {
             val adapterVaccine = VaccinesAdapter(vaccines)
             vaccinesRecycler.adapter = adapterVaccine
 
@@ -107,7 +108,6 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
             })
         }
 
-
         val offeredHours = hoursManager.offerHours("08:00:00", "16:00:00", 30)
         Log.d("OFFEREDHOURS", "$offeredHours")
 
@@ -115,7 +115,12 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         date.setOnClickListener {
             lifecycleScope.launch {
                 val result =
-                    datesManager.showDatePickerDialog(this@ScheduleActivity, date, offeredHours, hoursManager)
+                    datesManager.showDatePickerDialog(
+                        this@ScheduleActivity,
+                        date,
+                        offeredHours,
+                        hoursManager
+                    )
 
                 val (sDate, sDateFormatted) = result.await()
                 selectedDate = sDate
@@ -124,32 +129,36 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
             }
         }
 
-
         confirm.setOnClickListener {
             val splitDateTime = dateTime.split(";")
             val dateString = splitDateTime[0]
             val time = splitDateTime[1]
             val dateFormat = SimpleDateFormat("yyyy-M-dd")
             val timeFormat = SimpleDateFormat("HH:mm")
-            val Fdate = java.sql.Date(dateFormat.parse(dateString)!!.time)  // PROBLEM with date, it returns a different one for some reason
+            val Fdate =
+                java.sql.Date(dateFormat.parse(dateString)!!.time)
             val Ftime = java.sql.Time(timeFormat.parse(time)!!.time)
 
             var FuserID: Int = 0
             val email = FirebaseAuth.getInstance().currentUser!!.email
-            runBlocking { launch(Dispatchers.IO) {
-                //if user has an account and is logged in, it must be in the database so userID will never be null
-                FuserID = queries.getUserId(email!!)!!.toInt()
-            } }
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    //if user has an account and is logged in, it must be in the database so userID will never be null
+                    FuserID = queries.getUserId(email!!)!!.toInt()
+                }
+            }
 
             //create appointment object
             val appointment = Appointments(Fdate, Ftime, FuserID, FvaccineID)
             Log.d("DATABASE ", "appointment: $appointment")
 
             //add appoitment to the DB
-            runBlocking { launch(Dispatchers.IO) {
-                val result = queries.addAppointment(appointment)
-                Log.d("DATABASE", "Add appointment successful: $result")
-            } }
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    val result = queries.addAppointment(appointment)
+                    Log.d("DATABASE", "Add appointment successful: $result")
+                }
+            }
 
             val intent = Intent(this, ManageRecordsFragment::class.java)
             startActivity(intent)
@@ -341,7 +350,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         date.text = finalDate
     }
 
-    override suspend fun onVaccineClick(vaccineName: String, healthcareUnitId: Int){
+    override suspend fun onVaccineClick(vaccineName: String, healthcareUnitId: Int) {
         FvaccineID = queries.getVaccinationId(vaccineName, healthcareUnitId)!!
     }
 

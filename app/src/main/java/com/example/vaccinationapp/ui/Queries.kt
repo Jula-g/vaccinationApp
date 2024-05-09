@@ -12,9 +12,18 @@ import com.example.vaccinationapp.DB.queries.VaccinationsQueries
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+/**
+ * Queries class is a utility class that provides methods to interact with the database.
+ */
 class Queries {
-    suspend fun addAppointment(appointment: Appointments):Boolean{
-        return withContext(Dispatchers.IO){
+
+    /**
+     * addAppointment method is called to add an appointment to the database.
+     * @param appointment The appointment to be added
+     * @return A boolean value that indicates if the appointment was added successfully
+     */
+    suspend fun addAppointment(appointment: Appointments): Boolean {
+        return withContext(Dispatchers.IO) {
             val conn = DBconnection.getConnection()
             Log.d("DATABASE", "appointment connected")
             val appQueries = AppointmentsQueries(conn)
@@ -25,8 +34,13 @@ class Queries {
         }
     }
 
-    suspend fun getAllVaccines(): Set<Vaccinations>?{
-        return withContext(Dispatchers.IO){
+    /**
+     * addHealthcareUnit method is called to add a healthcare unit to the database.
+     * @param healthcareUnit The healthcare unit to be added
+     * @return A boolean value that indicates if the healthcare unit was added successfully
+     */
+    suspend fun getAllVaccines(): Set<Vaccinations>? {
+        return withContext(Dispatchers.IO) {
             val connection = DBconnection.getConnection()
             Log.d("DATABASE", "vaccines connected")
             val vaccineQueries = VaccinationsQueries(connection)
@@ -37,8 +51,13 @@ class Queries {
         }
     }
 
+    /**
+     * addHealthcareUnit method is called to add a healthcare unit to the database.
+     * @param healthcareUnit The healthcare unit to be added
+     * @return A boolean value that indicates if the healthcare unit was added successfully
+     */
     suspend fun getUserId(email: String): Int? {
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             val conn = DBconnection.getConnection()
             val userQueries = UsersQueries(conn)
             val result = userQueries.getUserId(email)
@@ -48,8 +67,13 @@ class Queries {
         }
     }
 
-    suspend fun getVaccinationId(name:String, healthcareUnitId: Int): Int?{
-        return withContext(Dispatchers.IO){
+    /**
+     * addHealthcareUnit method is called to add a healthcare unit to the database.
+     * @param healthcareUnit The healthcare unit to be added
+     * @return A boolean value that indicates if the healthcare unit was added successfully
+     */
+    suspend fun getVaccinationId(name: String, healthcareUnitId: Int): Int? {
+        return withContext(Dispatchers.IO) {
             val conn = DBconnection.getConnection()
             val vaccQueries = VaccinationsQueries(conn)
             val result = vaccQueries.getVaccinationId(name, healthcareUnitId)
@@ -58,8 +82,13 @@ class Queries {
         }
     }
 
-    suspend fun getHealthcareUnitId(name: String): Int?{
-        return withContext(Dispatchers.IO){
+    /**
+     * addHealthcareUnit method is called to add a healthcare unit to the database.
+     * @param healthcareUnit The healthcare unit to be added
+     * @return A boolean value that indicates if the healthcare unit was added successfully
+     */
+    suspend fun getHealthcareUnitId(name: String): Int? {
+        return withContext(Dispatchers.IO) {
             val conn = DBconnection.getConnection()
             val unitQueries = HealthcareUnitsQueries(conn)
             val result = unitQueries.getHealthcareUnitId(name)
@@ -68,8 +97,13 @@ class Queries {
         }
     }
 
-    suspend fun getHealthcareUnit(id: Int): HealthcareUnits?{
-        return withContext(Dispatchers.IO){
+    /**
+     * addHealthcareUnit method is called to add a healthcare unit to the database.
+     * @param healthcareUnit The healthcare unit to be added
+     * @return A boolean value that indicates if the healthcare unit was added successfully
+     */
+    suspend fun getHealthcareUnit(id: Int): HealthcareUnits? {
+        return withContext(Dispatchers.IO) {
             val conn = DBconnection.getConnection()
             val HUqueries = HealthcareUnitsQueries(conn)
             val result = HUqueries.getHealthcareUnit(id)
@@ -79,8 +113,13 @@ class Queries {
         }
     }
 
-    suspend fun getAllAppointmentsForDate(date:String): List<String>?{
-        return withContext(Dispatchers.IO){
+    /**
+     * addHealthcareUnit method is called to add a healthcare unit to the database.
+     * @param healthcareUnit The healthcare unit to be added
+     * @return A boolean value that indicates if the healthcare unit was added successfully
+     */
+    suspend fun getAllAppointmentsForDate(date: String): List<String>? {
+        return withContext(Dispatchers.IO) {
             val connection = DBconnection.getConnection()
             Log.d("DATABASE", "connected with date: $date")
             val appointmentQueries = AppointmentsQueries(connection)
@@ -91,16 +130,26 @@ class Queries {
         }
     }
 
-    suspend fun updateAppointment(id: Int, appointment: Appointments): Boolean{
-        return withContext(Dispatchers.IO){
+    /**
+     * addHealthcareUnit method is called to add a healthcare unit to the database.
+     * @param healthcareUnit The healthcare unit to be added
+     * @return A boolean value that indicates if the healthcare unit was added successfully
+     */
+    suspend fun updateAppointment(id: Int, appointment: Appointments): Boolean {
+        return withContext(Dispatchers.IO) {
             val conn = DBconnection.getConnection()
             val queries = AppointmentsQueries(conn)
-            val result = queries.updateAppointment(id,appointment)
+            val result = queries.updateAppointment(id, appointment)
             conn.close()
             result
         }
     }
 
+    /**
+     * addHealthcareUnit method is called to add a healthcare unit to the database.
+     * @param healthcareUnit The healthcare unit to be added
+     * @return A boolean value that indicates if the healthcare unit was added successfully
+     */
     suspend fun getAllAppointmentsForUserId(id: Int): Set<Appointments>? {
         return withContext(Dispatchers.IO) {
             val conn = DBconnection.getConnection()
@@ -111,7 +160,12 @@ class Queries {
         }
     }
 
-    suspend fun getAppointment(id:Int): Appointments?{
+    /**
+     * addHealthcareUnit method is called to add a healthcare unit to the database.
+     * @param healthcareUnit The healthcare unit to be added
+     * @return A boolean value that indicates if the healthcare unit was added successfully
+     */
+    suspend fun getAppointment(id: Int): Appointments? {
         return withContext(Dispatchers.IO) {
             val conn = DBconnection.getConnection()
             val query = AppointmentsQueries(conn)
@@ -121,8 +175,13 @@ class Queries {
         }
     }
 
+    /**
+     * addHealthcareUnit method is called to add a healthcare unit to the database.
+     * @param healthcareUnit The healthcare unit to be added
+     * @return A boolean value that indicates if the healthcare unit was added successfully
+     */
     suspend fun deleteAppointment(id: Int): Boolean {
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             val conn = DBconnection.getConnection()
             val queries = AppointmentsQueries(conn)
             val result = queries.deleteAppointment(id)
@@ -131,9 +190,13 @@ class Queries {
         }
     }
 
-
-    suspend fun getVaccination(id: Int): Vaccinations?{
-        return withContext(Dispatchers.IO){
+    /**
+     * addHealthcareUnit method is called to add a healthcare unit to the database.
+     * @param healthcareUnit The healthcare unit to be added
+     * @return A boolean value that indicates if the healthcare unit was added successfully
+     */
+    suspend fun getVaccination(id: Int): Vaccinations? {
+        return withContext(Dispatchers.IO) {
             val conn = DBconnection.getConnection()
             val vaccQueries = VaccinationsQueries(conn)
             val result = vaccQueries.getVaccination(id)
@@ -141,8 +204,14 @@ class Queries {
             result
         }
     }
-    suspend fun getAppointmentId(date: String, time: String): Int?{
-        return withContext(Dispatchers.IO){
+
+    /**
+     * addHealthcareUnit method is called to add a healthcare unit to the database.
+     * @param healthcareUnit The healthcare unit to be added
+     * @return A boolean value that indicates if the healthcare unit was added successfully
+     */
+    suspend fun getAppointmentId(date: String, time: String): Int? {
+        return withContext(Dispatchers.IO) {
             val conn = DBconnection.getConnection()
             val queries = AppointmentsQueries(conn)
             val result = queries.getAppointmentId(date, time)
@@ -150,5 +219,4 @@ class Queries {
             result
         }
     }
-
 }

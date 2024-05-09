@@ -29,6 +29,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 
+/**
+ * Activity for rescheduling an appointment.
+ *
+ */
 class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
     VaccinesAdapter.OnItemClickListener {
 
@@ -44,6 +48,10 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
     private val datesManager = Dates()
     private val queries = Queries()
 
+    /**
+     * Creates the view for the reschedule screen.
+     * @param savedInstanceState The saved instance state.
+     */
     @SuppressLint("MissingInflatedId", "SimpleDateFormat")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -176,12 +184,22 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         }
     }
 
+    /**
+     * Handles the click on an hour.
+     * @param item The hour that was clicked.
+     * @param date The date button.
+     */
     override fun onHourClick(item: String, date: Button) {
         val finalDate = "$selectedDateFormatted $item"
         dateTime = "$selectedDate;$item"
         date.text = finalDate
     }
 
+    /**
+     * Handles the click on a vaccine.
+     * @param vaccineName The name of the vaccine that was clicked.
+     * @param healthcareUnitId The id of the healthcare unit.
+     */
     override suspend fun onVaccineClick(vaccineName: String, healthcareUnitId: Int) {
         FvaccineID = queries.getVaccinationId(vaccineName, healthcareUnitId)!!
     }

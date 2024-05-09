@@ -27,6 +27,9 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
 
+/**
+ * Fragment for the manage records screen.
+ */
 class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
     private val queries = Queries()
     private lateinit var recordsRecycler: RecyclerView
@@ -36,6 +39,13 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
     private var userId: Int = 0
     private var appointments: List<Appointments>? = null
 
+    /**
+     * Creates the view for the manage records screen.
+     * @param inflater The layout inflater.
+     * @param container The view group container.
+     * @param savedInstanceState The saved instance state.
+     * @return The view for the manage records screen.
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -78,6 +88,11 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
         return root
     }
 
+    /**
+     * Selects the upcoming appointments.
+     * @param appointments The list of appointments.
+     * @return The list of upcoming appointments.
+     */
     private fun selectUpcoming(appointments: List<Appointments>?): List<Appointments> {
         val upcomingAppointments = mutableSetOf<Appointments>()
 
@@ -100,12 +115,20 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
         return upcomingAppointments.toList()
     }
 
-
+    /**
+     * Destroys the view for the manage records screen.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
+    /**
+     * Handles the click on a record.
+     * @param id The id of the record that was clicked.
+     * @param update The update button.
+     * @param cancel The cancel button.
+     */
     @SuppressLint("NotifyDataSetChanged")
     override fun onRecordClick(id: Int?, update: Button, cancel: Button) {
 
@@ -135,6 +158,5 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
             val alert = builder.create()
             alert.show()
         }
-
     }
 }
