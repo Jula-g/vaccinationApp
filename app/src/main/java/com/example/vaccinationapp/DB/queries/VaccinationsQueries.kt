@@ -8,6 +8,7 @@ import java.sql.ResultSet
 /**
  * Class that contains the queries for the Vaccinations table in the database.
  * @property connection The connection to the database.
+ *
  */
 class VaccinationsQueries(private val connection: Connection) : VaccinationsDAO {
 
