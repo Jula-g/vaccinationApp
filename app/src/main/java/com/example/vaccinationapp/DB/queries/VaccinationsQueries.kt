@@ -6,10 +6,9 @@ import java.sql.Connection
 import java.sql.ResultSet
 
 /**
- * Main function for testing the database connection.
- * This function attempts to establish a connection to the database and then closes it.
+ * Class that contains the queries for the Vaccinations table in the database.
+ * @property connection The connection to the database.
  *
- * @param args Command-line arguments. Not used in this function.
  */
 class VaccinationsQueries(private val connection: Connection) : VaccinationsDAO {
 
