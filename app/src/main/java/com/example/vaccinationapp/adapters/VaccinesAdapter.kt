@@ -8,8 +8,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.vaccinationapp.R
-import com.example.vaccinationapp.DB.entities.Vaccinations
-import com.example.vaccinationapp.ui.managerecords.schedule.ScheduleActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -18,7 +16,7 @@ class VaccinesAdapter(private var dataSet: List<String>):
     RecyclerView.Adapter<VaccinesAdapter.ViewHolder>() {
 
     interface OnItemClickListener {
-        suspend fun onVaccineClick(vaccineName: String, healthcareUnitId: Int)
+        suspend fun onVaccineClick(vaccineName: String, healthcareUnitId: Int, isSelected: Boolean)
     }
 
     private var listener: OnItemClickListener? = null
@@ -64,8 +62,10 @@ class VaccinesAdapter(private var dataSet: List<String>):
         }
 
         holder.itemView.setOnClickListener {
+            val isSelected = (selected == position)
+
             runBlocking { launch(Dispatchers.IO) {
-            listener?.onVaccineClick(name, unitId)
+            listener?.onVaccineClick(name, unitId, isSelected)
             } }
 
             selected = if (selected == position) null else position

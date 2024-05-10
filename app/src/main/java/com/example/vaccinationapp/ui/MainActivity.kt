@@ -25,6 +25,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AlertDialog
 import com.example.vaccinationapp.ui.login.LoginActivity
+import com.example.vaccinationapp.ui.managerecords.ManageRecordsFragment
 
 
 class MainActivity : AppCompatActivity() {
@@ -56,6 +57,21 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        val value = intent.getIntExtra("value", -1)
+
+        when (value){
+            1 -> openManageRecordsFragment()
+        }
+
+    }
+
+    private fun openManageRecordsFragment() {
+        val manageRecordsFragment = ManageRecordsFragment()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.nav_host_fragment_content_main, manageRecordsFragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

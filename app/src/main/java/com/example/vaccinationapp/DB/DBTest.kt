@@ -74,13 +74,13 @@ fun main() {
 
         println("= TESTING VACCINE QUERIES =")
         println("Testing addVaccination():")
-        val newVaccine = Vaccinations("tetanus", 2, 1)
+        val newVaccine = Vaccinations("tetanus", 2, "12",1)
         println("Insertion successful:${vaccinationsQueries.addVaccination(newVaccine)}")
-        val newVaccine3 = Vaccinations("tetanus", 2, 4)
+        val newVaccine3 = Vaccinations("tetanus", 2, "32",4)
         println("Insertion successful:${vaccinationsQueries.addVaccination(newVaccine3)}")
 
         println("Testing addVaccination():")
-        val newVaccine2 = Vaccinations("covid-19 vaccine", 3, 1)
+        val newVaccine2 = Vaccinations("covid-19 vaccine", 3, "42" ,1)
         println("Insertion successful:${vaccinationsQueries.addVaccination(newVaccine2)}")
 
         println("Testing getVaccination():")
@@ -103,13 +103,13 @@ fun main() {
         val date = Date.valueOf("2024-05-28")
         val time = Time.valueOf("15:00:00")
         val newAppointment = Appointments(date, time, 1, 1)
-        println("Insertion successful:${appointmentQueries.addAppointment(newAppointment)}")
+        println("Insertion successful:${appointmentQueries.addAppointment(newAppointment,null)}")
 
         println("Testing addAppointment():")
         val date2 = Date.valueOf("2024-05-13")
         val time2 = Time.valueOf("12:30:00")
         val newAppointment2 = Appointments(date, time2, 1, 1) //doesn't see date and time
-        println("Insertion successful:${appointmentQueries.addAppointment(newAppointment2)}")
+        println("Insertion successful:${appointmentQueries.addAppointment(newAppointment2, null)}")
 
         println("Testing getAllAppointments():")
         println(appointmentQueries.getAllAppointments())

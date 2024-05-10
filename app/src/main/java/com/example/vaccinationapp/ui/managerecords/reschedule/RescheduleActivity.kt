@@ -18,10 +18,12 @@ import com.example.vaccinationapp.R
 import com.example.vaccinationapp.adapters.HoursAdapter
 import com.example.vaccinationapp.adapters.VaccinesAdapter
 import com.example.vaccinationapp.DB.entities.Appointments
+import com.example.vaccinationapp.DB.entities.Records
 import com.example.vaccinationapp.DB.entities.Vaccinations
 import com.example.vaccinationapp.DB.queries.AppointmentsQueries
 import com.example.vaccinationapp.ui.Dates
 import com.example.vaccinationapp.ui.Hours
+import com.example.vaccinationapp.ui.MainActivity
 import com.example.vaccinationapp.ui.Queries
 import com.example.vaccinationapp.ui.Vaccines
 import com.example.vaccinationapp.ui.managerecords.ManageRecordsFragment
@@ -30,6 +32,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import java.sql.Date
 import java.text.SimpleDateFormat
 
 class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
@@ -39,6 +42,7 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
     private var selectedDateFormatted = ""
     private var selectedDate = ""
     private var dateTime = ""
+    private var minDate : Date?= null
     //FINAL VALUES
     private var FvaccineID: Int = 0
     private val hoursManager = Hours()
@@ -122,7 +126,7 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         date.setOnClickListener {
             lifecycleScope.launch {
                 val result =
-                    datesManager.showDatePickerDialog(this@RescheduleActivity, date, offeredHours, hoursManager)
+                    datesManager.showDatePickerDialog(this@RescheduleActivity, date, offeredHours, hoursManager, minDate)
 
                 val (sDate, sDateFormatted) = result.await()
                 selectedDate = sDate
@@ -157,14 +161,20 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
                 Log.d("DATABASE", "Update appointment successful: $result")
             } }
 
-            val intent = Intent(this, ManageRecordsFragment::class.java)
-            startActivity(intent)
+            goToManageRecords()
         }
 
         cancel.setOnClickListener {
-            val intent = Intent(this, ManageRecordsFragment::class.java)
-            startActivity(intent)
+            goToManageRecords()
         }
+    }
+
+    private fun goToManageRecords() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.putExtra("value", 1)
+        startActivity(intent)
+        finish()
     }
 
     override fun onHourClick(item: String, date: Button) {
@@ -173,8 +183,52 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         date.text = finalDate
     }
 
-    override suspend fun onVaccineClick(vaccineName: String, healthcareUnitId: Int){
-        FvaccineID = queries.getVaccinationId(vaccineName, healthcareUnitId)!!
+    override suspend fun onVaccineClick(vaccineName: String, healthcareUnitId: Int, isSelected: Boolean){
+        if(!isSelected) {
+            FvaccineID =  queries.getVaccinationId(vaccineName, healthcareUnitId)!!
+            Log.d("VACCINEID", "vaccine id: $FvaccineID")
+        }else{
+            FvaccineID = 0
+            Log.d("VACCINEID", "vaccine id: $FvaccineID")
+        }
+
+        if(!isSelected) {
+            // get all records for user
+            val email = FirebaseAuth.getInstance().currentUser!!.email
+            var userId = 0
+            var records: List<Records>? = null
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    userId = queries.getUserId(email!!)!!.toInt()
+                    records = queries.getAllRecordsForUserId(userId)?.toList()
+                }
+            }
+
+            val vacc1 = queries.getVaccination(FvaccineID)
+
+            //filter them by vaccineId
+            val filteredRecords = records?.filter { record ->
+                val vacc2 = record.vaccineId?.let { queries.getVaccination(it) }
+                vacc1?.vaccineName == vacc2?.vaccineName
+            }
+
+            //find the record with second highest 'dose' value
+            // second cause we wanna ignore the last added record (cause it's the one were updating)
+            val secondMaxRec = findSecondMaxDose(filteredRecords)
+
+            //get next dose due date from the remaining record
+            minDate = secondMaxRec?.nextDoseDueDate
+        }else
+            minDate = null
+    }
+
+    fun findSecondMaxDose(filteredRecords: List<Records>?): Records? {
+        if (filteredRecords == null || filteredRecords.size < 2) {
+            return null
+        }
+        val sortedRecords = filteredRecords.sortedByDescending { it.dose }
+
+        return sortedRecords[1]
     }
 
 }

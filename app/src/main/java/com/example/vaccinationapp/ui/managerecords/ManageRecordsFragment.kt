@@ -9,16 +9,12 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.vaccinationapp.DB.DBconnection
 import com.example.vaccinationapp.R
-import com.example.vaccinationapp.adapters.RecordsAdapter
+import com.example.vaccinationapp.adapters.UpcomingAppointmentsAdapter
 import com.example.vaccinationapp.databinding.FragmentManageRecordsBinding
 import com.example.vaccinationapp.DB.entities.Appointments
-import com.example.vaccinationapp.DB.queries.AppointmentsQueries
-import com.example.vaccinationapp.DB.queries.UsersQueries
 import com.example.vaccinationapp.ui.Queries
 import com.example.vaccinationapp.ui.managerecords.reschedule.RescheduleActivity
 import com.example.vaccinationapp.ui.managerecords.schedule.ScheduleActivity
@@ -27,14 +23,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
+import java.time.ZoneId
 import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
 
-class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
+class ManageRecordsFragment : Fragment(), UpcomingAppointmentsAdapter.OnItemClickListener {
     private val queries = Queries()
     private lateinit var recordsRecycler: RecyclerView
-    private lateinit var adapter: RecordsAdapter
+    private lateinit var adapter: UpcomingAppointmentsAdapter
     private var _binding: FragmentManageRecordsBinding? = null
     private val binding get() = _binding!!
     private var userId: Int = 0
@@ -45,8 +42,8 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val addViewModel =
-            ViewModelProvider(this).get(ManageRecordsViewModel::class.java)
+//        val addViewModel =
+//            ViewModelProvider(this).get(ManageRecordsViewModel::class.java)
 
         _binding = FragmentManageRecordsBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -54,7 +51,6 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
         val editRecord: Button = root.findViewById(R.id.editbtn)
         val addRecord: Button = root.findViewById(R.id.addbtn)
         val deleteRecord: Button = root.findViewById(R.id.deletebtn)
-
 
         val email = FirebaseAuth.getInstance().currentUser!!.email
 
@@ -68,10 +64,10 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
 
         //select only upcoming
 
-        recordsRecycler = root.findViewById<RecyclerView>(R.id.recordsRecyclerView)
+        recordsRecycler = root.findViewById(R.id.recordsRecyclerView)
         recordsRecycler.layoutManager = LinearLayoutManager(context)
 
-        adapter = RecordsAdapter(upcomingAppointments, editRecord, deleteRecord)
+        adapter = UpcomingAppointmentsAdapter(upcomingAppointments, editRecord, deleteRecord)
         recordsRecycler.adapter = adapter
 
         adapter.setOnItemClickListener(this)
@@ -90,18 +86,20 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
         val upcomingAppointments = mutableSetOf<Appointments>()
 
         val calendar = Calendar.getInstance()
-        calendar.timeZone = TimeZone.getTimeZone("CET")
+        calendar.timeZone = TimeZone.getTimeZone(ZoneId.systemDefault())
         val currentDate = calendar.time
         val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-        dateTimeFormat.timeZone = TimeZone.getTimeZone("CET")
+        dateTimeFormat.timeZone = TimeZone.getTimeZone(ZoneId.systemDefault())
 
         if (appointments != null) {
             for (appointment in appointments) {
                 val appointmentDateTimeString = "${appointment.date} ${appointment.time}"
                 val appointmentDateTime = dateTimeFormat.parse(appointmentDateTimeString)
 
-                if (appointmentDateTime.after(currentDate)) {
-                    upcomingAppointments.add(appointment)
+                if (appointmentDateTime != null) {
+                    if (appointmentDateTime.after(currentDate)) {
+                        upcomingAppointments.add(appointment)
+                    }
                 }
             }
         }
@@ -130,6 +128,7 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
             builder.setMessage("Are you sure you want to cancel the appointment?")
                 .setPositiveButton("Yes") { dialog, _ ->
                     runBlocking { launch(Dispatchers.IO) {
+                        id?.let { it1 -> queries.deleteRecord(it1)}
                         id?.let { it1 -> queries.deleteAppointment(it1) }
                     } }
                     adapter.notifyDataSetChanged()

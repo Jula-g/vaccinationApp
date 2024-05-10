@@ -10,13 +10,14 @@ import java.sql.Time
 import java.text.SimpleDateFormat
 
 class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO {
-    override fun addAppointment(appointment: Appointments): Boolean {
-        val query = "{CALL addAppointment(?, ?, ?, ?)}"
+    override fun addAppointment(appointment: Appointments, nextDose: Date?): Boolean {
+        val query = "{CALL addAppointment(?, ?, ?, ?, ?)}"
         val statement = connection.prepareCall(query)
         statement.setDate(1, appointment.date!!)
         statement.setTime(2, appointment.time!!)
         statement.setInt(3, appointment.userId!!)
         statement.setInt(4, appointment.vaccinationId!!)
+        statement.setDate(5,nextDose)
         val result = !statement.execute()
         statement.close()
         return result
@@ -74,6 +75,20 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
         val appointments = mutableSetOf<Appointments>()
         while (resultSet.next()){
             appointments.add(mapResultSetToAppointment(resultSet))
+        }
+        val appointmentsFinal = appointments.toSet()
+        return if (appointments.isEmpty()) null else appointmentsFinal
+    }
+
+    override fun getAppointmentsForUserAndVaccine(userId: Int, vaccineId: Int): Set<Appointments>?{
+        val query = "{CALL getAppointmentsForUserAndVaccine(?, ?)}"
+        val statement = connection.prepareCall(query)
+        statement.setInt(1, userId)
+        statement.setInt(2, vaccineId)
+        val result = statement.executeQuery()
+        val appointments = mutableListOf<Appointments>()
+        while (result.next()){
+            appointments.add(mapResultSetToAppointment(result))
         }
         val appointmentsFinal = appointments.toSet()
         return if (appointments.isEmpty()) null else appointmentsFinal

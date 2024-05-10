@@ -11,6 +11,7 @@ import com.example.vaccinationapp.R
 import com.example.vaccinationapp.adapters.HoursAdapter
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
+import java.sql.Date
 import java.text.DateFormatSymbols
 import java.util.Calendar
 
@@ -19,7 +20,8 @@ class Dates {
         activity: Activity,
         dateButton: Button,
         offeredHours: List<String>,
-        hoursManager: Hours)
+        hoursManager: Hours,
+        minDate: Date?)
     : Deferred<Pair<String, String>> {
         val deferredResult = CompletableDeferred<Pair<String, String>>()
 
@@ -60,7 +62,12 @@ class Dates {
             currentDay
         )
 
-        datePickerDialog.datePicker.minDate = System.currentTimeMillis()
+        if(minDate == null)
+            datePickerDialog.datePicker.minDate = System.currentTimeMillis()
+        else {
+            val minDateInMillis = minDate.time
+            datePickerDialog.datePicker.minDate = minDateInMillis
+        }
         datePickerDialog.show()
 
         return deferredResult

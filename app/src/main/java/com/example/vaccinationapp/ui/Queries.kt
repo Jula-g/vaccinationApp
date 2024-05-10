@@ -4,21 +4,24 @@ import android.util.Log
 import com.example.vaccinationapp.DB.DBconnection
 import com.example.vaccinationapp.DB.entities.Appointments
 import com.example.vaccinationapp.DB.entities.HealthcareUnits
+import com.example.vaccinationapp.DB.entities.Records
 import com.example.vaccinationapp.DB.entities.Vaccinations
 import com.example.vaccinationapp.DB.queries.AppointmentsQueries
 import com.example.vaccinationapp.DB.queries.HealthcareUnitsQueries
+import com.example.vaccinationapp.DB.queries.RecordsQueries
 import com.example.vaccinationapp.DB.queries.UsersQueries
 import com.example.vaccinationapp.DB.queries.VaccinationsQueries
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.Date
 
 class Queries {
-    suspend fun addAppointment(appointment: Appointments):Boolean{
+    suspend fun addAppointment(appointment: Appointments, nextDose: java.sql.Date?):Boolean{
         return withContext(Dispatchers.IO){
             val conn = DBconnection.getConnection()
             Log.d("DATABASE", "appointment connected")
             val appQueries = AppointmentsQueries(conn)
-            val result = appQueries.addAppointment(appointment)
+            val result = appQueries.addAppointment(appointment, nextDose)
             Log.d("DATABASE", "appointment added: $result")
             conn.close()
             result
@@ -33,6 +36,16 @@ class Queries {
             val result = vaccineQueries.getAllVaccinations()
             Log.d("DATABASE", "vaccines: $result")
             connection.close()
+            result
+        }
+    }
+
+    suspend fun deleteRecord(id:Int): Boolean{
+        return withContext(Dispatchers.IO){
+            val conn = DBconnection.getConnection()
+            val queries = RecordsQueries(conn)
+            val result = queries.deleteRecord(id)
+            conn.close()
             result
         }
     }
@@ -106,6 +119,56 @@ class Queries {
             val conn = DBconnection.getConnection()
             val appQueries = AppointmentsQueries(conn)
             val result = appQueries.getAllAppointmentsForUserId(id)
+            conn.close()
+            result
+        }
+    }
+
+    suspend fun getAllRecordsForUserId(id: Int): Set<Records>?{
+        return withContext(Dispatchers.IO){
+            val conn = DBconnection.getConnection()
+            val queries = RecordsQueries(conn)
+            val result = queries.getAllRecordsForUserId(id)
+            conn.close()
+            result
+        }
+    }
+
+    suspend fun addRecord(record: Records): Boolean{
+        return withContext(Dispatchers.IO){
+            val conn = DBconnection.getConnection()
+            val queries = RecordsQueries(conn)
+            val result = queries.addRecord(record)
+            conn.close()
+            result
+        }
+    }
+
+    suspend fun getRecordByUserVaccDate(userId: Int,vaccineId: Int, date: java.sql.Date): Records?{
+        return withContext(Dispatchers.IO){
+            val conn = DBconnection.getConnection()
+            val queries = RecordsQueries(conn)
+            val result = queries.getRecordByUserVaccDate(userId, vaccineId, date)
+            conn.close()
+            result
+        }
+    }
+
+    suspend fun getAppointmentsForUserAndVaccine(userId: Int, vaccineId:Int): Set<Appointments>?{
+        return withContext(Dispatchers.IO){
+            val conn = DBconnection.getConnection()
+            val queries = AppointmentsQueries(conn)
+            val result = queries.getAppointmentsForUserAndVaccine(userId, vaccineId)
+            conn.close()
+            result
+        }
+    }
+
+    suspend fun getRecordId(userId: Int, vaccineId: Int, dose: Int): Int?{
+        return withContext(Dispatchers.IO){
+            val conn =DBconnection.getConnection()
+            val queries = RecordsQueries(conn)
+            val result = queries.getRecordId(userId,vaccineId,dose)
             conn.close()
             result
         }
