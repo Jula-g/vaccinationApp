@@ -27,5 +27,7 @@ class EditRecord : AppCompatActivity() {
         val cancel = findViewById<Button>(R.id.cancelAdd)
         val confirm = findViewById<Button>(R.id.confirmAdd)
 
+
+
     }
 }

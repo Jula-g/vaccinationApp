@@ -31,12 +31,13 @@ class RecordsQueries(private val connection: java.sql.Connection): RecordsDAO {
         return statement.executeUpdate() > 0
     }
 
-    override fun getRecordId(userId: Int, vaccineId: Int, dose: Int): Int? {
-        val query = "{CALL getRecordId(?, ?, ?)}"
+    override fun getRecordId(userId: Int, vaccineId: Int, dose: Int, date: Date): Int? {
+        val query = "{CALL getRecordId(?, ?, ?, ?)}"
         val statement = connection.prepareCall(query)
         statement.setInt(1, userId)
         statement.setInt(2, vaccineId)
         statement.setInt(3, dose)
+        statement.setDate(4, date)
         val result = statement.executeQuery()
         return if (result.next()){
             result.getInt("id")

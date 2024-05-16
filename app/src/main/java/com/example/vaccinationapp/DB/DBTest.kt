@@ -1,25 +1,37 @@
-//package com.example.vaccinationapp.DB
-//import com.example.vaccinationapp.DB.DBconnection
-//import com.example.vaccinationapp.DB.entities.Appointments
-//import com.example.vaccinationapp.DB.entities.HealthcareUnits
-//import com.example.vaccinationapp.DB.entities.Users
-//import com.example.vaccinationapp.DB.entities.Vaccinations
-//import com.example.vaccinationapp.DB.queries.AppointmentsQueries
-//import com.example.vaccinationapp.DB.queries.HealthcareUnitsQueries
-//import com.example.vaccinationapp.DB.queries.UsersQueries
-//import com.example.vaccinationapp.DB.queries.VaccinationsQueries
-//import java.sql.Date
-//import java.sql.Time
-//
-//fun main() {
-//    try {
-//        val connection = DBconnection.getConnection()
-//        val appointmentQueries = AppointmentsQueries(connection)
-//        val healthcareUnitsQueries = HealthcareUnitsQueries(connection)
-//        val userQueries = UsersQueries(connection)
-//        val vaccinationsQueries = VaccinationsQueries(connection)
-//
-//
+package com.example.vaccinationapp.DB
+import com.example.vaccinationapp.DB.DBconnection
+import com.example.vaccinationapp.DB.entities.Appointments
+import com.example.vaccinationapp.DB.entities.HealthcareUnits
+import com.example.vaccinationapp.DB.entities.Records
+import com.example.vaccinationapp.DB.entities.Users
+import com.example.vaccinationapp.DB.entities.Vaccinations
+import com.example.vaccinationapp.DB.queries.AppointmentsQueries
+import com.example.vaccinationapp.DB.queries.HealthcareUnitsQueries
+import com.example.vaccinationapp.DB.queries.RecordsQueries
+import com.example.vaccinationapp.DB.queries.UsersQueries
+import com.example.vaccinationapp.DB.queries.VaccinationsQueries
+import java.sql.Date
+import java.sql.Time
+
+fun main() {
+    try {
+        val connection = DBconnection.getConnection()
+        val appointmentQueries = AppointmentsQueries(connection)
+        val healthcareUnitsQueries = HealthcareUnitsQueries(connection)
+        val userQueries = UsersQueries(connection)
+        val vaccinationsQueries = VaccinationsQueries(connection)
+        val recordQueries = RecordsQueries(connection)
+
+        println("add record")
+        val record = Records(1,1,Date.valueOf("2024-04-11"), 3, Date.valueOf("2024-08-20"))
+        println("insertion: ${recordQueries.addRecord(record)}")
+        val id = recordQueries.getRecordId(1,1,3, Date.valueOf("2024-04-11"))!!
+        println(id)
+        println("update record")
+        val updatedRecord = Records(1,1,Date.valueOf("2024-04-11"), 2, Date.valueOf("2024-08-20"))
+        println("update: ${recordQueries.updateRecord(id, updatedRecord)}")
+
+
 //        println("= TESTING USER QUERIES =")
 //        println("Testing addUser():")
 //        val newUser = Users("Jan", "Kowalski", "test@wp.pl")
@@ -135,10 +147,10 @@
 //
 //        print("get app id")
 //        println(appointmentQueries.getAppointmentId("2024-04-26", "15:30"))
-//
-//                // Closing connection
-//                connection.close() // Closing the database connection
-//    } catch (e: Exception) {
-//        e.printStackTrace() // Printing error information in case an exception occurs
-//    }
-//}
+
+                // Closing connection
+                connection.close() // Closing the database connection
+    } catch (e: Exception) {
+        e.printStackTrace() // Printing error information in case an exception occurs
+    }
+}

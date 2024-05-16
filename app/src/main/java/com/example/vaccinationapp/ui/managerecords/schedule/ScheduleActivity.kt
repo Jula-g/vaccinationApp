@@ -155,7 +155,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
             var nextDose: Date? = null
             //add appointment to the DB
             runBlocking { launch(Dispatchers.IO) {
-                val rec = queries.getRecordByUserVaccDate(FuserID,FvaccineID,Fdate)
+                val rec = queries.getRecordByUserVaccDate(FuserID,FvaccineID, Fdate)
                 if(rec != null){
                     nextDose = rec.nextDoseDueDate!!
                 }
@@ -172,6 +172,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
 
             val index = currentDose - 1
             checkDose(index, intSplit, Fdate)
+            Log.d("TESTING", "nextDoseDate: $nextDoseDate")
             val record = Records(FuserID, FvaccineID, Fdate, currentDose, nextDoseDate)
 
             // add record
@@ -179,7 +180,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
             runBlocking { launch(Dispatchers.IO) {
                 val result2 = queries.addRecord(record)
                 Log.d("RECORDS", "Add record succesful: $result2")
-                recordId = queries.getRecordId(FuserID, FvaccineID, currentDose)
+                recordId = queries.getRecordId(FuserID, FvaccineID, currentDose, Fdate)
                 }}
 
             val updatedAppointment = Appointments(Fdate, Ftime, FuserID, FvaccineID,recordId)
@@ -201,9 +202,10 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
     private fun checkDose(index: Int, intSplit: List<String>, Fdate: Date){
         if(index >= 0 && index < intSplit.size ) {
             nextDoseDate = addDaysToDate(Fdate, intSplit[index].toInt())
-        }else if (index > intSplit.size){
-            currentDose = 0
-            checkDose(index, intSplit, Fdate)
+        }else if (index >= intSplit.size){
+            currentDose = 1
+            val newIndex = 0
+            checkDose(newIndex, intSplit, Fdate)
         }
     }
     fun addDaysToDate(date: Date, days: Int): Date {

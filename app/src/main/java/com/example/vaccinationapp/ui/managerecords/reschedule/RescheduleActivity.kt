@@ -198,15 +198,11 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
                             // delete following appointments and records for the samer vaccine and user
                             for(appointment in nextAppointments){
                                 runBlocking { launch(Dispatchers.IO) {
-////                                    val appointmentId = queries.getAppointmentId(appointment.date!!.toString(), appointment.time!!.toString())!!
-//                                    val recId = appointment.recordId!!
-////                                    val result = queries.deleteAppointment(appointmentId)
-//                                    val result2 = queries.deleteRecord(recId)
-////                                    Log.d("DATABASE", "Appointment deletion successful: $result")
-//                                    Log.d("DATABASE", "Record deletion successful: $result2")
+                                    val recId = appointment.recordId!!
+                                    val result = queries.deleteRecord(recId)
+                                    Log.d("DATABASE", "Record deletion successful: $result")
                                 } }
                             }
-                            Log.d("TEST", "deletes appointments")
 
                             // update appointment and it's record
                             updateAppointment(finalDate, finalTime, finalUserID, recordId, appId)
@@ -263,23 +259,12 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
 
                 var recId : Int = 0
                 runBlocking { launch(Dispatchers.IO) {
-                    recId = queries.getRecordId(record.userId!!, record.vaccineId!!, record.dose!!)!!
+                    recId = queries.getRecordId(record.userId!!, record.vaccineId!!, record.dose!!, record.dateAdministered!!)!!
                     queries.updateRecord(recId, rec)
                 }}
 
-                if (recId == recordId){
-                    newDose = dose
-                }
             }
         }
-        val record = Records(finUserID, FvaccineID, finDate, newDose, nextDoseDate)
-
-        // update record
-        runBlocking { launch(Dispatchers.IO) {
-            val result = queries.updateRecord(recordId, record)
-            Log.d("RECORDS", "Update record succesful: $result")
-        }}
-
         goToManageRecords()
     }
 
@@ -287,8 +272,9 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         if(index >= 0 && index < intSplit.size ) {
             return addDaysToDate(Fdate, intSplit[index].toInt())
         }else if (index > intSplit.size){
-            currentDose = 0
-            checkDose(index, intSplit, Fdate)
+            currentDose = 1
+            val newIndex = 0
+            checkDose(newIndex, intSplit, Fdate)
         }
         return null
     }

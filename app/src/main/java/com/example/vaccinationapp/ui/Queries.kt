@@ -193,11 +193,11 @@ class Queries {
         }
     }
 
-    suspend fun getRecordId(userId: Int, vaccineId: Int, dose: Int): Int?{
+    suspend fun getRecordId(userId: Int, vaccineId: Int, dose: Int, date: java.sql.Date): Int?{
         return withContext(Dispatchers.IO){
             val conn =DBconnection.getConnection()
             val queries = RecordsQueries(conn)
-            val result = queries.getRecordId(userId,vaccineId,dose)
+            val result = queries.getRecordId(userId, vaccineId, dose, date)
             conn.close()
             result
         }

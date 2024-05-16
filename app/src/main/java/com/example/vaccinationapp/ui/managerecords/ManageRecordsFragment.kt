@@ -3,6 +3,7 @@ package com.example.vaccinationapp.ui.managerecords
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -150,9 +151,14 @@ class ManageRecordsFragment : Fragment(), UpcomingAppointmentsAdapter.OnItemClic
                         val appointment = queries.getAppointment(id!!)
                         val recordId = appointment!!.recordId
                         if (recordId != null) {
-                            queries.deleteRecord(recordId)
+                            runBlocking { launch(Dispatchers.IO) {
+                                val result = queries.deleteRecord(recordId)
+                                Log.d("DATABASE", "Record deletion successful: $result")
+                            } }
+
+                            //recalculate the doses !!!!!!!!!!!!!!!!!!!
+
                         }
-                        queries.deleteAppointment(id)
                     } }
                     adapter.notifyDataSetChanged()
                     dialog.dismiss()

@@ -2,6 +2,7 @@ package com.example.vaccinationapp.adapters
 
 import android.annotation.SuppressLint
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -127,7 +128,8 @@ class RecordsAdapter (private val dataSet: List<Records>?, private val update: B
                 var recordId: Int? = null
                 runBlocking {
                     launch(Dispatchers.IO) {
-                        recordId = queries.getRecordId(userId, vaccId, currentDose)
+                        recordId = queries.getRecordId(userId, vaccId, currentDose, dateAdm)
+                        Log.d("TESTING RECORD ID", "id: $recordId")
                     }
                 }
 
