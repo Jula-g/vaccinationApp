@@ -108,6 +108,20 @@ class RecordsQueries(private val connection: java.sql.Connection): RecordsDAO {
 
     }
 
+    override fun getRecordIdByDate(userId: Int, vaccineId: Int, dateAdministered: Date): Int? {
+        val query = "{CALL getRecordIdByDate(?, ?, ?)}"
+        val statement = connection.prepareCall(query)
+        statement.setInt(1, userId)
+        statement.setInt(2, vaccineId)
+        statement.setDate(3, dateAdministered)
+        val result = statement.executeQuery()
+        return if (result.next()){
+            result.getInt("id")
+        }else{
+            null
+        }
+    }
+
     private fun mapResultSetToRecords(resultSet: ResultSet): Records{
         return Records(
             userId = resultSet.getInt("user_id"),

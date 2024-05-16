@@ -149,11 +149,10 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
             } }
 
             //create appointment object
-            val appointment = Appointments(Fdate, Ftime, FuserID, FvaccineID)
+            val appointment = Appointments(Fdate, Ftime, FuserID, FvaccineID, null)
             Log.d("DATABASE ", "appointment: $appointment")
 
             var vacc: Vaccinations? = null
-            var previousAppointments : Set<Appointments>? = null
             var nextDose: Date? = null
             //add appointment to the DB
             runBlocking { launch(Dispatchers.IO) {
@@ -169,18 +168,26 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
             val intSplit = interval.split(";")
 
             runBlocking { launch(Dispatchers.IO) {
-                previousAppointments = queries.getAppointmentsForUserAndVaccine(FuserID, FvaccineID)
+                currentDose = queries.getAppointmentsForUserAndVaccine(FuserID, FvaccineID)?.size ?: 0
             } }
 
-            currentDose = previousAppointments?.size ?: 0
             val index = currentDose - 1
             checkDose(index, intSplit, Fdate)
             val record = Records(FuserID, FvaccineID, Fdate, currentDose, nextDoseDate)
 
             // add record
+            var recordId: Int? = null
             runBlocking { launch(Dispatchers.IO) {
                 val result2 = queries.addRecord(record)
                 Log.d("RECORDS", "Add record succesful: $result2")
+                recordId = queries.getRecordId(FuserID, FvaccineID, currentDose)
+                }}
+
+            val updatedAppointment = Appointments(Fdate, Ftime, FuserID, FvaccineID,recordId)
+            runBlocking { launch(Dispatchers.IO) {
+                val appointmentId = queries.getAppointmentId(Fdate.toString(), Ftime.toString())!!
+                val result3 = queries.updateAppointment(appointmentId, nextDose, updatedAppointment)
+                Log.d("APPOINTMENTUPDATE", "Update appointment succesfull: $result3")
             } }
 
             goToManageRecords()

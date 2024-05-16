@@ -81,10 +81,10 @@ class HistoryFragment : Fragment(), RecordsAdapter.OnItemClickListener {
         val pastAppointments = mutableSetOf<Records>()
 
         val calendar = Calendar.getInstance()
-        calendar.timeZone = TimeZone.getTimeZone(ZoneId.systemDefault())
+        calendar.timeZone = TimeZone.getTimeZone("CET")
         val currentDate = calendar.time
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        dateFormat.timeZone = TimeZone.getTimeZone(ZoneId.systemDefault())
+        dateFormat.timeZone = TimeZone.getTimeZone("CET")
 
         if (records != null) {
             for (record in records) {

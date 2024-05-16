@@ -11,13 +11,18 @@ import java.text.SimpleDateFormat
 
 class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO {
     override fun addAppointment(appointment: Appointments, nextDose: Date?): Boolean {
-        val query = "{CALL addAppointment(?, ?, ?, ?, ?)}"
+        val query = "{CALL addAppointment(?, ?, ?, ?, ?, ?)}"
         val statement = connection.prepareCall(query)
         statement.setDate(1, appointment.date!!)
         statement.setTime(2, appointment.time!!)
         statement.setInt(3, appointment.userId!!)
         statement.setInt(4, appointment.vaccinationId!!)
-        statement.setDate(5,nextDose)
+        if (appointment.recordId != null) {
+            statement.setInt(5, appointment.recordId)
+        } else {
+            statement.setNull(5, java.sql.Types.INTEGER)
+        }
+        statement.setDate(6,nextDose)
         val result = !statement.execute()
         statement.close()
         return result
@@ -36,15 +41,16 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
     }
 
 
-
-    override fun updateAppointment(id: Int, appointment: Appointments): Boolean {
-        val query = "{CALL updateAppointment(?, ?, ?, ?, ?)}"
+    override fun updateAppointment(id: Int, nextDose: Date?, appointment: Appointments): Boolean {
+        val query = "{CALL updateAppointment(?, ?, ?, ?, ?, ?, ?)}"
         val statement = connection.prepareCall(query)
         statement.setDate(1, appointment.date!!)
         statement.setTime(2, appointment.time!!)
         statement.setInt(3, appointment.vaccinationId!!)
         statement.setInt(4, appointment.userId!!)
-        statement.setInt(5, id)
+        statement.setInt(5, appointment.recordId!!)
+        statement.setInt(6, id)
+        statement.setDate(7, nextDose)
         return statement.executeUpdate() > 0
     }
 
@@ -137,7 +143,8 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
             date = resultSet.getDate("date"),
             time = resultSet.getTime("time"),
             userId = resultSet.getInt("user_id"),
-            vaccinationId = resultSet.getInt("vaccine_id")
+            vaccinationId = resultSet.getInt("vaccine_id"),
+            recordId = resultSet.getInt("record_id")
         )
     }
 }

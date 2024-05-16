@@ -33,7 +33,7 @@ class Hours {
 
 //        // get current date and time
         val calendar = Calendar.getInstance()
-        calendar.timeZone = TimeZone.getTimeZone(ZoneId.systemDefault())
+        calendar.timeZone = TimeZone.getTimeZone("CET")
         val currentDate = "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH)+1}-${calendar.get(
             Calendar.DAY_OF_MONTH)}"
         val currentTime= "${calendar.get(Calendar.HOUR_OF_DAY)}:${calendar.get((Calendar.MINUTE))}"

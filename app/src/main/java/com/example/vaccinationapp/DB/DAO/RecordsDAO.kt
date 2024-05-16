@@ -7,6 +7,7 @@ interface RecordsDAO {
     fun addRecord(record: Records): Boolean
     fun updateRecord(id: Int, record: Records):Boolean
     fun getRecordId(userId: Int, vaccineId: Int, dose: Int): Int?
+    fun getRecordIdByDate(userId: Int, vaccineId: Int, dateAdministered: java.sql.Date): Int?
     fun getRecord(id: Int): Records?
     fun getRecordByUserVaccDate(userId: Int, vaccineId: Int, dateAdministered: java.sql.Date): Records?
     fun getAllRecords(): Set<Records>?

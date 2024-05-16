@@ -104,11 +104,31 @@ class Queries {
         }
     }
 
-    suspend fun updateAppointment(id: Int, appointment: Appointments): Boolean{
+    suspend fun updateAppointment(id: Int, nextDose: java.sql.Date?, appointment: Appointments): Boolean{
         return withContext(Dispatchers.IO){
             val conn = DBconnection.getConnection()
             val queries = AppointmentsQueries(conn)
-            val result = queries.updateAppointment(id,appointment)
+            val result = queries.updateAppointment(id,nextDose, appointment)
+            conn.close()
+            result
+        }
+    }
+
+    suspend fun getRecord(id: Int): Records?{
+        return withContext(Dispatchers.IO){
+            val conn = DBconnection.getConnection()
+            val queries = RecordsQueries(conn)
+            val result = queries.getRecord(id)
+            conn.close()
+            result
+        }
+    }
+
+    suspend fun updateRecord(id: Int, record: Records): Boolean{
+        return withContext(Dispatchers.IO){
+            val conn = DBconnection.getConnection()
+            val queries = RecordsQueries(conn)
+            val result = queries.updateRecord(id,record)
             conn.close()
             result
         }
@@ -169,6 +189,16 @@ class Queries {
             val conn =DBconnection.getConnection()
             val queries = RecordsQueries(conn)
             val result = queries.getRecordId(userId,vaccineId,dose)
+            conn.close()
+            result
+        }
+    }
+
+    suspend fun getRecordIdByDate(userId: Int, vaccineId: Int, dateAdministered: java.sql.Date): Int?{
+        return withContext(Dispatchers.IO){
+            val conn =DBconnection.getConnection()
+            val queries = RecordsQueries(conn)
+            val result = queries.getRecordIdByDate(userId,vaccineId,dateAdministered)
             conn.close()
             result
         }

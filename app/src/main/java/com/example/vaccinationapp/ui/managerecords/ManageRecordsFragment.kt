@@ -86,10 +86,10 @@ class ManageRecordsFragment : Fragment(), UpcomingAppointmentsAdapter.OnItemClic
         val upcomingAppointments = mutableSetOf<Appointments>()
 
         val calendar = Calendar.getInstance()
-        calendar.timeZone = TimeZone.getTimeZone(ZoneId.systemDefault())
+        calendar.timeZone = TimeZone.getTimeZone("CET")
         val currentDate = calendar.time
         val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-        dateTimeFormat.timeZone = TimeZone.getTimeZone(ZoneId.systemDefault())
+        dateTimeFormat.timeZone = TimeZone.getTimeZone("CET")
 
         if (appointments != null) {
             for (appointment in appointments) {
@@ -128,8 +128,12 @@ class ManageRecordsFragment : Fragment(), UpcomingAppointmentsAdapter.OnItemClic
             builder.setMessage("Are you sure you want to cancel the appointment?")
                 .setPositiveButton("Yes") { dialog, _ ->
                     runBlocking { launch(Dispatchers.IO) {
-                        id?.let { it1 -> queries.deleteRecord(it1)}
-                        id?.let { it1 -> queries.deleteAppointment(it1) }
+                        val appointment = queries.getAppointment(id!!)
+                        val recordId = appointment!!.recordId
+                        if (recordId != null) {
+                            queries.deleteRecord(recordId)
+                        }
+                        queries.deleteAppointment(id)
                     } }
                     adapter.notifyDataSetChanged()
                     dialog.dismiss()
