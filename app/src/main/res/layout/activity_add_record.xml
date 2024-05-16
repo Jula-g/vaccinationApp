@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient"
+    tools:context=".ui.history.AddRecord">
+
+    <Button
+        android:id="@+id/confirmAdd"
+        android:layout_width="140dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="50dp"
+        android:backgroundTint="#5FBFBC"
+        android:fontFamily="@font/neuropol_x_rg"
+        android:text="confirm"
+        android:textColor="#FFFFFF"
+        app:cornerRadius="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.912" />
+
+    <AutoCompleteTextView
+        android:id="@+id/vaccineNameAdd"
+        android:layout_width="240dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="380dp"
+        android:layout_marginBottom="40dp"
+        android:fontFamily="@font/neuropol_x_rg"
+        android:hint="Vaccine name"
+        app:layout_constraintBottom_toTopOf="@+id/doseNumberAdd"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/doseNumberAdd"
+        android:layout_width="240dp"
+        android:layout_height="50dp"
+        android:ems="10"
+        android:fontFamily="@font/neuropol_x_rg"
+        android:hint="Dose number"
+        android:inputType="numberDecimal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="432dp" />
+
+    <Button
+        android:id="@+id/cancelAdd"
+        android:layout_width="140dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="50dp"
+        android:backgroundTint="#5FBFBC"
+        android:fontFamily="@font/neuropol_x_rg"
+        android:text="cancel"
+        android:textColor="#FFFFFF"
+        app:cornerRadius="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.912" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="242dp"
+        android:layout_height="251dp"
+        android:layout_marginBottom="400dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/syringe_logo_with_name" />
+
+    <Button
+        android:id="@+id/dateAdd"
+        android:layout_width="240dp"
+        android:layout_height="70dp"
+        android:backgroundTint="#5FBFBC"
+        android:text="Date of vaccination"
+        android:textColor="#FBFBFB"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="512dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

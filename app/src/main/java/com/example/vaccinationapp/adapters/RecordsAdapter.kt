@@ -8,17 +8,15 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.vaccinationapp.R
-import com.example.vaccinationapp.DB.entities.Appointments
-import com.example.vaccinationapp.DB.entities.HealthcareUnits
+import com.example.vaccinationapp.DB.entities.Records
 import com.example.vaccinationapp.DB.entities.Vaccinations
+import com.example.vaccinationapp.R
 import com.example.vaccinationapp.ui.Queries
-import com.example.vaccinationapp.ui.managerecords.ManageRecordsFragment
+import com.example.vaccinationapp.ui.history.HistoryFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.text.SimpleDateFormat
-import java.util.Locale
+
 
 /**
  * Adapter for managing the display of records in a RecyclerView.
@@ -28,13 +26,8 @@ import java.util.Locale
  * @property update Button that represents the update action.
  * @property cancel Button that represents the cancel action.
  */
-class RecordsAdapter(
-    private val dataSet: List<Appointments>,
-    private val update: Button,
-    private val cancel: Button
-) :
+class RecordsAdapter (private val dataSet: List<Records>?, private val update: Button, private val  cancel: Button):
     RecyclerView.Adapter<RecordsAdapter.ViewHolder>() {
-
     private val queries = Queries()
 
     /**
@@ -51,15 +44,8 @@ class RecordsAdapter(
      *
      * @param listener The listener to set.
      */
-    fun setOnItemClickListener(listener: ManageRecordsFragment) {
+    fun setOnItemClickListener(listener: HistoryFragment) {
         this.listener = listener
-    }
-
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val buttonName = view.findViewById<TextView>(R.id.vaccineName)
-        val buttonDate = view.findViewById<TextView>(R.id.dateView)
-        val buttonTime = view.findViewById<TextView>(R.id.timeView)
-        val buttonAddress = view.findViewById<TextView>(R.id.addressView)
     }
 
     /**
@@ -68,9 +54,17 @@ class RecordsAdapter(
      *
      * @param view The view for an individual item in the RecyclerView.
      */
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecordsAdapter.ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item, parent, false)
-        return RecordsAdapter.ViewHolder(view)
+    class ViewHolder(view: View): RecyclerView.ViewHolder(view) {
+        val vaccineNameText: TextView = view.findViewById(R.id.vaccineName)
+        val dateAdministeredText: TextView = view.findViewById(R.id.dateView)
+        val doseText: TextView = view.findViewById(R.id.timeView)
+        val nextDoseDateText: TextView = view.findViewById(R.id.addressView)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context).
+        inflate(R.layout.item, parent, false)
+        return ViewHolder(view)
     }
 
     /**
@@ -79,7 +73,7 @@ class RecordsAdapter(
      * @return The total number of items in this adapter.
      */
     override fun getItemCount(): Int {
-        return dataSet.size
+        return dataSet!!.size
     }
 
     private var selected: Int? = null
@@ -93,56 +87,55 @@ class RecordsAdapter(
      */
 
     @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
-    override fun onBindViewHolder(holder: RecordsAdapter.ViewHolder, position: Int) {
-        val item = dataSet[position]
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        if(dataSet != null) {
+            val item = dataSet[position]
+            // time - which dose was it
+            // address - next dose due...
 
-        val vaccId = item.vaccinationId!!.toInt()
-        val userId = item.userId!!.toInt()
-        val date = item.date.toString()
-        val time = item.time
+            var vaccine: Vaccinations? = null
+            val vaccId = item.vaccineId!!
+            val userId = item.userId!!
+            val dateAdm = item.dateAdministered!!
+            val nextDoseDue = item.nextDoseDueDate!!
+            val currentDose = item.dose!!
+            var dosesLeft = -1
 
-        val outputTimeFormat = SimpleDateFormat("H:mm", Locale.getDefault())
-        val timeF = time?.let { outputTimeFormat.format(it) }
-
-        holder.buttonDate.text = date
-        holder.buttonTime.text = timeF
-        holder.buttonName.text = "Loading..."
-        holder.buttonAddress.text = "Loading..."
-
-        var vaccine: Vaccinations? = null
-        var unit: HealthcareUnits? = null
-        runBlocking {
-            launch(Dispatchers.IO) {
-                vaccine = queries.getVaccination(vaccId)
-                val unitId = vaccine?.healthcareUnitId
-                unit = unitId?.let { queries.getHealthcareUnit(it) }
-            }
-        }
-
-        holder.buttonName.text = vaccine?.vaccineName
-
-        val address = "${unit?.city} ${unit?.street} ${unit?.streetNumber}"
-
-        holder.buttonAddress.text = address
-
-        if (position == selected) {
-            holder.itemView.setBackgroundColor(Color.parseColor("#53B658"))
-        } else {
-            holder.itemView.setBackgroundColor(Color.TRANSPARENT)
-        }
-
-        holder.itemView.setOnClickListener {
-            var appointmentId: Int? = null
             runBlocking {
                 launch(Dispatchers.IO) {
-                    appointmentId = queries.getAppointmentId(date, time.toString())
+                    vaccine = queries.getVaccination(vaccId)
                 }
             }
 
-            listener?.onRecordClick(appointmentId, update, cancel)
+            holder.dateAdministeredText.text = "Date administered:\n$dateAdm"
+            holder.vaccineNameText.text = vaccine!!.vaccineName
+            holder.nextDoseDateText.text = "Suggested next dose:\n$nextDoseDue"
 
-            selected = if (selected == position) null else position
-            notifyDataSetChanged()
+            val noOfDoses = vaccine!!.noOfDoses!!
+
+            dosesLeft = noOfDoses - currentDose
+
+            holder.doseText.text = "Dose: $currentDose\nDoses left: $dosesLeft"
+
+            if (position == selected) {
+                holder.itemView.setBackgroundColor(Color.parseColor("#53B658"))
+            } else {
+                holder.itemView.setBackgroundColor(Color.TRANSPARENT)
+            }
+
+            holder.itemView.setOnClickListener {
+                var recordId: Int? = null
+                runBlocking {
+                    launch(Dispatchers.IO) {
+                        recordId = queries.getRecordId(userId, vaccId, currentDose)
+                    }
+                }
+
+                listener?.onRecordClick(recordId, update, cancel)
+
+                selected = if (selected == position) null else position
+                notifyDataSetChanged()
+            }
         }
     }
 }

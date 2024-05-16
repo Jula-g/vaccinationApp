@@ -20,13 +20,19 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
      * @param appointment The appointment to be added.
      * @return True if the appointment was added successfully, false otherwise.
      */
-    override fun addAppointment(appointment: Appointments): Boolean {
-        val query = "{CALL addAppointment(?, ?, ?, ?)}"
+    override fun addAppointment(appointment: Appointments, nextDose: Date?): Boolean {
+        val query = "{CALL addAppointment(?, ?, ?, ?, ?, ?)}"
         val statement = connection.prepareCall(query)
         statement.setDate(1, appointment.date!!)
         statement.setTime(2, appointment.time!!)
         statement.setInt(3, appointment.userId!!)
         statement.setInt(4, appointment.vaccinationId!!)
+        if (appointment.recordId != null) {
+            statement.setInt(5, appointment.recordId)
+        } else {
+            statement.setNull(5, java.sql.Types.INTEGER)
+        }
+        statement.setDate(6,nextDose)
         val result = !statement.execute()
         statement.close()
         return result
@@ -55,14 +61,17 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
      * @param appointment The new appointment.
      * @return True if the appointment was updated successfully, false otherwise.
      */
-    override fun updateAppointment(id: Int, appointment: Appointments): Boolean {
-        val query = "{CALL updateAppointment(?, ?, ?, ?, ?)}"
+
+    override fun updateAppointment(id: Int, nextDose: Date?, appointment: Appointments): Boolean {
+        val query = "{CALL updateAppointment(?, ?, ?, ?, ?, ?, ?)}"
         val statement = connection.prepareCall(query)
         statement.setDate(1, appointment.date!!)
         statement.setTime(2, appointment.time!!)
         statement.setInt(3, appointment.vaccinationId!!)
         statement.setInt(4, appointment.userId!!)
-        statement.setInt(5, id)
+        statement.setInt(5, appointment.recordId!!)
+        statement.setInt(6, id)
+        statement.setDate(7, nextDose)
         return statement.executeUpdate() > 0
     }
 
@@ -107,6 +116,20 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
         val appointments = mutableSetOf<Appointments>()
         while (resultSet.next()) {
             appointments.add(mapResultSetToAppointment(resultSet))
+        }
+        val appointmentsFinal = appointments.toSet()
+        return if (appointments.isEmpty()) null else appointmentsFinal
+    }
+
+    override fun getAppointmentsForUserAndVaccine(userId: Int, vaccineId: Int): Set<Appointments>?{
+        val query = "{CALL getAppointmentsForUserAndVaccine(?, ?)}"
+        val statement = connection.prepareCall(query)
+        statement.setInt(1, userId)
+        statement.setInt(2, vaccineId)
+        val result = statement.executeQuery()
+        val appointments = mutableListOf<Appointments>()
+        while (result.next()){
+            appointments.add(mapResultSetToAppointment(result))
         }
         val appointmentsFinal = appointments.toSet()
         return if (appointments.isEmpty()) null else appointmentsFinal
@@ -170,7 +193,8 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
             date = resultSet.getDate("date"),
             time = resultSet.getTime("time"),
             userId = resultSet.getInt("user_id"),
-            vaccinationId = resultSet.getInt("vaccine_id")
+            vaccinationId = resultSet.getInt("vaccine_id"),
+            recordId = resultSet.getInt("record_id")
         )
     }
 }

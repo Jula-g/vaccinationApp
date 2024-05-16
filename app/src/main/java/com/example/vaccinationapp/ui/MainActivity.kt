@@ -36,6 +36,9 @@ import com.example.vaccinationapp.ui.login.LoginActivity
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 
+import com.example.vaccinationapp.ui.managerecords.ManageRecordsFragment
+
+
 /**
  * MainActivity class is the main activity of the application that displays the main menu and the user's information.
  */
@@ -70,6 +73,20 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
+        val value = intent.getIntExtra("value", -1)
+
+        when (value){
+            1 -> openManageRecordsFragment()
+        }
+
+    }
+
+    private fun openManageRecordsFragment() {
+        val manageRecordsFragment = ManageRecordsFragment()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.nav_host_fragment_content_main, manageRecordsFragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     /**
