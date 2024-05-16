@@ -1,5 +1,8 @@
 package com.example.vaccinationapp.ui
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -22,10 +25,16 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import com.example.vaccinationapp.ui.login.LoginActivity
-import com.example.vaccinationapp.ui.reminder.notification.NotificationHelper
-import com.example.vaccinationapp.ui.reminder.notification.NotificationSetter
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
 
 /**
  * MainActivity class is the main activity of the application that displays the main menu and the user's information.
@@ -40,11 +49,9 @@ class MainActivity : AppCompatActivity() {
      * onCreate method is called when the activity is starting.
      * @param savedInstanceState The Bundle that contains the data that was most recently supplied in onSaveInstanceState(Bundle)
      */
+    @SuppressLint("StringFormatInvalid")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        NotificationHelper(applicationContext).createNotificationChannel()
-        val notificationSetter = NotificationSetter(applicationContext)
-        notificationSetter.setNotifications()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -62,6 +69,7 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
     }
 
     /**
@@ -166,4 +174,33 @@ class MainActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(menuItem)
         }
     }
+
+//    private val requestPermissionLauncher = registerForActivityResult(
+//        ActivityResultContracts.RequestPermission(),
+//    ) { isGranted: Boolean ->
+//        if (isGranted) {
+//
+//        }
+//    }
+//
+//    private fun askNotificationPermission() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//            val permission = Manifest.permission.POST_NOTIFICATIONS
+//            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+//                if (shouldShowRequestPermissionRationale(permission)) {
+//                    AlertDialog.Builder(this)
+//                        .setTitle("Notification Permission")
+//                        .setMessage("Granting notification permission allows you to receive important updates.")
+//                        .setPositiveButton("OK") { _, _ ->
+//                            requestPermissionLauncher.launch(permission)
+//                        }
+//                        .setNegativeButton("No thanks") { _, _ ->
+//                        }
+//                        .show()
+//                } else {
+//                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+//                }
+//            }
+//        }
+//    }
 }
