@@ -251,13 +251,12 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         //assign new dose numbers
         val sortedRecords = records?.sortedBy { it.dateAdministered }
         val noOfDoses = vacc!!.noOfDoses!!
-        var newDose: Int = 0
         if (sortedRecords != null) {
             for ((index, record) in sortedRecords.withIndex()){
                 val dose = (index % noOfDoses) + 1
                 val rec = Records(record.userId, record.vaccineId, record.dateAdministered, dose, record.nextDoseDueDate)
 
-                var recId : Int = 0
+                var recId = 0
                 runBlocking { launch(Dispatchers.IO) {
                     recId = queries.getRecordId(record.userId!!, record.vaccineId!!, record.dose!!, record.dateAdministered!!)!!
                     queries.updateRecord(recId, rec)
