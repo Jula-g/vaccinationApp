@@ -47,7 +47,7 @@ class VaccinationsQueries(private val connection: Connection) : VaccinationsDAO 
     }
 
     /**
-     * Gets a vaccination from the database.
+     * Gets a vaccination id from the database.
      * @param name The name of the vaccination to be retrieved.
      * @param healthcareUnitId The id of the healthcare unit.
      * @return The id of the vaccination if it exists, null otherwise.

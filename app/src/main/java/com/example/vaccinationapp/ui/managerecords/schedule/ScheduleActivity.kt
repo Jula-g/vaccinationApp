@@ -41,7 +41,8 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
     private var selectedDateFormatted = ""
     private var selectedDate = ""
     private var dateTime = ""
-    private var minDate : Date?= null
+    private var minDate: Date? = null
+
     //FINAL VALUES
     private var FvaccineID: Int = 0
     private var currentDose: Int = 0
@@ -120,7 +121,13 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         date.setOnClickListener {
             lifecycleScope.launch {
                 val result =
-                    datesManager.showDatePickerDialog(this@ScheduleActivity, date, offeredHours, hoursManager, minDate)
+                    datesManager.showDatePickerDialog(
+                        this@ScheduleActivity,
+                        date,
+                        offeredHours,
+                        hoursManager,
+                        minDate
+                    )
 
                 val (sDate, sDateFormatted) = result.await()
                 selectedDate = sDate
@@ -154,21 +161,26 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
             var vacc: Vaccinations? = null
             var nextDose: Date? = null
             //add appointment to the DB
-            runBlocking { launch(Dispatchers.IO) {
-                val rec = queries.getRecordByUserVaccDate(FuserID,FvaccineID,Fdate)
-                if(rec != null){
-                    nextDose = rec.nextDoseDueDate!!
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    val rec = queries.getRecordByUserVaccDate(FuserID, FvaccineID, Fdate)
+                    if (rec != null) {
+                        nextDose = rec.nextDoseDueDate!!
+                    }
+                    val result = queries.addAppointment(appointment, nextDose)
+                    Log.d("DATABASE", "Add appointment successful: $result")
+                    vacc = queries.getVaccination(FvaccineID)
                 }
-                val result = queries.addAppointment(appointment, nextDose)
-                Log.d("DATABASE", "Add appointment successful: $result")
-                vacc = queries.getVaccination(FvaccineID)
-            } }
+            }
             val interval = vacc?.timeBetweenDoses!!
             val intSplit = interval.split(";")
 
-            runBlocking { launch(Dispatchers.IO) {
-                currentDose = queries.getAppointmentsForUserAndVaccine(FuserID, FvaccineID)?.size ?: 0
-            } }
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    currentDose =
+                        queries.getAppointmentsForUserAndVaccine(FuserID, FvaccineID)?.size ?: 0
+                }
+            }
 
             val index = currentDose - 1
             checkDose(index, intSplit, Fdate)
@@ -176,18 +188,24 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
 
             // add record
             var recordId: Int? = null
-            runBlocking { launch(Dispatchers.IO) {
-                val result2 = queries.addRecord(record)
-                Log.d("RECORDS", "Add record succesful: $result2")
-                recordId = queries.getRecordId(FuserID, FvaccineID, currentDose, Fdate)
-                }}
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    val result2 = queries.addRecord(record)
+                    Log.d("RECORDS", "Add record succesful: $result2")
+                    recordId = queries.getRecordId(FuserID, FvaccineID, currentDose, Fdate)
+                }
+            }
 
-            val updatedAppointment = Appointments(Fdate, Ftime, FuserID, FvaccineID,recordId)
-            runBlocking { launch(Dispatchers.IO) {
-                val appointmentId = queries.getAppointmentId(Fdate.toString(), Ftime.toString())!!
-                val result3 = queries.updateAppointment(appointmentId, nextDose, updatedAppointment)
-                Log.d("APPOINTMENTUPDATE", "Update appointment succesfull: $result3")
-            } }
+            val updatedAppointment = Appointments(Fdate, Ftime, FuserID, FvaccineID, recordId)
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    val appointmentId =
+                        queries.getAppointmentId(Fdate.toString(), Ftime.toString())!!
+                    val result3 =
+                        queries.updateAppointment(appointmentId, nextDose, updatedAppointment)
+                    Log.d("APPOINTMENTUPDATE", "Update appointment succesfull: $result3")
+                }
+            }
 
             goToManageRecords()
         }
@@ -198,14 +216,27 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
 
     }
 
-    private fun checkDose(index: Int, intSplit: List<String>, Fdate: Date){
-        if(index >= 0 && index < intSplit.size ) {
+    /**
+     * Checks the dose.
+     * @param index The index.
+     * @param intSplit The list of strings.
+     * @param Fdate The date.
+     */
+    private fun checkDose(index: Int, intSplit: List<String>, Fdate: Date) {
+        if (index >= 0 && index < intSplit.size) {
             nextDoseDate = addDaysToDate(Fdate, intSplit[index].toInt())
-        }else if (index > intSplit.size){
+        } else if (index > intSplit.size) {
             currentDose = 0
             checkDose(index, intSplit, Fdate)
         }
     }
+
+    /**
+     * Adds days to a date.
+     * @param date The date.
+     * @param days The number of days.
+     * @return The new date.
+     */
     fun addDaysToDate(date: Date, days: Int): Date {
         val calendar = Calendar.getInstance()
         calendar.time = date
@@ -213,6 +244,9 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         return Date(calendar.timeInMillis)
     }
 
+    /**
+     * Goes to the manage records screen.
+     */
     private fun goToManageRecords() {
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -221,23 +255,37 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         finish()
     }
 
-
+    /**
+     * Handles the click on an hour.
+     * @param item The item.
+     * @param date The date.
+     */
     override fun onHourClick(item: String, date: Button) {
         val finalDate = "$selectedDateFormatted $item"
         dateTime = "$selectedDate;$item"
         date.text = finalDate
     }
 
-    override suspend fun onVaccineClick(vaccineName: String, healthcareUnitId: Int, isSelected: Boolean){
-        if(!isSelected) {
-            FvaccineID =  queries.getVaccinationId(vaccineName, healthcareUnitId)!!
+    /**
+     * Handles the click on a vaccine.
+     * @param vaccineName The name of the vaccine.
+     * @param healthcareUnitId The id of the healthcare unit.
+     * @param isSelected The selected state.
+     */
+    override suspend fun onVaccineClick(
+        vaccineName: String,
+        healthcareUnitId: Int,
+        isSelected: Boolean
+    ) {
+        if (!isSelected) {
+            FvaccineID = queries.getVaccinationId(vaccineName, healthcareUnitId)!!
             Log.d("VACCINEID", "vaccine id: $FvaccineID")
-        }else{
+        } else {
             FvaccineID = 0
             Log.d("VACCINEID", "vaccine id: $FvaccineID")
         }
 
-        if(!isSelected) {
+        if (!isSelected) {
             // get all records for user
             val email = FirebaseAuth.getInstance().currentUser!!.email
             var userId = 0
@@ -262,7 +310,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
 
             //get next dose due date from the remaining record
             minDate = maxRec?.nextDoseDueDate
-        }else
+        } else
             minDate = null
     }
 

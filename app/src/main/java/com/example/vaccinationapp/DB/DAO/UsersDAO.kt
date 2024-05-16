@@ -25,7 +25,7 @@ interface UsersDAO {
     fun getUser(id: Int): Users?
 
     /**
-     * Retrieves a user from the database.
+     * Retrieves a user from the database by email.
      *
      * @param email The email of the user to retrieve.
      * @return The user with the given email, or null if no such user exists.
@@ -58,7 +58,7 @@ interface UsersDAO {
     fun deleteUser(id: Int): Boolean
 
     /**
-     * Deletes a user from the database.
+     * Deletes a user from the database by email.
      *
      * @param email The email of the user to delete.
      * @return true if the user was deleted successfully, false otherwise.

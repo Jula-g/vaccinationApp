@@ -26,6 +26,9 @@ import java.text.DateFormatSymbols
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
+/**
+ * Activity for adding a record.
+ */
 class AddRecord : AppCompatActivity() {
     private val queries = Queries()
     private val datesManager = Dates()
@@ -39,6 +42,10 @@ class AddRecord : AppCompatActivity() {
     private var confirm: Button? = null
     private var selectedDate: String? = null
 
+    /**
+     * Creates the view for the add record screen.
+     * @param savedInstanceState The saved instance state.
+     */
     @SuppressLint("SimpleDateFormat")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -134,7 +141,7 @@ class AddRecord : AppCompatActivity() {
             val intSplit = interval?.split(";")
             val index = currentDose?.minus(1)
             if (index != null && intSplit != null) {
-               nextDose = checkDose(index, intSplit, dateFin!!)
+                nextDose = checkDose(index, intSplit, dateFin!!)
             }
 
             val record = Records(userId, vaccineId, dateFin, currentDose, nextDose)
@@ -154,6 +161,13 @@ class AddRecord : AppCompatActivity() {
         }
     }
 
+    /**
+     * Checks the dose.
+     * @param index The index.
+     * @param intSplit The interval split.
+     * @param Fdate The date.
+     * @return The next dose date.
+     */
     private fun checkDose(
         index: Int,
         intSplit: List<String>,
@@ -170,6 +184,13 @@ class AddRecord : AppCompatActivity() {
         return nextDoseDate
     }
 
+    /**
+     * Adds days to a date.
+     * @param date The date.
+     * @param days The days.
+     * @return The date with days added.
+     */
+
     fun addDaysToDate(date: java.sql.Date, days: Int): java.sql.Date {
         val calendar = Calendar.getInstance()
         calendar.time = date
@@ -177,7 +198,12 @@ class AddRecord : AppCompatActivity() {
         return java.sql.Date(calendar.timeInMillis)
     }
 
-
+    /**
+     * Gets the unit of vaccine.
+     * @param vaccineName The vaccine name.
+     * @param vaccineList The vaccine list.
+     * @return The unit of vaccine.
+     */
     fun getUnitOfVaccine(vaccineName: String, vaccineList: Set<Vaccinations>?): Int? {
         if (!vaccineList.isNullOrEmpty()) {
             for (vaccine in vaccineList) {
@@ -189,7 +215,9 @@ class AddRecord : AppCompatActivity() {
         return null
     }
 
-
+    /**
+     * Shows the date picker dialog.
+     */
     private fun showDatePickerDialog() {
         val calendar = Calendar.getInstance()
         val currentYear = calendar.get(Calendar.YEAR)

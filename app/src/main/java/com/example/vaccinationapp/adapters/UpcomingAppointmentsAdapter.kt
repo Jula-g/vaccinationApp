@@ -20,43 +20,93 @@ import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class UpcomingAppointmentsAdapter (private val dataSet: List<Appointments>, private val update: Button, private val  cancel: Button):
+/**
+ * Adapter for upcoming appointments, used in ManageRecordsFragment
+ *
+ * @property dataSet
+ * @property update
+ * @property cancel
+ */
+class UpcomingAppointmentsAdapter(
+    private val dataSet: List<Appointments>,
+    private val update: Button,
+    private val cancel: Button
+) :
     RecyclerView.Adapter<UpcomingAppointmentsAdapter.ViewHolder>() {
 
-        private val queries = Queries()
+    private val queries = Queries()
 
+    /**
+     * Interface for item click listener
+     */
     interface OnItemClickListener {
         fun onRecordClick(id: Int?, update: Button, cancel: Button)
     }
 
     private var listener: OnItemClickListener? = null
 
+    /**
+     * Set on item click listener
+     *
+     * @param listener
+     */
     fun setOnItemClickListener(listener: ManageRecordsFragment) {
         this.listener = listener
     }
-    class ViewHolder(view: View): RecyclerView.ViewHolder(view) {
+
+    /**
+     * View holder for upcoming appointments
+     *
+     * @property view
+     * @property buttonName
+     * @property buttonDate
+     * @property buttonTime
+     * @property buttonAddress
+     */
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val buttonName: TextView = view.findViewById(R.id.vaccineName)
         val buttonDate: TextView = view.findViewById(R.id.dateView)
         val buttonTime: TextView = view.findViewById(R.id.timeView)
         val buttonAddress: TextView = view.findViewById(R.id.addressView)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UpcomingAppointmentsAdapter.ViewHolder {
-        val view = LayoutInflater.from(parent.context).
-        inflate(R.layout.item, parent, false)
+    /**
+     * Create view holder for upcoming appointments
+     *
+     * @param parent
+     * @param viewType
+     * @return ViewHolder
+     */
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): UpcomingAppointmentsAdapter.ViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item, parent, false)
         return UpcomingAppointmentsAdapter.ViewHolder(view)
     }
+
+    /**
+     * Get number of items in data set
+     *
+     * @return Int number of items
+     */
     override fun getItemCount(): Int {
         return dataSet.size
     }
 
     private var selected: Int? = null
+
+    /**
+     * Bind data to view holder for upcoming appointments
+     *
+     * @param holder
+     * @param position
+     */
     @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = dataSet[position]
 
         val vaccId = item.vaccinationId!!.toInt()
-        val userId = item.userId!!.toInt()
         val date = item.date.toString()
         val time = item.time
 
@@ -70,11 +120,13 @@ class UpcomingAppointmentsAdapter (private val dataSet: List<Appointments>, priv
 
         var vaccine: Vaccinations? = null
         var unit: HealthcareUnits? = null
-        runBlocking { launch(Dispatchers.IO) {
-            vaccine = queries.getVaccination(vaccId)
-            val unitId = vaccine?.healthcareUnitId
-            unit = unitId?.let { queries.getHealthcareUnit(it) }
-        }}
+        runBlocking {
+            launch(Dispatchers.IO) {
+                vaccine = queries.getVaccination(vaccId)
+                val unitId = vaccine?.healthcareUnitId
+                unit = unitId?.let { queries.getHealthcareUnit(it) }
+            }
+        }
 
         holder.buttonName.text = vaccine?.vaccineName
 
@@ -88,11 +140,13 @@ class UpcomingAppointmentsAdapter (private val dataSet: List<Appointments>, priv
             holder.itemView.setBackgroundColor(Color.TRANSPARENT)
         }
 
-        holder.itemView.setOnClickListener{
+        holder.itemView.setOnClickListener {
             var appointmentId: Int? = null
-            runBlocking { launch(Dispatchers.IO) {
-                 appointmentId = queries.getAppointmentId(date, time.toString())
-            } }
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    appointmentId = queries.getAppointmentId(date, time.toString())
+                }
+            }
 
             listener?.onRecordClick(appointmentId, update, cancel)
 

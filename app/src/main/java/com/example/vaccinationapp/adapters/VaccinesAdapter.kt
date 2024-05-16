@@ -105,9 +105,11 @@ class VaccinesAdapter(private var dataSet: List<String>) :
         holder.itemView.setOnClickListener {
             val isSelected = (selected == position)
 
-            runBlocking { launch(Dispatchers.IO) {
-            listener?.onVaccineClick(name, unitId, isSelected)
-            } }
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    listener?.onVaccineClick(name, unitId, isSelected)
+                }
+            }
 
             selected = if (selected == position) null else position
             notifyDataSetChanged()
