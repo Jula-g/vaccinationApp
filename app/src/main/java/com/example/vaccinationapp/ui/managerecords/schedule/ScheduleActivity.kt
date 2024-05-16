@@ -179,7 +179,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
             runBlocking { launch(Dispatchers.IO) {
                 val result2 = queries.addRecord(record)
                 Log.d("RECORDS", "Add record succesful: $result2")
-                recordId = queries.getRecordId(FuserID, FvaccineID, currentDose)
+                recordId = queries.getRecordId(FuserID, FvaccineID, currentDose, Fdate)
                 }}
 
             val updatedAppointment = Appointments(Fdate, Ftime, FuserID, FvaccineID,recordId)

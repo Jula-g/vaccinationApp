@@ -2,10 +2,12 @@
 //import com.example.vaccinationapp.DB.DBconnection
 //import com.example.vaccinationapp.DB.entities.Appointments
 //import com.example.vaccinationapp.DB.entities.HealthcareUnits
+//import com.example.vaccinationapp.DB.entities.Records
 //import com.example.vaccinationapp.DB.entities.Users
 //import com.example.vaccinationapp.DB.entities.Vaccinations
 //import com.example.vaccinationapp.DB.queries.AppointmentsQueries
 //import com.example.vaccinationapp.DB.queries.HealthcareUnitsQueries
+//import com.example.vaccinationapp.DB.queries.RecordsQueries
 //import com.example.vaccinationapp.DB.queries.UsersQueries
 //import com.example.vaccinationapp.DB.queries.VaccinationsQueries
 //import java.sql.Date

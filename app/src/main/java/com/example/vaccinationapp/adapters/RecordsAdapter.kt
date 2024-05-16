@@ -24,9 +24,9 @@ import kotlinx.coroutines.runBlocking
  *
  * @property dataSet List of records to be displayed.
  * @property update Button that represents the update action.
- * @property cancel Button that represents the cancel action.
+ * @property delete Button that represents the delete action.
  */
-class RecordsAdapter (private val dataSet: List<Records>?, private val update: Button, private val  cancel: Button):
+class RecordsAdapter (private val dataSet: MutableList<Records>?, private val update: Button, private val  delete: Button):
     RecyclerView.Adapter<RecordsAdapter.ViewHolder>() {
     private val queries = Queries()
 
@@ -34,6 +34,7 @@ class RecordsAdapter (private val dataSet: List<Records>?, private val update: B
      * Interface for handling click events on a record item.
      */
     interface OnItemClickListener {
+
         fun onRecordClick(id: Int?, update: Button, cancel: Button)
     }
 
@@ -127,15 +128,20 @@ class RecordsAdapter (private val dataSet: List<Records>?, private val update: B
                 var recordId: Int? = null
                 runBlocking {
                     launch(Dispatchers.IO) {
-                        recordId = queries.getRecordId(userId, vaccId, currentDose)
+                        recordId = queries.getRecordId(userId, vaccId, currentDose, dateAdm)
                     }
                 }
 
-                listener?.onRecordClick(recordId, update, cancel)
+                listener?.onRecordClick(recordId, update, delete)
 
                 selected = if (selected == position) null else position
                 notifyDataSetChanged()
             }
         }
     }
+    fun updateDataSet(newDataSet: List<Records>?) {
+        dataSet?.clear()
+        newDataSet?.let { dataSet?.addAll(it) }
+    }
+
 }
