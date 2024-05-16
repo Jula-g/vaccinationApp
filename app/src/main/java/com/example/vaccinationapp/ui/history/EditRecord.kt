@@ -2,7 +2,6 @@ package com.example.vaccinationapp.ui.history
 
 import  android.app.DatePickerDialog
 import android.os.Bundle
-import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
@@ -26,6 +25,9 @@ import java.text.DateFormatSymbols
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
+/**
+ * Activity for editing a record.
+ */
 class EditRecord : AppCompatActivity() {
     private val queries = Queries()
     private val datesManager = Dates()
@@ -39,6 +41,10 @@ class EditRecord : AppCompatActivity() {
     private var confirm: Button? = null
     private var selectedDate: String? = null
 
+    /**
+     * Creates the view for the edit record screen.
+     * @param savedInstanceState The saved instance state.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -151,6 +157,13 @@ class EditRecord : AppCompatActivity() {
         }
     }
 
+    /**
+     * Checks the dose of the vaccine.
+     * @param index The index of the dose.
+     * @param intSplit The list of intervals between doses.
+     * @param Fdate The date of the dose.
+     * @return The date of the next dose.
+     */
     private fun checkDose(
         index: Int,
         intSplit: List<String>,
@@ -167,6 +180,12 @@ class EditRecord : AppCompatActivity() {
         return nextDoseDate
     }
 
+    /**
+     * Adds days to a date.
+     * @param date The date.
+     * @param days The number of days to add.
+     * @return The new date.
+     */
     fun addDaysToDate(date: java.sql.Date, days: Int): java.sql.Date {
         val calendar = Calendar.getInstance()
         calendar.time = date
@@ -174,7 +193,12 @@ class EditRecord : AppCompatActivity() {
         return java.sql.Date(calendar.timeInMillis)
     }
 
-
+    /**
+     * Gets the healthcare unit of a vaccine.
+     * @param vaccineName The name of the vaccine.
+     * @param vaccineList The list of vaccines.
+     * @return The healthcare unit of the vaccine.
+     */
     fun getUnitOfVaccine(vaccineName: String, vaccineList: Set<Vaccinations>?): Int? {
         if (!vaccineList.isNullOrEmpty()) {
             for (vaccine in vaccineList) {
@@ -186,7 +210,9 @@ class EditRecord : AppCompatActivity() {
         return null
     }
 
-
+    /**
+     * Shows the date picker dialog.
+     */
     private fun showDatePickerDialog() {
         val calendar = Calendar.getInstance()
         val currentYear = calendar.get(Calendar.YEAR)

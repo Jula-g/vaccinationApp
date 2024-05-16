@@ -49,9 +49,9 @@ class HealthcareUnitsQueries(private val connection: Connection) : HealthcareUni
     }
 
     /**
-     * Gets a healthcare unit from the database.
+     * Gets a healthcare unit id from the database.
      * @param name The name of the healthcare unit to be retrieved.
-     * @return The healthcare unit if it exists, null otherwise.
+     * @return The healthcare unit id if it exists, null otherwise.
      */
     override fun getHealthcareUnitId(name: String): Int? {
         val query = "{CALL getHealthcareUnitId(?)}"

@@ -243,6 +243,14 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         }
     }
 
+    /**
+     * Updates the appointment and the record.
+     * @param finDate The final date of the appointment.
+     * @param finTime The final time of the appointment.
+     * @param finUserID The final user id.
+     * @param recordId The record id.
+     * @param appId The appointment id.
+     */
     private fun updateAppointment(
         finDate: Date,
         finTime: Time,
@@ -296,8 +304,9 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
                             record.userId!!,
                             record.vaccineId!!,
                             record.dose!!,
-                            record.dateAdministered!!)!!
-                        queries . updateRecord (recId, rec)
+                            record.dateAdministered!!
+                        )!!
+                        queries.updateRecord(recId, rec)
                     }
                 }
 
@@ -319,6 +328,13 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         goToManageRecords()
     }
 
+    /**
+     * Checks the dose.
+     * @param index The index of the dose.
+     * @param intSplit The list of intervals.
+     * @param Fdate The final date.
+     * @return The date of the dose.
+     */
     private fun checkDose(index: Int, intSplit: List<String>, Fdate: Date): Date? {
         if (index >= 0 && index < intSplit.size) {
             return addDaysToDate(Fdate, intSplit[index].toInt())
@@ -329,6 +345,12 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         return null
     }
 
+    /**
+     * Adds days to a date.
+     * @param date The date.
+     * @param days The number of days to add.
+     * @return The new date.
+     */
     fun addDaysToDate(date: Date, days: Int): Date {
         val calendar = Calendar.getInstance()
         calendar.time = date
@@ -336,6 +358,9 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         return Date(calendar.timeInMillis)
     }
 
+    /**
+     * Goes to the manage records screen.
+     */
     private fun goToManageRecords() {
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)

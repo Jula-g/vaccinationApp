@@ -106,6 +106,11 @@ class HistoryFragment : Fragment(), RecordsAdapter.OnItemClickListener {
         return root
     }
 
+    /**
+     * Selects past appointments from the list of records.
+     * @param records The list of records.
+     * @return The list of past appointments.
+     */
     private fun selectPast(records: List<Records>?): List<Records> {
         val pastAppointments = mutableSetOf<Records>()
 
@@ -139,6 +144,12 @@ class HistoryFragment : Fragment(), RecordsAdapter.OnItemClickListener {
         _binding = null
     }
 
+    /**
+     * Handles the click on a record.
+     * @param id The record ID.
+     * @param update The update button.
+     * @param cancel The cancel button.
+     */
     @SuppressLint("NotifyDataSetChanged")
     override fun onRecordClick(id: Int?, update: Button, cancel: Button) {
 
@@ -164,11 +175,22 @@ class HistoryFragment : Fragment(), RecordsAdapter.OnItemClickListener {
         }
     }
 
+    /**
+     * Sorts the records chronologically.
+     * @param records The list of records.
+     * @return The list of records sorted chronologically.
+     */
     private fun sortRecordsChronologically(records: List<Records>?): List<Records> {
         val sortedRecords = records?.sortedBy { it.dateAdministered }
         return sortedRecords ?: emptyList()
     }
 
+    /**
+     * Handles the result of an activity.
+     * @param requestCode The request code.
+     * @param resultCode The result code.
+     * @param data The intent data.
+     */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if ((requestCode == ADD_RECORD_REQUEST || requestCode == EDIT_RECORD_REQUEST) && resultCode == Activity.RESULT_OK) {
@@ -176,6 +198,9 @@ class HistoryFragment : Fragment(), RecordsAdapter.OnItemClickListener {
         }
     }
 
+    /**
+     * Reloads the records.
+     */
     @SuppressLint("NotifyDataSetChanged")
     private fun reloadRecords() {
         runBlocking {
@@ -189,6 +214,11 @@ class HistoryFragment : Fragment(), RecordsAdapter.OnItemClickListener {
         adapter.updateDataSet(pastRecords)
         adapter.notifyDataSetChanged()
     }
+
+    /**
+     * Deletes a record.
+     * @param recordId The record ID.
+     */
     private fun deleteRecord(recordId: Int) {
         runBlocking {
             launch(Dispatchers.IO) {
@@ -197,5 +227,4 @@ class HistoryFragment : Fragment(), RecordsAdapter.OnItemClickListener {
         }
         reloadRecords()
     }
-
 }

@@ -29,7 +29,7 @@ class UsersQueries(private val connection: Connection) : UsersDAO {
     }
 
     /**
-     * Gets a user from the database.
+     * Gets a user by email from the database.
      * @param email The email of the user to be retrieved.
      * @return The user if it exists, null otherwise.
      */
