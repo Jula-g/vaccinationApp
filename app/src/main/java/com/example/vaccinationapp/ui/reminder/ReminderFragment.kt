@@ -1,19 +1,13 @@
 package com.example.vaccinationapp.ui.reminder
 
-import android.annotation.SuppressLint
-import android.app.AlarmManager
 import android.app.AlertDialog
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.DatePicker
 import android.widget.NumberPicker
-import androidx.core.app.ActivityCompat
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,20 +17,34 @@ import com.example.vaccinationapp.DB.queries.AppointmentsQueries
 import com.example.vaccinationapp.R
 import com.example.vaccinationapp.adapters.AppointmentAdapter
 import com.example.vaccinationapp.databinding.FragmentReminderBinding
+import com.example.vaccinationapp.ui.reminder.alarm.Alarm
+import com.example.vaccinationapp.ui.reminder.alarm.AndroidAlarmScheduler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
 import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
 
+/**
+ * ReminderFragment class is a Fragment class that displays the upcoming appointments and enables
+ * the user to set reminders for the chosen appointments.
+ */
 class ReminderFragment : Fragment() {
 
     private var _binding: FragmentReminderBinding? = null
     private val binding get() = _binding!!
 
-    private var requestCode = 123
-
+    /**
+     * onCreateView method is called to create and return the view hierarchy associated with the fragment
+     * @param inflater The LayoutInflater object that can be used to inflate any views in the fragment
+     * @param container The parent view that the fragment's UI should be attached to
+     * @param savedInstanceState The previously saved state of the fragment
+     * @return The root view of the fragment
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -48,19 +56,30 @@ class ReminderFragment : Fragment() {
         val recyclerView: RecyclerView = root.findViewById(R.id.recycleAppointment)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        loadAppointment(recyclerView) { appointment ->
+        loadUpcomingAppointments(recyclerView) { appointment ->
             showDateTimePickerDialog(appointment)
         }
 
         return root
     }
 
+    /**
+     * onDestroyView method is called when the view is about to be destroyed
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
-    private fun loadAppointment(recyclerView: RecyclerView, onItemClick: (Appointments) -> Unit) {
+    /**
+     * loadUpcomingAppointments method is used to load the upcoming appointments from the database
+     * @param recyclerView The RecyclerView in which the appointments are displayed
+     * @param onItemClick The lambda function that is called when an appointment is clicked
+     */
+    private fun loadUpcomingAppointments(
+        recyclerView: RecyclerView,
+        onItemClick: (Appointments) -> Unit
+    ) {
         val scope = CoroutineScope(Dispatchers.IO)
 
         scope.launch {
@@ -68,14 +87,46 @@ class ReminderFragment : Fragment() {
             val ap = AppointmentsQueries(connection)
             val appointmentsList = ap.getAllAppointments()?.toList() ?: emptyList()
 
+            val upcomingAppointments = filterUpcomingAppointments(appointmentsList)
+
             withContext(Dispatchers.Main) {
-                val adapter = AppointmentAdapter(appointmentsList, onItemClick)
+                val adapter = AppointmentAdapter(upcomingAppointments, onItemClick)
                 recyclerView.adapter = adapter
                 connection.close()
             }
         }
     }
 
+    /**
+     * filterUpcomingAppointments method is used to filter the upcoming appointments from the list of appointments
+     * @param appointments The list of appointments
+     * @return The list of upcoming appointments
+     */
+    private fun filterUpcomingAppointments(appointments: List<Appointments>): List<Appointments> {
+        val upcomingAppointments = mutableListOf<Appointments>()
+
+        val calendar = Calendar.getInstance()
+        calendar.timeZone = TimeZone.getTimeZone("CET")
+        val currentDate = calendar.time
+        val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+        dateTimeFormat.timeZone = TimeZone.getTimeZone("CET")
+
+        for (appointment in appointments) {
+            val appointmentDateTimeString = "${appointment.date} ${appointment.time}"
+            val appointmentDateTime = dateTimeFormat.parse(appointmentDateTimeString)
+
+            if (appointmentDateTime!!.after(currentDate)) {
+                upcomingAppointments.add(appointment)
+            }
+        }
+        return upcomingAppointments
+    }
+
+
+    /**
+     * showDateTimePickerDialog method is used to show the date and time picker dialog to the user
+     * @param appointment The appointment for which the reminder is to be set
+     */
     private fun showDateTimePickerDialog(appointment: Appointments) {
         val dialogView =
             LayoutInflater.from(requireContext()).inflate(R.layout.dialog_time_picker, null)
@@ -106,7 +157,7 @@ class ReminderFragment : Fragment() {
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
             calendar.get(Calendar.DAY_OF_MONTH)
-        ) { view, year, monthOfYear, dayOfMonth ->
+        ) { _, year, monthOfYear, dayOfMonth ->
             val isAppointmentDate =
                 year == appointmentYear && monthOfYear == appointmentMonth && dayOfMonth == appointmentDay
 
@@ -146,9 +197,20 @@ class ReminderFragment : Fragment() {
                     selectedMinute
                 )
 
-                setReminder(requireContext(), selectedDateTime.timeInMillis, appointment)
+                val alarmScheduler = AndroidAlarmScheduler(requireContext())
+                val alarm = Alarm(
+                    LocalDateTime.of(
+                        selectedYear,
+                        selectedMonth + 1,
+                        selectedDay,
+                        selectedHour,
+                        selectedMinute
+                    ), appointment.date.toString()
+                )
+                alarmScheduler.schedule(alarm)
 
                 dialog.dismiss()
+                Toast.makeText(requireContext(), "Reminder set", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("Cancel") { dialog, _ ->
                 dialog.dismiss()
@@ -156,46 +218,5 @@ class ReminderFragment : Fragment() {
             .create()
 
         alertDialog.show()
-    }
-
-
-    @SuppressLint("ScheduleExactAlarm")
-    private fun setReminder(context: Context, dateTimeMillis: Long, appointment: Appointments) {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-        val intent = Intent(context, ReminderBroadcastReceiver::class.java).apply {
-            putExtra("dateTimeMillis", dateTimeMillis)
-            putExtra("appointment_date", appointment.date)
-            putExtra("appointment_time", appointment.time)
-        }
-
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                android.Manifest.permission.SCHEDULE_EXACT_ALARM
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(android.Manifest.permission.SCHEDULE_EXACT_ALARM),
-                requestCode
-            )
-        } else {
-            val pendingIntent = PendingIntent.getBroadcast(
-                context,
-                requestCode,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            val calendar = Calendar.getInstance().apply {
-                timeInMillis = dateTimeMillis
-            }
-
-            alarmManager.setExact(
-                AlarmManager.RTC_WAKEUP,
-                calendar.timeInMillis,
-                pendingIntent
-            )
-        }
     }
 }

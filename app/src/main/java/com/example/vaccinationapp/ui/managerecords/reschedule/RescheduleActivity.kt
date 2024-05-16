@@ -35,8 +35,12 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.TimeZone
 
+/**
+ * Activity for rescheduling an appointment.
+ *
+ */
 class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
-    VaccinesAdapter.OnItemClickListener{
+    VaccinesAdapter.OnItemClickListener {
 
     private var appointment: Appointments? = null
     private var selectedDateFormatted = ""
@@ -54,6 +58,10 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
     private val datesManager = Dates()
     private val queries = Queries()
 
+    /**
+     * Creates the view for the reschedule screen.
+     * @param savedInstanceState The saved instance state.
+     */
     @SuppressLint("MissingInflatedId", "SimpleDateFormat")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,16 +80,18 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
 
         appId = intent.getIntExtra("appointmentId", -1)
 
-        runBlocking { launch(Dispatchers.IO){
-            appointment = queries.getAppointment(appId)
-        } }
+        runBlocking {
+            launch(Dispatchers.IO) {
+                appointment = queries.getAppointment(appId)
+            }
+        }
 
         prevVaccId = appointment?.vaccinationId!!
 
         var allVaccines: Set<Vaccinations>? = setOf(Vaccinations())
         var vaccine: Vaccinations? = null
         runBlocking {
-            launch(Dispatchers.IO){
+            launch(Dispatchers.IO) {
                 allVaccines = queries.getAllVaccines()
                 vaccine = prevVaccId.let { queries.getVaccination(it) }
             }
@@ -96,7 +106,7 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         val vaccinesRecycler = findViewById<RecyclerView>(R.id.vaccinesRecycler)
         vaccinesRecycler.layoutManager = LinearLayoutManager(this)
 
-        if(!vaccines.isNullOrEmpty()) {
+        if (!vaccines.isNullOrEmpty()) {
             val adapterVaccine = VaccinesAdapter(vaccines)
             vaccinesRecycler.adapter = adapterVaccine
 
@@ -297,12 +307,22 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         finish()
     }
 
+    /**
+     * Handles the click on an hour.
+     * @param item The hour that was clicked.
+     * @param date The date button.
+     */
     override fun onHourClick(item: String, date: Button) {
         val finalDate = "$selectedDateFormatted $item"
         dateTime = "$selectedDate;$item"
         date.text = finalDate
     }
 
+    /**
+     * Handles the click on a vaccine.
+     * @param vaccineName The name of the vaccine that was clicked.
+     * @param healthcareUnitId The id of the healthcare unit.
+     */
     @SuppressLint("SimpleDateFormat")
     override suspend fun onVaccineClick(vaccineName: String, healthcareUnitId: Int, isSelected: Boolean){
         if(!isSelected) {

@@ -4,38 +4,51 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
 
+/**
+ * Singleton object for managing database connections.
+ * This object provides a method to get a connection to the database.
+ */
 object DBconnection {
-    // Database connection details
+    // Database connection parameters
     private const val URL =
-        "jdbc:mysql://sql11.freesqldatabase.com:3306/sql11693454?useUnicode=true&characterEncoding=utf-8&serverTimezone=CET" //XXXXXXXXX - database name
+        "jdbc:mysql://sql11.freesqldatabase.com:3306/sql11693454?useUnicode=true&characterEncoding=utf-8&serverTimezone=CET"
     private const val USER = "sql11693454"
     private const val PASS = "eYTSr5hPYs"
 
+    // Load the database driver when the object is initialized
     init {
         Class.forName("com.mysql.jdbc.Driver")
     }
 
-    // Function to get a connection to the database
+    /**
+     * Establishes a connection to the database and returns it.
+     *
+     * @return A Connection object for the database.
+     * @throws RuntimeException if a database access error occurs.
+     */
     fun getConnection(): Connection {
         try {
             return DriverManager.getConnection(URL, USER, PASS)
         } catch (ex: SQLException) {
             throw RuntimeException(
-                "Error connecting to the database ", ex)
+                "Error connecting to the database ", ex
+            )
         }
     }
 
-    // Main function to test the database connection
+    /**
+     * Main function for testing the database connection.
+     * This function attempts to establish a connection to the database and then closes it.
+     *
+     * @param args Command-line arguments. Not used in this function.
+     */
     @JvmStatic
     fun main(args: Array<String>) {
         try {
-            // Getting a connection
             val conn = getConnection()
-            // Closing the connection
             conn.close()
         } catch (e: SQLException) {
             e.printStackTrace()
         }
     }
-
 }

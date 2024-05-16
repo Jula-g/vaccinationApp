@@ -28,6 +28,10 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
 
+
+/**
+ * Fragment for the manage records screen.
+ */
 class ManageRecordsFragment : Fragment(), UpcomingAppointmentsAdapter.OnItemClickListener {
     private val queries = Queries()
     private lateinit var recordsRecycler: RecyclerView
@@ -37,33 +41,37 @@ class ManageRecordsFragment : Fragment(), UpcomingAppointmentsAdapter.OnItemClic
     private var userId: Int = 0
     private var appointments: List<Appointments>? = null
 
+    /**
+     * Creates the view for the manage records screen.
+     * @param inflater The layout inflater.
+     * @param container The view group container.
+     * @param savedInstanceState The saved instance state.
+     * @return The view for the manage records screen.
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-//        val addViewModel =
-//            ViewModelProvider(this).get(ManageRecordsViewModel::class.java)
-
         _binding = FragmentManageRecordsBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
         val editRecord: Button = root.findViewById(R.id.editbtn)
         val addRecord: Button = root.findViewById(R.id.addbtn)
         val deleteRecord: Button = root.findViewById(R.id.deletebtn)
-
         val email = FirebaseAuth.getInstance().currentUser!!.email
 
-        runBlocking { launch(Dispatchers.IO) {
-            //if user has an account and is logged in, it must be in the database so userID will never be null
-            userId = queries.getUserId(email!!)!!.toInt()
-            appointments = queries.getAllAppointmentsForUserId(userId)?.toList()
-        } }
+        runBlocking {
+            launch(Dispatchers.IO) {
+                //if user has an account and is logged in, it must be in the database so userID will never be null
+                userId = queries.getUserId(email!!)!!.toInt()
+                appointments = queries.getAllAppointmentsForUserId(userId)?.toList()
+            }
+        }
 
         val upcomingAppointments = selectUpcoming(appointments)
 
         //select only upcoming
-
         recordsRecycler = root.findViewById(R.id.recordsRecyclerView)
         recordsRecycler.layoutManager = LinearLayoutManager(context)
 
@@ -81,7 +89,11 @@ class ManageRecordsFragment : Fragment(), UpcomingAppointmentsAdapter.OnItemClic
         return root
     }
 
-    //select only upcoming appointments
+    /**
+     * Selects the upcoming appointments.
+     * @param appointments The list of appointments.
+     * @return The list of upcoming appointments.
+     */
     private fun selectUpcoming(appointments: List<Appointments>?): List<Appointments> {
         val upcomingAppointments = mutableSetOf<Appointments>()
 
@@ -106,13 +118,20 @@ class ManageRecordsFragment : Fragment(), UpcomingAppointmentsAdapter.OnItemClic
         return upcomingAppointments.toList()
     }
 
-
-
+    /**
+     * Destroys the view for the manage records screen.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
+    /**
+     * Handles the click on a record.
+     * @param id The id of the record that was clicked.
+     * @param update The update button.
+     * @param cancel The cancel button.
+     */
     @SuppressLint("NotifyDataSetChanged")
     override fun onRecordClick(id: Int?, update: Button, cancel: Button) {
 
@@ -145,6 +164,5 @@ class ManageRecordsFragment : Fragment(), UpcomingAppointmentsAdapter.OnItemClic
             val alert = builder.create()
             alert.show()
         }
-
     }
 }

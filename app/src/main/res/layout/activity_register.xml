@@ -127,6 +127,7 @@
         android:id="@+id/emailView"
         android:layout_width="266dp"
         android:layout_height="42dp"
+        android:layout_marginStart="50dp"
         android:layout_marginTop="40dp"
         android:autoText="true"
         android:fontFamily="@font/neuropol_x_rg"
@@ -136,7 +137,6 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/loginButton"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/SignUpButton"
         app:layout_constraintVertical_bias="0.0" />

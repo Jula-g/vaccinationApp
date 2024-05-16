@@ -10,12 +10,15 @@ import java.time.ZoneId
 import java.util.Calendar
 import java.util.TimeZone
 
+/**
+ * Hours class is a utility class that provides methods to get available hours and offer hours.
+ */
 class Hours {
     private val queries = Queries()
     @SuppressLint("SimpleDateFormat")
     fun getAvailableHours(selectedDate: String, offeredHours: List<String>): List<String>{
         var takenHours: List<String>? = null
-        var offeredHoursFormatted: List<String>? = null
+        var offeredHoursFormatted: List<String>?
         try {
             runBlocking {
                 launch(Dispatchers.IO) {
@@ -31,7 +34,6 @@ class Hours {
         takenHours = formatHours(takenHours)
         offeredHoursFormatted = formatHours(offeredHours)
 
-//        // get current date and time
         val calendar = Calendar.getInstance()
         calendar.timeZone = TimeZone.getTimeZone("CET")
         val currentDate = "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH)+1}-${calendar.get(
@@ -51,13 +53,17 @@ class Hours {
         }
     }
 
+    /**
+     * filterHours method is used to filter the offered hours based on the current time
+     *  @param offeredHours The list of offered hours
+     *  @param currentTime The current time
+     *  @return The list of filtered hours
+     */
     fun filterHours(offeredHours: List<String>, currentTime: String): List<String> {
-        // Parse the current time
         val currentTimeSplit = currentTime.split(":")
         val currentHour = currentTimeSplit[0].toInt()
         val currentMinute = currentTimeSplit[1].toInt()
 
-        // Function to parse a time string and return the hour and minute as a pair
         fun parseTime(time: String): Pair<Int, Int> {
             val parts = time.split(":")
             val hour = parts[0].toInt()
@@ -65,7 +71,6 @@ class Hours {
             return Pair(hour, minute)
         }
 
-        // Filter the times based on the comparison with the current time
         return offeredHours.filter { time ->
             val (hour, minute) = parseTime(time)
             if (hour < currentHour) {
@@ -78,6 +83,11 @@ class Hours {
         }
     }
 
+    /**
+     * formatHours method is used to format the hours in the list
+     * @param hours The list of hours
+     * @return The list of formatted hours
+     */
     fun formatHours(hours: List<String>?): List<String> {
         return hours?.map { time ->
             val parts = time.split(":")
@@ -88,6 +98,13 @@ class Hours {
 
     //code that generates offered hours (admin can choose the working hours they offer to patients
     //as well as choosing the time interval between the visits)
+    /**
+     * offerHours method is used to offer hours between the start and end time with a time skip
+     * @param startTime The start time
+     * @param endTime The end time
+     * @param timeSkip The time skip
+     * @return The list of offered hours
+     */
     fun offerHours(startTime: String, endTime: String, timeSkip: Int): List<String>{
         val offeredHours = mutableListOf<String>()
         var currentTime = startTime
@@ -99,6 +116,13 @@ class Hours {
         offeredHours.add(endTime)
         return offeredHours
     }
+
+    /**
+     * addHalfHour method is used to add 30 minutes to the current time
+     * @param currentTime The current time
+     * @param timeSkip The time skip
+     * @return The next time
+     */
     private fun addHalfHour(currentTime: String, timeSkip: Int): String{
         val (hour, minute) = currentTime.split(":").map{it.toInt()}
         // calculate next hour in minutes (+30 for next available hour)

@@ -26,6 +26,9 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
 
+/**
+ * Fragment for the history screen.
+ */
 class HistoryFragment : Fragment(), RecordsAdapter.OnItemClickListener {
     private val queries = Queries()
     private lateinit var recordsRecycler: RecyclerView
@@ -36,6 +39,13 @@ class HistoryFragment : Fragment(), RecordsAdapter.OnItemClickListener {
     private var _binding: FragmentHistoryBinding? = null
     private val binding get() = _binding!!
 
+    /**
+     * Creates the view for the history screen.
+     * @param inflater The layout inflater.
+     * @param container The view group container.
+     * @param savedInstanceState The saved instance state.
+     * @return The view for the history screen.
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -102,7 +112,9 @@ class HistoryFragment : Fragment(), RecordsAdapter.OnItemClickListener {
         return pastAppointments.toList()
     }
 
-
+    /**
+     * Destroys the view for the history screen.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

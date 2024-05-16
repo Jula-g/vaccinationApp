@@ -13,26 +13,33 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
+/**
+ * Activity for the login screen.
+ */
 class LoginActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
 
+    /**
+     * Creates the view for the login screen.
+     * @param savedInstanceState The saved instance state.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-
 
         val buttonStart = findViewById<Button>(R.id.startButton)
         val registerButton = findViewById<TextView>(R.id.RegisterButton)
         val inputPassword = findViewById<EditText>(R.id.userPassword)
         val inputMail = findViewById<EditText>(R.id.userEmail)
-
         auth = Firebase.auth
 
+        // Register button clicked action
         registerButton.setOnClickListener {
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
         }
 
+        // Login button clicked action
         buttonStart.setOnClickListener {
             val email = inputMail.text.toString().trim()
             val password = inputPassword.text.toString().trim()
@@ -42,10 +49,14 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             userVerification(email, password)
-
         }
     }
 
+    /**
+     * Verifies the user's email and password.
+     * @param email The user's email.
+     * @param password The user's password.
+     */
     private fun userVerification(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { signInTask ->

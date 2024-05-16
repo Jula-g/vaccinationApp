@@ -38,7 +38,7 @@
     <EditText
         android:id="@+id/userEmail"
         android:layout_width="240dp"
-        android:layout_height="37dp"
+        android:layout_height="50dp"
         android:layout_marginTop="36dp"
         android:ems="10"
         android:fontFamily="@font/neuropol_x_rg"
@@ -55,7 +55,7 @@
     <EditText
         android:id="@+id/userPassword"
         android:layout_width="240dp"
-        android:layout_height="38dp"
+        android:layout_height="50dp"
         android:layout_marginTop="8dp"
         android:ems="10"
         android:fontFamily="@font/neuropol_x_rg"
@@ -72,13 +72,13 @@
     <Button
         android:id="@+id/startButton"
         android:layout_width="131dp"
-        android:layout_height="43dp"
+        android:layout_height="50dp"
         android:layout_marginTop="32dp"
         android:backgroundTint="#296A88"
         android:fontFamily="@font/neuropol_x_rg"
         android:text="login"
         android:textColor="#FFFFFF"
-        android:textSize="12sp"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -96,8 +96,6 @@
         android:textSize="13sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/RegisterButton"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/startButton"
         app:layout_constraintVertical_bias="1.0" />
@@ -120,6 +118,7 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textView2"
         app:layout_constraintTop_toBottomOf="@+id/startButton"
         app:layout_constraintVertical_bias="1.0" />
 

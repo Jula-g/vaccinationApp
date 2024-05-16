@@ -13,25 +13,17 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.vaccinationapp.DB.DBconnection
+import com.example.vaccinationapp.DB.entities.Appointments
+import com.example.vaccinationapp.DB.entities.Vaccinations
 import com.example.vaccinationapp.R
 import com.example.vaccinationapp.adapters.HoursAdapter
 import com.example.vaccinationapp.adapters.VaccinesAdapter
-import com.example.vaccinationapp.DB.entities.Appointments
-import com.example.vaccinationapp.DB.entities.HealthcareUnits
 import com.example.vaccinationapp.DB.entities.Records
-import com.example.vaccinationapp.DB.entities.Users
-import com.example.vaccinationapp.DB.entities.Vaccinations
-import com.example.vaccinationapp.DB.queries.AppointmentsQueries
-import com.example.vaccinationapp.DB.queries.HealthcareUnitsQueries
-import com.example.vaccinationapp.DB.queries.UsersQueries
-import com.example.vaccinationapp.DB.queries.VaccinationsQueries
 import com.example.vaccinationapp.ui.Dates
 import com.example.vaccinationapp.ui.Hours
 import com.example.vaccinationapp.ui.MainActivity
 import com.example.vaccinationapp.ui.Queries
 import com.example.vaccinationapp.ui.Vaccines
-import com.example.vaccinationapp.ui.managerecords.ManageRecordsFragment
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,6 +32,9 @@ import java.sql.Date
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
+/**
+ * Activity for scheduling an appointment.
+ */
 class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
     VaccinesAdapter.OnItemClickListener {
 
@@ -57,6 +52,10 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
     private val queries = Queries()
 
 
+    /**
+     * Creates the view for the schedule screen.
+     * @param savedInstanceState The saved instance state.
+     */
     @SuppressLint("MissingInflatedId", "SimpleDateFormat", "WeekBasedYear")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,7 +76,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         //retrieves all vaccines from the database
         var offeredVaccines: Set<Vaccinations>? = setOf(Vaccinations())
         runBlocking {
-            launch(Dispatchers.IO){
+            launch(Dispatchers.IO) {
                 offeredVaccines = queries.getAllVaccines()
             }
         }
@@ -87,7 +86,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         val vaccinesRecycler = findViewById<RecyclerView>(R.id.vaccinesRecycler)
         vaccinesRecycler.layoutManager = LinearLayoutManager(this)
 
-        if(!vaccines.isNullOrEmpty()) {
+        if (!vaccines.isNullOrEmpty()) {
             val adapterVaccine = VaccinesAdapter(vaccines)
             vaccinesRecycler.adapter = adapterVaccine
 
@@ -114,7 +113,6 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
             })
         }
 
-
         val offeredHours = hoursManager.offerHours("08:00:00", "16:00:00", 30)
         Log.d("OFFEREDHOURS", "$offeredHours")
 
@@ -131,7 +129,6 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
             }
         }
 
-
         confirm.setOnClickListener {
             val splitDateTime = dateTime.split(";")
             val dateString = splitDateTime[0]
@@ -143,10 +140,12 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
 
             var FuserID: Int = 0
             val email = FirebaseAuth.getInstance().currentUser!!.email
-            runBlocking { launch(Dispatchers.IO) {
-                //if user has an account and is logged in, it must be in the database so userID will never be null
-                FuserID = queries.getUserId(email!!)!!.toInt()
-            } }
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    //if user has an account and is logged in, it must be in the database so userID will never be null
+                    FuserID = queries.getUserId(email!!)!!.toInt()
+                }
+            }
 
             //create appointment object
             val appointment = Appointments(Fdate, Ftime, FuserID, FvaccineID, null)
