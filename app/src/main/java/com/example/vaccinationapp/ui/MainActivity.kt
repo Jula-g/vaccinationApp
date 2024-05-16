@@ -24,8 +24,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AlertDialog
 import com.example.vaccinationapp.ui.login.LoginActivity
-import com.example.vaccinationapp.ui.reminder.notification.NotificationHelper
-import com.example.vaccinationapp.ui.reminder.notification.NotificationSetter
+import com.example.vaccinationapp.ui.managerecords.ManageRecordsFragment
 
 /**
  * MainActivity class is the main activity of the application that displays the main menu and the user's information.
@@ -42,10 +41,6 @@ class MainActivity : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        NotificationHelper(applicationContext).createNotificationChannel()
-        val notificationSetter = NotificationSetter(applicationContext)
-        notificationSetter.setNotifications()
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -62,6 +57,21 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        val value = intent.getIntExtra("value", -1)
+
+        when (value){
+            1 -> openManageRecordsFragment()
+        }
+
+    }
+
+    private fun openManageRecordsFragment() {
+        val manageRecordsFragment = ManageRecordsFragment()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.nav_host_fragment_content_main, manageRecordsFragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     /**

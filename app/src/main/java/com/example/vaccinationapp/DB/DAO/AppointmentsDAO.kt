@@ -1,19 +1,19 @@
 package com.example.vaccinationapp.DB.DAO
 
 import com.example.vaccinationapp.DB.entities.Appointments
+import java.util.Date
 
 /**
  * Interface for managing the appointments in the database.
  */
 interface AppointmentsDAO {
-
     /**
      * Adds a new appointment to the database.
      *
      * @param appointment The appointment to add.
      * @return true if the appointment was added successfully, false otherwise.
      */
-    fun addAppointment(appointment: Appointments): Boolean
+    fun addAppointment(appointment: Appointments, nextDose: java.sql.Date?): Boolean
 
     /**
      * Retrieves an appointment from the database.
@@ -31,6 +31,7 @@ interface AppointmentsDAO {
      */
     fun getAllAppointmentsForUserId(id: Int): Set<Appointments>?
 
+    fun getAppointmentsForUserAndVaccine(userId: Int, vaccineId: Int): Set<Appointments>?
     /**
      * Retrieves the ID of an appointment with the given date and time.
      *
@@ -39,15 +40,15 @@ interface AppointmentsDAO {
      * @return The ID of the appointment with the given date and time, or null if no such appointment exists.
      */
     fun getAppointmentId(date: String, time: String): Int?
-
     /**
      * Updates an existing appointment in the database.
      *
      * @param id The ID of the appointment to update.
      * @param appointment The updated appointment.
+     * @param nextDose Date of the next dose, taken from the appointment's record
      * @return true if the appointment was updated successfully, false otherwise.
      */
-    fun updateAppointment(id: Int, appointment: Appointments): Boolean
+    fun updateAppointment(id: Int, nextDose: java.sql.Date?, appointment: Appointments): Boolean
 
     /**
      * Deletes an appointment from the database.

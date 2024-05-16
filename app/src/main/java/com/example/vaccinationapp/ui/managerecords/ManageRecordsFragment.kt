@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.vaccinationapp.R
-import com.example.vaccinationapp.adapters.RecordsAdapter
+import com.example.vaccinationapp.adapters.UpcomingAppointmentsAdapter
 import com.example.vaccinationapp.databinding.FragmentManageRecordsBinding
 import com.example.vaccinationapp.DB.entities.Appointments
 import com.example.vaccinationapp.ui.Queries
@@ -23,17 +23,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
+import java.time.ZoneId
 import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
 
+
 /**
  * Fragment for the manage records screen.
  */
-class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
+class ManageRecordsFragment : Fragment(), UpcomingAppointmentsAdapter.OnItemClickListener {
     private val queries = Queries()
     private lateinit var recordsRecycler: RecyclerView
-    private lateinit var adapter: RecordsAdapter
+    private lateinit var adapter: UpcomingAppointmentsAdapter
     private var _binding: FragmentManageRecordsBinding? = null
     private val binding get() = _binding!!
     private var userId: Int = 0
@@ -51,7 +53,6 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentManageRecordsBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
@@ -70,11 +71,11 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
 
         val upcomingAppointments = selectUpcoming(appointments)
 
-        //select only upcoming assignments
-        recordsRecycler = root.findViewById<RecyclerView>(R.id.recordsRecyclerView)
+        //select only upcoming
+        recordsRecycler = root.findViewById(R.id.recordsRecyclerView)
         recordsRecycler.layoutManager = LinearLayoutManager(context)
 
-        adapter = RecordsAdapter(upcomingAppointments, editRecord, deleteRecord)
+        adapter = UpcomingAppointmentsAdapter(upcomingAppointments, editRecord, deleteRecord)
         recordsRecycler.adapter = adapter
 
         adapter.setOnItemClickListener(this)
@@ -107,8 +108,10 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
                 val appointmentDateTimeString = "${appointment.date} ${appointment.time}"
                 val appointmentDateTime = dateTimeFormat.parse(appointmentDateTimeString)
 
-                if (appointmentDateTime.after(currentDate)) {
-                    upcomingAppointments.add(appointment)
+                if (appointmentDateTime != null) {
+                    if (appointmentDateTime.after(currentDate)) {
+                        upcomingAppointments.add(appointment)
+                    }
                 }
             }
         }
@@ -143,11 +146,14 @@ class ManageRecordsFragment : Fragment(), RecordsAdapter.OnItemClickListener {
             val builder = AlertDialog.Builder(requireContext())
             builder.setMessage("Are you sure you want to cancel the appointment?")
                 .setPositiveButton("Yes") { dialog, _ ->
-                    runBlocking {
-                        launch(Dispatchers.IO) {
-                            id?.let { it1 -> queries.deleteAppointment(it1) }
+                    runBlocking { launch(Dispatchers.IO) {
+                        val appointment = queries.getAppointment(id!!)
+                        val recordId = appointment!!.recordId
+                        if (recordId != null) {
+                            queries.deleteRecord(recordId)
                         }
-                    }
+                        queries.deleteAppointment(id)
+                    } }
                     adapter.notifyDataSetChanged()
                     dialog.dismiss()
                 }

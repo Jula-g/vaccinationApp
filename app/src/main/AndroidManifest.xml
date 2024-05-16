@@ -18,7 +18,13 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.VaccinationApp" >
+        android:theme="@style/Theme.VaccinationApp">
+        <activity
+            android:name=".ui.history.EditRecord"
+            android:exported="false" />
+        <activity
+            android:name=".ui.history.AddRecord"
+            android:exported="false" />
         <activity
             android:name=".ui.managerecords.reschedule.RescheduleActivity"
             android:exported="false" />

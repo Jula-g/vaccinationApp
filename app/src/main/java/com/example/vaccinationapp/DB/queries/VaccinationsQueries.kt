@@ -22,7 +22,8 @@ class VaccinationsQueries(private val connection: Connection) : VaccinationsDAO 
         val statement = connection.prepareCall(query)
         statement.setString(1, vaccination.vaccineName)
         statement.setInt(2, vaccination.noOfDoses!!)
-        statement.setInt(3, vaccination.healthcareUnitId!!)
+        statement.setString(3, vaccination.timeBetweenDoses!!)
+        statement.setInt(4, vaccination.healthcareUnitId!!)
         val result = !statement.execute()
         statement.close()
         return result
@@ -75,8 +76,9 @@ class VaccinationsQueries(private val connection: Connection) : VaccinationsDAO 
         val statement = connection.prepareCall(query)
         statement.setString(1, vaccination.vaccineName)
         statement.setInt(2, vaccination.noOfDoses!!)
-        statement.setInt(3, vaccination.healthcareUnitId!!)
-        statement.setInt(4, id)
+        statement.setString(3, vaccination.timeBetweenDoses!!)
+        statement.setInt(4, vaccination.healthcareUnitId!!)
+        statement.setInt(5, id)
         return statement.executeUpdate() > 0
     }
 
@@ -118,6 +120,7 @@ class VaccinationsQueries(private val connection: Connection) : VaccinationsDAO 
         return Vaccinations(
             vaccineName = resultSet.getString("name"),
             noOfDoses = resultSet.getInt("number_of_doses"),
+            timeBetweenDoses = resultSet.getString("time_between_doses"),
             healthcareUnitId = resultSet.getInt("healthcare_unit_id")
         )
     }
