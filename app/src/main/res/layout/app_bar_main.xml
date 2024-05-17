@@ -9,14 +9,14 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/Theme.VaccinationApp.AppBarOverlay">
+        android:theme="@style/Theme.VaccinationApp">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/blue"
-            app:popupTheme="@style/Theme.VaccinationApp.PopupOverlay" />
+            app:popupTheme="@style/Theme.VaccinationApp" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
