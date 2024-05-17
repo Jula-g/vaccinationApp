@@ -208,19 +208,13 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
                     builder.setMessage("Are you sure you want to reschedule the appointment?\nIt will result in cancelation of the following appointments.")
                         .setPositiveButton("Yes") { dialog, _ ->
                             // delete following appointments and records for the samer vaccine and user
-                            for (appointment in nextAppointments) {
-                                runBlocking {
-                                    launch(Dispatchers.IO) {
-////                                    val appointmentId = queries.getAppointmentId(appointment.date!!.toString(), appointment.time!!.toString())!!
-//                                    val recId = appointment.recordId!!
-////                                    val result = queries.deleteAppointment(appointmentId)
-//                                    val result2 = queries.deleteRecord(recId)
-////                                    Log.d("DATABASE", "Appointment deletion successful: $result")
-//                                    Log.d("DATABASE", "Record deletion successful: $result2")
-                                    }
-                                }
+                            for(appointment in nextAppointments){
+                                runBlocking { launch(Dispatchers.IO) {
+                                    val recId = appointment.recordId!!
+                                    val result = queries.deleteRecord(recId)
+                                    Log.d("DATABASE", "Record deletion successful: $result")
+                                } }
                             }
-                            Log.d("TEST", "deletes appointments")
 
                             // update appointment and it's record
                             updateAppointment(finalDate, finalTime, finalUserID, recordId, appId)
@@ -285,46 +279,20 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         //assign new dose numbers
         val sortedRecords = records?.sortedBy { it.dateAdministered }
         val noOfDoses = vacc!!.noOfDoses!!
-        var newDose: Int = 0
         if (sortedRecords != null) {
             for ((index, record) in sortedRecords.withIndex()) {
                 val dose = (index % noOfDoses) + 1
-                val rec = Records(
-                    record.userId,
-                    record.vaccineId,
-                    record.dateAdministered,
-                    dose,
-                    record.nextDoseDueDate
-                )
 
-                var recId: Int = 0
-                runBlocking {
-                    launch(Dispatchers.IO) {
-                        recId = queries.getRecordId(
-                            record.userId!!,
-                            record.vaccineId!!,
-                            record.dose!!,
-                            record.dateAdministered!!
-                        )!!
-                        queries.updateRecord(recId, rec)
-                    }
-                }
+                val rec = Records(record.userId, record.vaccineId, record.dateAdministered, dose, record.nextDoseDueDate)
 
-                if (recId == recordId) {
-                    newDose = dose
-                }
+                var recId = 0
+                runBlocking { launch(Dispatchers.IO) {
+                    recId = queries.getRecordId(record.userId!!, record.vaccineId!!, record.dose!!, record.dateAdministered!!)!!
+                    queries.updateRecord(recId, rec)
+                }}
+
             }
         }
-        val record = Records(finUserID, FvaccineID, finDate, newDose, nextDoseDate)
-
-        // update record
-        runBlocking {
-            launch(Dispatchers.IO) {
-                val result = queries.updateRecord(recordId, record)
-                Log.d("RECORDS", "Update record succesful: $result")
-            }
-        }
-
         goToManageRecords()
     }
 
@@ -338,9 +306,10 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
     private fun checkDose(index: Int, intSplit: List<String>, Fdate: Date): Date? {
         if (index >= 0 && index < intSplit.size) {
             return addDaysToDate(Fdate, intSplit[index].toInt())
-        } else if (index > intSplit.size) {
-            currentDose = 0
-            checkDose(index, intSplit, Fdate)
+        }else if (index > intSplit.size){
+            currentDose = 1
+            val newIndex = 0
+            checkDose(newIndex, intSplit, Fdate)
         }
         return null
     }
@@ -489,15 +458,16 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
                                 && (record.dateAdministered?.before(currentRecordDate) == true)
                     }
 
-                    // pick the one closest to the date of the record we're changing right now
-                    val sortedRecords = filteredRecords?.sortedBy { it.dateAdministered }
-                    val index = sortedRecords?.size?.minus(1)
-                    val record = index?.let { sortedRecords[it] }
-                    minDate = record?.nextDoseDueDate
-                } else {
+                    if(!filteredRecords.isNullOrEmpty()) {
+                        // pick the one closest to the date of the record we're changing right now
+                        val sortedRecords = filteredRecords.sortedBy { it.dateAdministered }
+                            val index = sortedRecords.size.minus(1)
+                            val record = index.let { sortedRecords[it] }
+                            minDate = record.nextDoseDueDate
+                }else{
                     minDate = null
                 }
-
+}
             }
 
         } else

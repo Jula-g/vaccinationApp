@@ -225,7 +225,6 @@ class EditRecord : AppCompatActivity() {
                 selectedDate = "$selectedYear-${selectedMonth + 1}-$selectedDay"
                 val monthName = DateFormatSymbols().months[selectedMonth]
                 val selectedDateFormatted = "$selectedDay $monthName $selectedYear"
-
                 if (datesManager.isDateValid(selectedYear, selectedMonth, selectedDay)) {
                     date?.text = selectedDateFormatted
                 } else {
@@ -242,5 +241,6 @@ class EditRecord : AppCompatActivity() {
         )
         datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
         datePickerDialog.show()
+
     }
 }

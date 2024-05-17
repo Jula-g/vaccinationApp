@@ -197,7 +197,7 @@ class Queries {
         return withContext(Dispatchers.IO){
             val conn =DBconnection.getConnection()
             val queries = RecordsQueries(conn)
-            val result = queries.getRecordId(userId,vaccineId,dose, date)
+            val result = queries.getRecordId(userId, vaccineId, dose, date)
             conn.close()
             result
         }
