@@ -24,7 +24,7 @@ interface VaccinationsDAO {
     fun getVaccination(id: Int): Vaccinations?
 
     /**
-     * Retrieves a vaccination from the database.
+     * Retrieves a vaccination id from the database.
      *
      * @param name The name of the vaccination to retrieve.
      * @param healthcareUnitId The ID of the healthcare unit where the vaccination is administered.

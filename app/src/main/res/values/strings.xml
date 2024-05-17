@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">vaccinationApp</string>
+    <string name="app_name">ImmunoQuest</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_desc">Navigation header</string>
@@ -12,8 +12,6 @@
     <string name="menu_manage_records">Manage appointments</string>
     <string name="default_notification_channel_id">notificationId</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="default_notification_channel_name">Reminder</string>
-    <string name="default_notification_channel_description">You have an appointment in 2 hours!</string>
+    <string name="appointment_reminder_message">Reminder! You have an upcoming appointment!</string>
 </resources>

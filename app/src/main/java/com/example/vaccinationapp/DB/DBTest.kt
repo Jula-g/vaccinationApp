@@ -1,3 +1,4 @@
+
 package com.example.vaccinationapp.DB
 import com.example.vaccinationapp.DB.DBconnection
 import com.example.vaccinationapp.DB.entities.Appointments
@@ -30,7 +31,6 @@ fun main() {
         println("update record")
         val updatedRecord = Records(1,1,Date.valueOf("2024-04-11"), 2, Date.valueOf("2024-08-20"))
         println("update: ${recordQueries.updateRecord(id, updatedRecord)}")
-
 
 //        println("= TESTING USER QUERIES =")
 //        println("Testing addUser():")

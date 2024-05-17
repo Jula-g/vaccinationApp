@@ -121,6 +121,11 @@ class AppointmentsQueries(private val connection: Connection) : AppointmentsDAO 
         return if (appointments.isEmpty()) null else appointmentsFinal
     }
 
+    /**
+     * Gets all appointments for a specific user and vaccine from the database.
+     * @param id The id of the vaccine.
+     * @return A set of appointments if there are any, null otherwise.
+     */
     override fun getAppointmentsForUserAndVaccine(userId: Int, vaccineId: Int): Set<Appointments>?{
         val query = "{CALL getAppointmentsForUserAndVaccine(?, ?)}"
         val statement = connection.prepareCall(query)

@@ -25,9 +25,13 @@ import kotlinx.coroutines.runBlocking
  *
  * @property dataSet List of records to be displayed.
  * @property update Button that represents the update action.
- * @property cancel Button that represents the cancel action.
+ * @property delete Button that represents the delete action.
  */
-class RecordsAdapter (private val dataSet: List<Records>?, private val update: Button, private val  cancel: Button):
+class RecordsAdapter(
+    private val dataSet: MutableList<Records>?,
+    private val update: Button,
+    private val delete: Button
+) :
     RecyclerView.Adapter<RecordsAdapter.ViewHolder>() {
     private val queries = Queries()
 
@@ -35,6 +39,7 @@ class RecordsAdapter (private val dataSet: List<Records>?, private val update: B
      * Interface for handling click events on a record item.
      */
     interface OnItemClickListener {
+
         fun onRecordClick(id: Int?, update: Button, cancel: Button)
     }
 
@@ -55,7 +60,7 @@ class RecordsAdapter (private val dataSet: List<Records>?, private val update: B
      *
      * @param view The view for an individual item in the RecyclerView.
      */
-    class ViewHolder(view: View): RecyclerView.ViewHolder(view) {
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val vaccineNameText: TextView = view.findViewById(R.id.vaccineName)
         val dateAdministeredText: TextView = view.findViewById(R.id.dateView)
         val doseText: TextView = view.findViewById(R.id.timeView)
@@ -63,8 +68,7 @@ class RecordsAdapter (private val dataSet: List<Records>?, private val update: B
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).
-        inflate(R.layout.item, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item, parent, false)
         return ViewHolder(view)
     }
 
@@ -86,10 +90,9 @@ class RecordsAdapter (private val dataSet: List<Records>?, private val update: B
      * @param holder The ViewHolder which should be updated to represent the contents of the item at the given position in the data set.
      * @param position The position of the item within the adapter's data set.
      */
-
     @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        if(dataSet != null) {
+        if (dataSet != null) {
             val item = dataSet[position]
             // time - which dose was it
             // address - next dose due...
@@ -129,15 +132,25 @@ class RecordsAdapter (private val dataSet: List<Records>?, private val update: B
                 runBlocking {
                     launch(Dispatchers.IO) {
                         recordId = queries.getRecordId(userId, vaccId, currentDose, dateAdm)
-                        Log.d("TESTING RECORD ID", "id: $recordId")
                     }
                 }
 
-                listener?.onRecordClick(recordId, update, cancel)
+                listener?.onRecordClick(recordId, update, delete)
 
                 selected = if (selected == position) null else position
                 notifyDataSetChanged()
             }
         }
     }
+
+    /**
+     * Update data set if it has changed.
+     *
+     * @param newDataSet
+     */
+    fun updateDataSet(newDataSet: List<Records>?) {
+        dataSet?.clear()
+        newDataSet?.let { dataSet?.addAll(it) }
+    }
+
 }

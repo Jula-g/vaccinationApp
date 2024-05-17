@@ -14,17 +14,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.vaccinationapp.DB.DBconnection
 import com.example.vaccinationapp.DB.entities.Appointments
 import com.example.vaccinationapp.DB.queries.AppointmentsQueries
+import com.example.vaccinationapp.FirebaseService
 import com.example.vaccinationapp.R
 import com.example.vaccinationapp.adapters.AppointmentAdapter
 import com.example.vaccinationapp.databinding.FragmentReminderBinding
-import com.example.vaccinationapp.ui.reminder.alarm.Alarm
-import com.example.vaccinationapp.ui.reminder.alarm.AndroidAlarmScheduler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
 import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
@@ -197,18 +195,15 @@ class ReminderFragment : Fragment() {
                     selectedMinute
                 )
 
-                val alarmScheduler = AndroidAlarmScheduler(requireContext())
-                val alarm = Alarm(
-                    LocalDateTime.of(
-                        selectedYear,
-                        selectedMonth + 1,
-                        selectedDay,
-                        selectedHour,
-                        selectedMinute
-                    ), appointment.date.toString()
+                val timeInMillis = selectedDateTime.timeInMillis
+                FirebaseService.scheduleNotification(
+                    requireContext(),
+                    timeInMillis,
+                    "ImmuniQuest",
+                    getString(R.string.appointment_reminder_message)
                 )
-                alarmScheduler.schedule(alarm)
-
+                
+                
                 dialog.dismiss()
                 Toast.makeText(requireContext(), "Reminder set", Toast.LENGTH_SHORT).show()
             }
@@ -219,4 +214,5 @@ class ReminderFragment : Fragment() {
 
         alertDialog.show()
     }
+
 }

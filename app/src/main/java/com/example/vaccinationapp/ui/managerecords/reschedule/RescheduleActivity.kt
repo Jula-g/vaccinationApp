@@ -46,11 +46,12 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
     private var selectedDateFormatted = ""
     private var selectedDate = ""
     private var dateTime = ""
-    private var minDate : Date?= null
+    private var minDate: Date? = null
     private var prevVaccId: Int = 0
+
     //FINAL VALUES
     private var FvaccineID: Int = 0
-    private var appId : Int = 0
+    private var appId: Int = 0
     private var currentDose: Int = 0
     private var nextDoseDate: Date? = null
     private val hoursManager = Hours()
@@ -140,7 +141,13 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         date.setOnClickListener {
             lifecycleScope.launch {
                 val result =
-                    datesManager.showDatePickerDialog(this@RescheduleActivity, date, offeredHours, hoursManager, minDate)
+                    datesManager.showDatePickerDialog(
+                        this@RescheduleActivity,
+                        date,
+                        offeredHours,
+                        hoursManager,
+                        minDate
+                    )
 
                 val (sDate, sDateFormatted) = result.await()
                 selectedDate = sDate
@@ -160,22 +167,27 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
 
             var finalUserID: Int = 0
             val email = FirebaseAuth.getInstance().currentUser!!.email
-            var allUserAppointments : Set<Appointments>? = null
+            var allUserAppointments: Set<Appointments>? = null
             val recordId = appointment!!.recordId!!
-            var record : Records? = null
-            runBlocking { launch(Dispatchers.IO) {
-                //if user has an account and is logged in, it must be in the database so userID will never be null
-                finalUserID = queries.getUserId(email!!)!!.toInt()
-                record = queries.getRecord(recordId)
-                allUserAppointments = queries.getAllAppointmentsForUserId(finalUserID)
-            } }
+            var record: Records? = null
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    //if user has an account and is logged in, it must be in the database so userID will never be null
+                    finalUserID = queries.getUserId(email!!)!!.toInt()
+                    record = queries.getRecord(recordId)
+                    allUserAppointments = queries.getAllAppointmentsForUserId(finalUserID)
+                }
+            }
 
-            val appointmentsForSameVaccine = allUserAppointments!!.filter { it.vaccinationId == FvaccineID}
+            val appointmentsForSameVaccine =
+                allUserAppointments!!.filter { it.vaccinationId == FvaccineID }
 
             var vacc: Vaccinations? = null
-            runBlocking { launch(Dispatchers.IO) {
-                vacc = queries.getVaccination(FvaccineID)
-            } }
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    vacc = queries.getVaccination(FvaccineID)
+                }
+            }
 
             val interval = vacc?.timeBetweenDoses!!
             val intSplit = interval.split(";")
@@ -191,7 +203,7 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
                     it.date!!.before(nextDoseDate) &&
                             it.date!!.after(finalDate)
                 }
-                if(nextAppointments.isNotEmpty()){
+                if (nextAppointments.isNotEmpty()) {
                     val builder = AlertDialog.Builder(this)
                     builder.setMessage("Are you sure you want to reschedule the appointment?\nIt will result in cancelation of the following appointments.")
                         .setPositiveButton("Yes") { dialog, _ ->
@@ -215,7 +227,7 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
                     val alert = builder.create()
                     alert.show()
                 }
-            }else
+            } else
                 updateAppointment(finalDate, finalTime, finalUserID, recordId, appId)
 
         }
@@ -225,35 +237,52 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         }
     }
 
-    private fun updateAppointment(finDate:Date, finTime:Time, finUserID: Int, recordId: Int, appId: Int){
+    /**
+     * Updates the appointment and the record.
+     * @param finDate The final date of the appointment.
+     * @param finTime The final time of the appointment.
+     * @param finUserID The final user id.
+     * @param recordId The record id.
+     * @param appId The appointment id.
+     */
+    private fun updateAppointment(
+        finDate: Date,
+        finTime: Time,
+        finUserID: Int,
+        recordId: Int,
+        appId: Int
+    ) {
         //create appointment object
         val appointment = Appointments(finDate, finTime, finUserID, FvaccineID, recordId)
         Log.d("DATABASE", "appointment: $appointment")
-        var records : List<Records>? = null
-        var vacc : Vaccinations? = null
-        runBlocking { launch(Dispatchers.IO) {
-            val app = queries.getAppointment(appId)
-            val recId = app!!.recordId!!
-            val rec = queries.getRecord(recId)!!
+        var records: List<Records>? = null
+        var vacc: Vaccinations? = null
+        runBlocking {
+            launch(Dispatchers.IO) {
+                val app = queries.getAppointment(appId)
+                val recId = app!!.recordId!!
+                val rec = queries.getRecord(recId)!!
 
-            val nextDose = rec.nextDoseDueDate!!
+                val nextDose = rec.nextDoseDueDate!!
 
-            val result = queries.updateAppointment(appId, nextDose, appointment)
-            Log.d("UpdateAppointment", "Update successful: $result")
+                val result = queries.updateAppointment(appId, nextDose, appointment)
+                Log.d("UpdateAppointment", "Update successful: $result")
 
-            val recordsList = queries.getAllRecordsForUserId(finUserID)
-            records = recordsList?.filter {
-                it.vaccineId == prevVaccId
+                val recordsList = queries.getAllRecordsForUserId(finUserID)
+                records = recordsList?.filter {
+                    it.vaccineId == prevVaccId
+                }
+                vacc = queries.getVaccination(prevVaccId)
             }
-            vacc = queries.getVaccination(prevVaccId)
-        } }
+        }
 
         //assign new dose numbers
         val sortedRecords = records?.sortedBy { it.dateAdministered }
         val noOfDoses = vacc!!.noOfDoses!!
         if (sortedRecords != null) {
-            for ((index, record) in sortedRecords.withIndex()){
+            for ((index, record) in sortedRecords.withIndex()) {
                 val dose = (index % noOfDoses) + 1
+
                 val rec = Records(record.userId, record.vaccineId, record.dateAdministered, dose, record.nextDoseDueDate)
 
                 var recId = 0
@@ -267,8 +296,15 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         goToManageRecords()
     }
 
+    /**
+     * Checks the dose.
+     * @param index The index of the dose.
+     * @param intSplit The list of intervals.
+     * @param Fdate The final date.
+     * @return The date of the dose.
+     */
     private fun checkDose(index: Int, intSplit: List<String>, Fdate: Date): Date? {
-        if(index >= 0 && index < intSplit.size ) {
+        if (index >= 0 && index < intSplit.size) {
             return addDaysToDate(Fdate, intSplit[index].toInt())
         }else if (index > intSplit.size){
             currentDose = 1
@@ -277,6 +313,13 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         }
         return null
     }
+
+    /**
+     * Adds days to a date.
+     * @param date The date.
+     * @param days The number of days to add.
+     * @return The new date.
+     */
     fun addDaysToDate(date: Date, days: Int): Date {
         val calendar = Calendar.getInstance()
         calendar.time = date
@@ -284,6 +327,9 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
         return Date(calendar.timeInMillis)
     }
 
+    /**
+     * Goes to the manage records screen.
+     */
     private fun goToManageRecords() {
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -309,57 +355,65 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
      * @param healthcareUnitId The id of the healthcare unit.
      */
     @SuppressLint("SimpleDateFormat")
-    override suspend fun onVaccineClick(vaccineName: String, healthcareUnitId: Int, isSelected: Boolean){
-        if(!isSelected) {
-            FvaccineID =  queries.getVaccinationId(vaccineName, healthcareUnitId)!!
+    override suspend fun onVaccineClick(
+        vaccineName: String,
+        healthcareUnitId: Int,
+        isSelected: Boolean
+    ) {
+        if (!isSelected) {
+            FvaccineID = queries.getVaccinationId(vaccineName, healthcareUnitId)!!
             Log.d("VACCINEID", "vaccine id: $FvaccineID")
-        }else{
+        } else {
             FvaccineID = 0
             Log.d("VACCINEID", "vaccine id: $FvaccineID")
         }
 
         // check if we're reserving for the same vaccine
-        var prevApp : Appointments? = null
-        runBlocking { launch(Dispatchers.IO){
-            prevApp = queries.getAppointment(appId)
-        } }
+        var prevApp: Appointments? = null
+        runBlocking {
+            launch(Dispatchers.IO) {
+                prevApp = queries.getAppointment(appId)
+            }
+        }
 
         val previousVaccineId = prevApp!!.vaccinationId!!
 
-        if(!isSelected) {
-                // get all records for user
-                val email = FirebaseAuth.getInstance().currentUser!!.email
-                var userId = 0
-                var records: List<Records>? = null
-                var currentAppointment: Appointments? = null
-                var currentRecord: Records? = null
-                runBlocking {
-                    launch(Dispatchers.IO) {
-                        userId = queries.getUserId(email!!)!!.toInt()
-                        records = queries.getAllRecordsForUserId(userId)?.toList()
-                        currentAppointment = queries.getAppointment(appId)
-                        val recId = currentAppointment!!.recordId!!
-                        currentRecord = queries.getRecord(recId)
-                    }
+        if (!isSelected) {
+            // get all records for user
+            val email = FirebaseAuth.getInstance().currentUser!!.email
+            var userId = 0
+            var records: List<Records>? = null
+            var currentAppointment: Appointments? = null
+            var currentRecord: Records? = null
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    userId = queries.getUserId(email!!)!!.toInt()
+                    records = queries.getAllRecordsForUserId(userId)?.toList()
+                    currentAppointment = queries.getAppointment(appId)
+                    val recId = currentAppointment!!.recordId!!
+                    currentRecord = queries.getRecord(recId)
                 }
+            }
 
-                val currentRecordDate = currentRecord!!.dateAdministered!!
+            val currentRecordDate = currentRecord!!.dateAdministered!!
 
-                var vacc1: Vaccinations? = null
-                var vacc2: Vaccinations? = null
+            var vacc1: Vaccinations? = null
+            var vacc2: Vaccinations? = null
 
-                val calendar = Calendar.getInstance()
-                calendar.timeZone = TimeZone.getTimeZone("CET")
-                val currentDate = calendar.time
-                Log.d("MASLO", "currentDate: $currentDate")
+            val calendar = Calendar.getInstance()
+            calendar.timeZone = TimeZone.getTimeZone("CET")
+            val currentDate = calendar.time
+            Log.d("MASLO", "currentDate: $currentDate")
 
 
             if (FvaccineID != previousVaccineId) {
                 // get the apointment for FvaccineId and currentRecordDate
                 var userAppointments: Set<Appointments>? = null
-                runBlocking { launch(Dispatchers.IO) {
-                    userAppointments = queries.getAllAppointmentsForUserId(userId)
-                }}
+                runBlocking {
+                    launch(Dispatchers.IO) {
+                        userAppointments = queries.getAllAppointmentsForUserId(userId)
+                    }
+                }
 
                 // filter userAppointments to get only ones with FvaccineId and currentRecordDate
                 val filteredApps = userAppointments?.filter { app ->
@@ -368,18 +422,20 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
                 }
 
                 // it should leave a list of only one appointment
-                if(!filteredApps.isNullOrEmpty()) {
+                if (!filteredApps.isNullOrEmpty()) {
                     val app = filteredApps[0]
                     val recId = app.recordId!!
-                    var record : Records? = null
-                    runBlocking { launch(Dispatchers.IO) {
-                        record = queries.getRecord(recId)
-                    }}
+                    var record: Records? = null
+                    runBlocking {
+                        launch(Dispatchers.IO) {
+                            record = queries.getRecord(recId)
+                        }
+                    }
                     minDate = record?.nextDoseDueDate
-                }else{
+                } else {
                     minDate = null
                 }
-            }else {
+            } else {
 
                 // find which dose we're updating
                 var doseNumber = currentRecord!!.dose!!
@@ -414,7 +470,7 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
 }
             }
 
-        }else
+        } else
             minDate = null
     }
 }

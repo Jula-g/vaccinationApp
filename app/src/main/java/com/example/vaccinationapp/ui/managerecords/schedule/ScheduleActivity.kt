@@ -41,7 +41,8 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
     private var selectedDateFormatted = ""
     private var selectedDate = ""
     private var dateTime = ""
-    private var minDate : Date?= null
+    private var minDate: Date? = null
+
     //FINAL VALUES
     private var FvaccineID: Int = 0
     private var latestDose: Int = 0
@@ -120,7 +121,13 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         date.setOnClickListener {
             lifecycleScope.launch {
                 val result =
-                    datesManager.showDatePickerDialog(this@ScheduleActivity, date, offeredHours, hoursManager, minDate)
+                    datesManager.showDatePickerDialog(
+                        this@ScheduleActivity,
+                        date,
+                        offeredHours,
+                        hoursManager,
+                        minDate
+                    )
 
                 val (sDate, sDateFormatted) = result.await()
                 selectedDate = sDate
@@ -159,10 +166,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
                 if(rec != null){
                     nextDose = rec.nextDoseDueDate!!
                 }
-                val result = queries.addAppointment(appointment, nextDose)
-                Log.d("DATABASE", "Add appointment successful: $result")
-                vacc = queries.getVaccination(FvaccineID)
-            } }
+            }
             val interval = vacc?.timeBetweenDoses!!
             val intSplit = interval.split(";")
 
@@ -200,7 +204,12 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         }
 
     }
-
+ /**
+     * Checks the dose.
+     * @param index The index.
+     * @param intSplit The list of strings.
+     * @param Fdate The date.
+     */
     private fun checkDose(latestDose: Int, intSplit: List<String>, Fdate: Date){
         val index = this.latestDose - 1
         if(latestDose >= 0 && latestDose <= intSplit.size ) {
@@ -208,9 +217,16 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         }else if (latestDose > intSplit.size){
             this.latestDose = 1
             val newIndex = 0
-            checkDose(newIndex, intSplit, Fdate)
+            checkDose(newIndex, intSplit, Fdate)]
         }
     }
+
+    /**
+     * Adds days to a date.
+     * @param date The date.
+     * @param days The number of days.
+     * @return The new date.
+     */
     fun addDaysToDate(date: Date, days: Int): Date {
         val calendar = Calendar.getInstance()
         calendar.time = date
@@ -218,6 +234,9 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         return Date(calendar.timeInMillis)
     }
 
+    /**
+     * Goes to the manage records screen.
+     */
     private fun goToManageRecords() {
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -226,23 +245,37 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
         finish()
     }
 
-
+    /**
+     * Handles the click on an hour.
+     * @param item The item.
+     * @param date The date.
+     */
     override fun onHourClick(item: String, date: Button) {
         val finalDate = "$selectedDateFormatted $item"
         dateTime = "$selectedDate;$item"
         date.text = finalDate
     }
 
-    override suspend fun onVaccineClick(vaccineName: String, healthcareUnitId: Int, isSelected: Boolean){
-        if(!isSelected) {
-            FvaccineID =  queries.getVaccinationId(vaccineName, healthcareUnitId)!!
+    /**
+     * Handles the click on a vaccine.
+     * @param vaccineName The name of the vaccine.
+     * @param healthcareUnitId The id of the healthcare unit.
+     * @param isSelected The selected state.
+     */
+    override suspend fun onVaccineClick(
+        vaccineName: String,
+        healthcareUnitId: Int,
+        isSelected: Boolean
+    ) {
+        if (!isSelected) {
+            FvaccineID = queries.getVaccinationId(vaccineName, healthcareUnitId)!!
             Log.d("VACCINEID", "vaccine id: $FvaccineID")
-        }else{
+        } else {
             FvaccineID = 0
             Log.d("VACCINEID", "vaccine id: $FvaccineID")
         }
 
-        if(!isSelected) {
+        if (!isSelected) {
             // get all records for user
             val email = FirebaseAuth.getInstance().currentUser!!.email
             var userId = 0
@@ -267,7 +300,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
 
             //get next dose due date from the remaining record
             minDate = maxRec?.nextDoseDueDate
-        }else
+        } else
             minDate = null
     }
 

@@ -20,35 +20,36 @@
         app:cornerRadius="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/cancelAdd"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.912" />
 
     <AutoCompleteTextView
         android:id="@+id/vaccineNameAdd"
         android:layout_width="240dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="380dp"
-        android:layout_marginBottom="40dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
         android:fontFamily="@font/neuropol_x_rg"
         android:hint="Vaccine name"
-        app:layout_constraintBottom_toTopOf="@+id/doseNumberAdd"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
 
     <EditText
         android:id="@+id/doseNumberAdd"
         android:layout_width="240dp"
         android:layout_height="50dp"
+        android:layout_marginTop="5dp"
         android:ems="10"
         android:fontFamily="@font/neuropol_x_rg"
         android:hint="Dose number"
         android:inputType="numberDecimal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="432dp" />
+        app:layout_constraintTop_toBottomOf="@+id/vaccineNameAdd" />
 
     <Button
         android:id="@+id/cancelAdd"
@@ -61,6 +62,8 @@
         android:textColor="#FFFFFF"
         app:cornerRadius="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/confirmAdd"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.912" />
@@ -69,9 +72,9 @@
         android:id="@+id/imageView2"
         android:layout_width="242dp"
         android:layout_height="251dp"
-        android:layout_marginBottom="400dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="50dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/syringe_logo_with_name" />
@@ -80,12 +83,13 @@
         android:id="@+id/dateAdd"
         android:layout_width="240dp"
         android:layout_height="70dp"
+        android:layout_marginTop="64dp"
         android:backgroundTint="#5FBFBC"
         android:text="Date of vaccination"
         android:textColor="#FBFBFB"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="512dp" />
+        app:layout_constraintTop_toBottomOf="@+id/doseNumberAdd" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
