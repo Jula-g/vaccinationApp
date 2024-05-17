@@ -44,7 +44,7 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
     private var minDate : Date?= null
     //FINAL VALUES
     private var FvaccineID: Int = 0
-    private var currentDose: Int = 0
+    private var latestDose: Int = 0
     private var nextDoseDate: Date? = null
     private val hoursManager = Hours()
     private val vaccinesManager = Vaccines()
@@ -167,20 +167,22 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
             val intSplit = interval.split(";")
 
             runBlocking { launch(Dispatchers.IO) {
-                currentDose = queries.getAppointmentsForUserAndVaccine(FuserID, FvaccineID)?.size ?: 0
+                latestDose = queries.getAppointmentsForUserAndVaccine(FuserID, FvaccineID)?.size ?: 0
             } }
 
-            val index = currentDose - 1
-            checkDose(index, intSplit, Fdate)
+            val currentDose = latestDose + 1
+            Log.d("DOSESstupid", "latest: $latestDose")
+            Log.d("DOSESstupid", "current: $currentDose")
+            checkDose(latestDose, intSplit, Fdate)
             Log.d("TESTING", "nextDoseDate: $nextDoseDate")
-            val record = Records(FuserID, FvaccineID, Fdate, currentDose, nextDoseDate)
+            val record = Records(FuserID, FvaccineID, Fdate, latestDose, nextDoseDate)
 
             // add record
             var recordId: Int? = null
             runBlocking { launch(Dispatchers.IO) {
                 val result2 = queries.addRecord(record)
                 Log.d("RECORDS", "Add record succesful: $result2")
-                recordId = queries.getRecordId(FuserID, FvaccineID, currentDose, Fdate)
+                recordId = queries.getRecordId(FuserID, FvaccineID, latestDose, Fdate)
                 }}
 
             val updatedAppointment = Appointments(Fdate, Ftime, FuserID, FvaccineID,recordId)
@@ -199,11 +201,12 @@ class ScheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener,
 
     }
 
-    private fun checkDose(index: Int, intSplit: List<String>, Fdate: Date){
-        if(index >= 0 && index < intSplit.size ) {
+    private fun checkDose(latestDose: Int, intSplit: List<String>, Fdate: Date){
+        val index = this.latestDose - 1
+        if(latestDose >= 0 && latestDose <= intSplit.size ) {
             nextDoseDate = addDaysToDate(Fdate, intSplit[index].toInt())
-        }else if (index >= intSplit.size){
-            currentDose = 1
+        }else if (latestDose > intSplit.size){
+            this.latestDose = 1
             val newIndex = 0
             checkDose(newIndex, intSplit, Fdate)
         }

@@ -402,15 +402,16 @@ class RescheduleActivity : AppCompatActivity(), HoursAdapter.OnItemClickListener
                                 && (record.dateAdministered?.before(currentRecordDate) == true)
                     }
 
-                    // pick the one closest to the date of the record we're changing right now
-                    val sortedRecords = filteredRecords?.sortedBy { it.dateAdministered }
-                    val index = sortedRecords?.size?.minus(1)
-                    val record = index?.let { sortedRecords[it] }
-                    minDate = record?.nextDoseDueDate
+                    if(!filteredRecords.isNullOrEmpty()) {
+                        // pick the one closest to the date of the record we're changing right now
+                        val sortedRecords = filteredRecords.sortedBy { it.dateAdministered }
+                            val index = sortedRecords.size.minus(1)
+                            val record = index.let { sortedRecords[it] }
+                            minDate = record.nextDoseDueDate
                 }else{
                     minDate = null
                 }
-
+}
             }
 
         }else
